@@ -6,7 +6,6 @@ use App\Models\Ticket;
 use App\Models\TicketMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 
 class TicketController extends Controller
 {
@@ -17,7 +16,7 @@ class TicketController extends Controller
 
         $query = Ticket::with(['user', 'messages.user']);
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             $query->where('user_id', $user->id);
         }
 
@@ -109,7 +108,7 @@ class TicketController extends Controller
         $user = Auth::user();
         $isAdmin = $user->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count() > 0;
 
-        if ($ticket->user_id !== $user->id && !$isAdmin) {
+        if ($ticket->user_id !== $user->id && ! $isAdmin) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -168,7 +167,7 @@ class TicketController extends Controller
         $user = Auth::user();
         $isAdmin = $user->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count() > 0;
 
-        if (!$isAdmin) {
+        if (! $isAdmin) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -178,9 +177,9 @@ class TicketController extends Controller
 
         $updateData = ['status' => $validated['status']];
 
-        if (in_array($validated['status'], ['resolved', 'closed']) && !$ticket->resolved_at) {
+        if (in_array($validated['status'], ['resolved', 'closed']) && ! $ticket->resolved_at) {
             $updateData['resolved_at'] = now();
-        } elseif (!in_array($validated['status'], ['resolved', 'closed']) && $ticket->resolved_at) {
+        } elseif (! in_array($validated['status'], ['resolved', 'closed']) && $ticket->resolved_at) {
             $updateData['resolved_at'] = null;
         }
 

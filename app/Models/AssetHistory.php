@@ -10,7 +10,7 @@ class AssetHistory extends Model
     use HasFactory;
 
     protected $table = 'asset_history';
-    
+
     protected $fillable = [
         'inventory_item_id',
         'user_id',

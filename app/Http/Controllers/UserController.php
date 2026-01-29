@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Models\Role;
 use App\Models\Permission;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -19,7 +19,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         // ✅ Check if user can VIEW users
-        if (!auth()->user()->hasPermission('users.view')) {
+        if (! auth()->user()->hasPermission('users.view')) {
             abort(403, 'You do not have permission to access user management.');
         }
 
@@ -28,16 +28,16 @@ class UserController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('employee_id', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('employee_id', 'like', "%{$search}%");
             });
         }
 
         // Filter by role
         if ($request->has('role') && $request->role !== 'all') {
-            $query->whereHas('roles', function($q) use ($request) {
+            $query->whereHas('roles', function ($q) use ($request) {
                 $q->where('roles.id', $request->role);
             });
         }
@@ -49,9 +49,9 @@ class UserController extends Controller
 
         // Order by pending first, then by newest
         $users = $query->orderByRaw("FIELD(account_status, 'pending', 'active', 'suspended', 'rejected')")
-                    ->latest()
-                    ->paginate(15)
-                    ->withQueryString();
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
 
         $roles = Role::all();
 
@@ -68,7 +68,7 @@ class UserController extends Controller
     public function pendingApprovals(Request $request)
     {
         // ✅ Check if user can approve users
-        if (!auth()->user()->hasPermission('users.approve')) {
+        if (! auth()->user()->hasPermission('users.approve')) {
             abort(403, 'You do not have permission to approve users.');
         }
 
@@ -78,16 +78,16 @@ class UserController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('employee_id', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('employee_id', 'like', "%{$search}%");
             });
         }
 
         $users = $query->latest()
-                    ->paginate(15)
-                    ->withQueryString();
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Admin/Users/PendingApprovals', [
             'users' => $users,
@@ -98,7 +98,7 @@ class UserController extends Controller
     public function create()
     {
         // ✅ Check permission
-        if (!auth()->user()->hasPermission('users.create')) {
+        if (! auth()->user()->hasPermission('users.create')) {
             abort(403, 'You do not have permission to create users.');
         }
 
@@ -112,7 +112,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // ✅ Check permission
-        if (!auth()->user()->hasPermission('users.create')) {
+        if (! auth()->user()->hasPermission('users.create')) {
             abort(403, 'You do not have permission to create users.');
         }
 
@@ -164,9 +164,9 @@ class UserController extends Controller
         }
 
         // Combine name fields
-        $fullName = trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name']);
+        $fullName = trim($validated['first_name'].' '.($validated['middle_name'] ?? '').' '.$validated['last_name']);
         if ($validated['suffix'] && $validated['suffix'] !== 'none') {
-            $fullName .= ' ' . $validated['suffix'];
+            $fullName .= ' '.$validated['suffix'];
         }
 
         $user = User::create([
@@ -219,7 +219,7 @@ class UserController extends Controller
     public function show(User $user)
     {
         // ✅ Check permission
-        if (!auth()->user()->hasPermission('users.view')) {
+        if (! auth()->user()->hasPermission('users.view')) {
             abort(403, 'You do not have permission to view user details.');
         }
 
@@ -229,7 +229,7 @@ class UserController extends Controller
             'currentIndividualAssets.asset.inventoryItem.category',
             'individualAssetAssignments.asset.inventoryItem',
             'ownedProjects',
-            'assignedTasks.project'
+            'assignedTasks.project',
         ]);
 
         return Inertia::render('Admin/Users/Show', [
@@ -240,7 +240,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         // ✅ Check permission
-        if (!auth()->user()->hasPermission('users.edit')) {
+        if (! auth()->user()->hasPermission('users.edit')) {
             abort(403, 'You do not have permission to edit users.');
         }
 
@@ -258,7 +258,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         // ✅ Check permission
-        if (!auth()->user()->hasPermission('users.edit')) {
+        if (! auth()->user()->hasPermission('users.edit')) {
             abort(403, 'You do not have permission to update users.');
         }
 
@@ -268,7 +268,7 @@ class UserController extends Controller
             'middle_name' => 'nullable|string|max:255',
             'last_name' => 'required|string|max:255',
             'suffix' => 'nullable|string|max:10',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'phone_number' => 'nullable|string|max:20',
             'personal_mobile' => 'nullable|string|max:20',
             'work_email' => 'nullable|email|max:255',
@@ -291,7 +291,7 @@ class UserController extends Controller
             'hdmf_number' => 'nullable|string|max:12',
             'philhealth_number' => 'nullable|string|max:15',
             'payroll_account' => 'nullable|string|max:12',
-            'employee_id' => 'nullable|string|unique:users,employee_id,' . $user->id,
+            'employee_id' => 'nullable|string|unique:users,employee_id,'.$user->id,
             'department' => 'nullable|string|max:100',
             'position' => 'nullable|string|max:100',
             'hire_date' => 'nullable|date',
@@ -313,9 +313,9 @@ class UserController extends Controller
         }
 
         // Combine name fields
-        $fullName = trim($validated['first_name'] . ' ' . ($validated['middle_name'] ?? '') . ' ' . $validated['last_name']);
+        $fullName = trim($validated['first_name'].' '.($validated['middle_name'] ?? '').' '.$validated['last_name']);
         if ($validated['suffix'] && $validated['suffix'] !== 'none') {
-            $fullName .= ' ' . $validated['suffix'];
+            $fullName .= ' '.$validated['suffix'];
         }
 
         $updateData = [
@@ -357,7 +357,7 @@ class UserController extends Controller
         ];
 
         // Only update password if provided
-        if (isset($validated['password']) && !empty($validated['password'])) {
+        if (isset($validated['password']) && ! empty($validated['password'])) {
             $updateData['password'] = Hash::make($validated['password']);
         }
 
@@ -377,7 +377,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // ✅ Check permission
-        if (!auth()->user()->hasPermission('users.delete')) {
+        if (! auth()->user()->hasPermission('users.delete')) {
             abort(403, 'You do not have permission to delete users.');
         }
 
@@ -400,7 +400,7 @@ class UserController extends Controller
     public function approve(User $user)
     {
         // ✅ Check if current user has permission to approve users
-        if (!auth()->user()->hasPermission('users.approve')) {
+        if (! auth()->user()->hasPermission('users.approve')) {
             abort(403, 'You do not have permission to approve user accounts.');
         }
 
@@ -423,8 +423,8 @@ class UserController extends Controller
     public function bulkApprove(Request $request)
     {
         $userIds = $request->input('userIds');
-        if (!$userIds ) {
-            return back()->with('error', "No users selected {$userIds}",);
+        if (! $userIds) {
+            return back()->with('error', "No users selected {$userIds}");
         }
         foreach ($userIds as $userId) {
             $user = User::find($userId);
@@ -432,14 +432,15 @@ class UserController extends Controller
                 $this->approve($user);
             }
         }
-        return back()->with('success', "Users has been approved and can now access the system!");
+
+        return back()->with('success', 'Users has been approved and can now access the system!');
     }
 
     public function bulkReject(Request $request)
     {
         $userIds = $request->input('userIds');
-        if (!$userIds ) {
-            return back()->with('error', "No users selected {$userIds}",);
+        if (! $userIds) {
+            return back()->with('error', "No users selected {$userIds}");
         }
         foreach ($userIds as $userId) {
             $user = User::find($userId);
@@ -447,9 +448,9 @@ class UserController extends Controller
                 $this->reject($user);
             }
         }
-        return back()->with('success', "Users has been rejected");
-    }
 
+        return back()->with('success', 'Users has been rejected');
+    }
 
     /**
      * ✅ Reject a pending user account
@@ -457,7 +458,7 @@ class UserController extends Controller
     public function reject(User $user)
     {
         // ✅ Check if current user has permission to approve/reject users
-        if (!auth()->user()->hasPermission('users.approve')) {
+        if (! auth()->user()->hasPermission('users.approve')) {
             abort(403, 'You do not have permission to reject user accounts.');
         }
 

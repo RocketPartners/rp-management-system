@@ -148,11 +148,10 @@ return [
 
     'invite' => [
         'expiration_days' => 30,   // Days from invite sent until expiration
-        'max_extensions'  => 2,    // Maximum automatic extensions allowed
-        'extension_days'  => 7,    // Days added per extension
+        'max_extensions' => 2,    // Maximum automatic extensions allowed
+        'extension_days' => 7,    // Days added per extension
         // Total possible days: 30 + (2 * 7) = 44 days maximum
     ],
-
 
     /*
     |--------------------------------------------------------------------------

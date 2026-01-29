@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Announcement;
+use App\Models\Category;
 use App\Models\InventoryItem;
+use App\Models\LeaveRequest;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\Category;
-use App\Models\LeaveRequest;
-use App\Models\Announcement;
-use Illuminate\Http\Request;
+use App\Models\User;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -55,7 +54,7 @@ class DashboardController extends Controller
 
         // ✅ NEW: Recent Announcements (with fallback if model doesn't exist)
         $announcements = [];
-        
+
         if (class_exists(Announcement::class)) {
             $announcements = Announcement::with('creator')
                 ->orderBy('published_at', 'desc')
@@ -72,7 +71,7 @@ class DashboardController extends Controller
                         'created_at' => $announcement->created_at,
                         'creator' => $announcement->creator ? [
                             'id' => $announcement->creator->id,
-                            'name' => $announcement->creator->name
+                            'name' => $announcement->creator->name,
                         ] : null,
                         'attachments' => $announcement->attachments ?? [],
                     ];

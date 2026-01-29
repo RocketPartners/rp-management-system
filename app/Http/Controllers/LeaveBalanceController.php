@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\LeaveBalance;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 use Inertia\Inertia;
 
 class LeaveBalanceController extends Controller
@@ -63,10 +62,10 @@ class LeaveBalanceController extends Controller
         // Check if balances already exist
         $existingCount = LeaveBalance::where('year', $year)->count();
 
-        if ($existingCount > 0 && !$request->input('force_reset', false)) {
+        if ($existingCount > 0 && ! $request->input('force_reset', false)) {
             return back()->with('error',
-                "Balances for {$year} already exist ({$existingCount} records). " .
-                "Please confirm if you want to reset them."
+                "Balances for {$year} already exist ({$existingCount} records). ".
+                'Please confirm if you want to reset them.'
             );
         }
 
@@ -85,14 +84,14 @@ class LeaveBalanceController extends Controller
                 ->sum('carried_over_days');
 
             return redirect()->route('leave-balances.index')->with('success',
-                "✅ Leave balances reset successfully for {$year}! " .
-                "Created {$totalBalances} balances with " .
-                number_format($totalCarriedOver, 1) . " days carried over."
+                "✅ Leave balances reset successfully for {$year}! ".
+                "Created {$totalBalances} balances with ".
+                number_format($totalCarriedOver, 1).' days carried over.'
             );
 
         } catch (\Exception $e) {
             return back()->with('error',
-                'Failed to reset balances: ' . $e->getMessage()
+                'Failed to reset balances: '.$e->getMessage()
             );
         }
     }
@@ -107,17 +106,17 @@ class LeaveBalanceController extends Controller
 
         // Get preview data
         $users = User::where('employment_status', 'active')
-            ->with(['leaveBalances' => function($query) use ($previousYear) {
+            ->with(['leaveBalances' => function ($query) use ($previousYear) {
                 $query->where('year', $previousYear)->with('leaveType');
             }])
             ->take(10) // Limit to 10 users for preview
             ->get();
 
-        $previewData = $users->map(function($user) use ($previousYear, $year) {
+        $previewData = $users->map(function ($user) {
             return [
                 'user_name' => $user->name,
                 'department' => $user->department,
-                'previous_balances' => $user->leaveBalances->map(function($balance) {
+                'previous_balances' => $user->leaveBalances->map(function ($balance) {
                     return [
                         'leave_type' => $balance->leaveType->name,
                         'remaining' => $balance->remaining_days,

@@ -60,6 +60,7 @@ class InventoryItem extends Model
     {
         return $this->hasOne(AssetAssignment::class)->where('status', 'active');
     }
+
     // Relationship: An inventory item has many individual assets
     public function assets()
     {

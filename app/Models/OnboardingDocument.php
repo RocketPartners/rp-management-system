@@ -17,7 +17,9 @@ class OnboardingDocument extends Model
     // ============================================
 
     const STATUS_UPLOADED = 'uploaded';
+
     const STATUS_APPROVED = 'approved';
+
     const STATUS_REJECTED = 'rejected';
 
     // ============================================
@@ -116,7 +118,7 @@ class OnboardingDocument extends Model
 
     public function getDocumentTypeLabelAttribute()
     {
-        return match($this->document_type) {
+        return match ($this->document_type) {
             'resume' => 'Resume / CV',
             'government_id' => 'Government ID',
             'nbi_clearance' => 'NBI Clearance',
@@ -136,7 +138,7 @@ class OnboardingDocument extends Model
 
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_UPLOADED => 'Uploaded',
             self::STATUS_APPROVED => 'Approved',
             self::STATUS_REJECTED => 'Rejected',

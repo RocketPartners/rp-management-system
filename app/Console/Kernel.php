@@ -13,15 +13,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // 🎯 Reset leave balances every January 1st at 12:00 AM
-        $schedule->command('leaves:reset-year ' . (now()->year + 1))
-                 ->yearlyOn(1, 1, '00:00') // Month 1, Day 1, at midnight
-                 ->timezone('Asia/Manila') // Change to your timezone if needed
-                 ->onSuccess(function () {
-                     \Log::info('✅ Leave balances reset successfully for year ' . now()->year);
-                 })
-                 ->onFailure(function () {
-                     \Log::error('❌ Failed to reset leave balances for year ' . now()->year);
-                 });
+        $schedule->command('leaves:reset-year '.(now()->year + 1))
+            ->yearlyOn(1, 1, '00:00') // Month 1, Day 1, at midnight
+            ->timezone('Asia/Manila') // Change to your timezone if needed
+            ->onSuccess(function () {
+                \Log::info('✅ Leave balances reset successfully for year '.now()->year);
+            })
+            ->onFailure(function () {
+                \Log::error('❌ Failed to reset leave balances for year '.now()->year);
+            });
     }
 
     /**

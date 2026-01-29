@@ -30,7 +30,7 @@ class Role extends Model
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'permission_role')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     // ============================================
@@ -51,7 +51,7 @@ class Role extends Model
     public function grantPermission($permissionSlug)
     {
         $permission = Permission::where('slug', $permissionSlug)->first();
-        if ($permission && !$this->hasPermission($permissionSlug)) {
+        if ($permission && ! $this->hasPermission($permissionSlug)) {
             $this->permissions()->attach($permission->id);
         }
     }

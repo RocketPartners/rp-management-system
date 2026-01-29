@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\Leave\LeaveRequestSubmittedMail;
+use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\User;
-use App\Models\LeaveBalance;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Mail\Leave\LeaveRequestSubmittedMail;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class LeaveController extends Controller
 {
@@ -23,15 +23,15 @@ class LeaveController extends Controller
         // Search
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->whereHas('user', function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 })
-                ->orWhereHas('leaveType', function($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('code', 'like', "%{$search}%");
-                })
-                ->orWhere('reason', 'like', "%{$search}%");
+                    ->orWhereHas('leaveType', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('code', 'like', "%{$search}%");
+                    })
+                    ->orWhere('reason', 'like', "%{$search}%");
             });
         }
 
@@ -88,7 +88,7 @@ class LeaveController extends Controller
             'user',
             'leaveType',
             'managerApprover',
-            'hrApprover'
+            'hrApprover',
         ]);
 
         // Get the employee's current balance for this leave type
@@ -110,12 +110,12 @@ class LeaveController extends Controller
     public function create()
     {
         $currentUser = auth()->user();
-        
+
         // ✅ Check if user is HR/Admin
         $isHROrAdmin = $currentUser->roles->whereIn('slug', [
             'super-admin',
             'admin',
-            'hr-manager'
+            'hr-manager',
         ])->count() > 0;
 
         // Get available leave types
@@ -132,7 +132,7 @@ class LeaveController extends Controller
         $allUsers = [];
         if ($isHROrAdmin) {
             $allUsers = User::where('employment_status', 'active')
-                ->with(['leaveBalances' => function($query) {
+                ->with(['leaveBalances' => function ($query) {
                     $query->where('year', now()->year)->with('leaveType');
                 }])
                 ->orderBy('name')
@@ -154,17 +154,17 @@ class LeaveController extends Controller
     public function store(Request $request)
     {
         $currentUser = auth()->user();
-        
+
         // ✅ Check if filing for another user
         $isHROrAdmin = $currentUser->roles->whereIn('slug', [
             'super-admin',
             'admin',
-            'hr-manager'
+            'hr-manager',
         ])->count() > 0;
 
         // ✅ Validate user_id if provided (HR/Admin only)
         if ($request->has('user_id') && $request->user_id != $currentUser->id) {
-            if (!$isHROrAdmin) {
+            if (! $isHROrAdmin) {
                 abort(403, 'You are not authorized to file leave for other employees.');
             }
             $targetUserId = $request->user_id;
@@ -206,11 +206,11 @@ class LeaveController extends Controller
             ->where('year', now()->year)
             ->first();
 
-        if (!$balance || !$balance->hasSufficientBalance($totalDays)) {
+        if (! $balance || ! $balance->hasSufficientBalance($totalDays)) {
             return back()->withInput()->with('error',
-                'Insufficient leave balance. ' . ($targetUser->id === $currentUser->id ? 'You have' : $targetUser->name . ' has') . ' ' .
-                ($balance ? $balance->remaining_days : 0) .
-                ' days remaining but requested ' . $totalDays . ' days.'
+                'Insufficient leave balance. '.($targetUser->id === $currentUser->id ? 'You have' : $targetUser->name.' has').' '.
+                ($balance ? $balance->remaining_days : 0).
+                ' days remaining but requested '.$totalDays.' days.'
             );
         }
 
@@ -224,7 +224,7 @@ class LeaveController extends Controller
         $initialStatus = 'pending_manager'; // Default
         $successMessage = 'Leave request submitted successfully! Waiting for approval.';
 
-        if (!$leaveType->requires_manager_approval && !$leaveType->requires_hr_approval) {
+        if (! $leaveType->requires_manager_approval && ! $leaveType->requires_hr_approval) {
             // ✅ NO APPROVAL NEEDED - AUTO APPROVE
             $initialStatus = 'approved';
             $successMessage = 'Leave request auto-approved! Balance has been updated.';
@@ -240,7 +240,7 @@ class LeaveController extends Controller
             $validated['hr_approved_at'] = now();
             $validated['hr_comments'] = 'Auto-approved (no HR approval required)';
 
-        } elseif (!$leaveType->requires_manager_approval && $leaveType->requires_hr_approval) {
+        } elseif (! $leaveType->requires_manager_approval && $leaveType->requires_hr_approval) {
             // ✅ SKIP MANAGER - GO STRAIGHT TO HR
             $initialStatus = 'pending_hr';
             $successMessage = 'Leave request submitted! Waiting for HR approval (manager approval not required).';
@@ -250,7 +250,7 @@ class LeaveController extends Controller
             $validated['manager_approved_at'] = now();
             $validated['manager_comments'] = 'Skipped (no manager approval required for this leave type)';
 
-        } elseif ($leaveType->requires_manager_approval && !$leaveType->requires_hr_approval) {
+        } elseif ($leaveType->requires_manager_approval && ! $leaveType->requires_hr_approval) {
             // ✅ MANAGER ONLY - NO HR NEEDED
             $initialStatus = 'pending_manager';
             $successMessage = 'Leave request submitted! Waiting for manager approval (HR approval not required).';
@@ -275,7 +275,7 @@ class LeaveController extends Controller
 
         // ✅ Different success messages for proxy filing
         if ($targetUserId !== $currentUser->id) {
-            $successMessage = "Leave request for {$targetUser->name} created successfully! " . $successMessage;
+            $successMessage = "Leave request for {$targetUser->name} created successfully! ".$successMessage;
         }
 
         return redirect()->route('leaves.index')->with('success', $successMessage);
@@ -288,6 +288,7 @@ class LeaveController extends Controller
     {
         $start = \Carbon\Carbon::parse($startDate);
         $end = \Carbon\Carbon::parse($endDate);
+
         return $start->diffInDays($end) + 1;
     }
 
@@ -300,8 +301,8 @@ class LeaveController extends Controller
         $hrAndAdminUsers = User::whereHas('roles', function ($query) {
             $query->whereIn('slug', ['super-admin', 'admin', 'hr-manager']);
         })
-        ->where('employment_status', 'active')
-        ->get();
+            ->where('employment_status', 'active')
+            ->get();
 
         // Load relationships for the email
         $leaveRequest->load(['user', 'leaveType']);

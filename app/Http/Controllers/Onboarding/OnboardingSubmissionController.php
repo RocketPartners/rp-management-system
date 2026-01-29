@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Onboarding;
 
 use App\Http\Controllers\Controller;
-use App\Models\OnboardingSubmission;
-use App\Models\OnboardingDocument;
-use App\Services\Onboarding\OnboardingSubmissionService;
-use App\Services\Onboarding\OnboardingDocumentService;
 use App\Http\Resources\OnboardingChecklistResource;
+use App\Models\OnboardingDocument;
+use App\Models\OnboardingSubmission;
+use App\Services\Onboarding\OnboardingDocumentService;
+use App\Services\Onboarding\OnboardingSubmissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -15,6 +15,7 @@ use Inertia\Inertia;
 class OnboardingSubmissionController extends Controller
 {
     protected $submissionService;
+
     protected $documentService;
 
     public function __construct(
@@ -44,10 +45,10 @@ class OnboardingSubmissionController extends Controller
         // Search by candidate email/name
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->whereHas('invite', function($q) use ($search) {
+            $query->whereHas('invite', function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
             });
         }
 
@@ -79,11 +80,11 @@ class OnboardingSubmissionController extends Controller
         $submission->load([
             'invite',
             'documents',
-            'reviewer'
+            'reviewer',
         ]);
 
         // Transform documents for frontend
-        $submission->documents->each(function($doc) {
+        $submission->documents->each(function ($doc) {
             // These accessors are already defined in model
             $doc->append(['file_size', 'document_type_label']);
 
@@ -129,7 +130,7 @@ class OnboardingSubmissionController extends Controller
         $this->authorize('approveDocument', OnboardingSubmission::class);
 
         try {
-            $count = DB::transaction(function() use ($submission) {
+            $count = DB::transaction(function () use ($submission) {
                 $totalDocs = $submission->documents()->count();
                 $uploadedCount = $submission->documents()
                     ->where('status', OnboardingDocument::STATUS_UPLOADED)
@@ -191,12 +192,12 @@ class OnboardingSubmissionController extends Controller
         ]);
 
         try {
-            $count = DB::transaction(function() use ($submission, $validated) {
+            $count = DB::transaction(function () use ($submission, $validated) {
                 // Count documents that can be rejected (uploaded or approved)
                 $count = $submission->documents()
                     ->whereIn('status', [
                         OnboardingDocument::STATUS_UPLOADED,
-                        OnboardingDocument::STATUS_APPROVED
+                        OnboardingDocument::STATUS_APPROVED,
                     ])
                     ->count();
 
@@ -208,7 +209,7 @@ class OnboardingSubmissionController extends Controller
                 $submission->documents()
                     ->whereIn('status', [
                         OnboardingDocument::STATUS_UPLOADED,
-                        OnboardingDocument::STATUS_APPROVED
+                        OnboardingDocument::STATUS_APPROVED,
                     ])
                     ->update([
                         'status' => OnboardingDocument::STATUS_REJECTED,
@@ -219,7 +220,7 @@ class OnboardingSubmissionController extends Controller
 
                 // Add HR notes to submission for tracking
                 $submission->update([
-                    'hr_notes' => "Revisions requested: " . $validated['rejection_reason'],
+                    'hr_notes' => 'Revisions requested: '.$validated['rejection_reason'],
                     'reviewed_by' => auth()->id(),
                     'reviewed_at' => now(),
                 ]);

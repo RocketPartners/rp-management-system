@@ -31,9 +31,9 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $allowedDomains = ['rocketpartners.ph', 'rocketpartners.io'];
-        
+
         $allowedDomains = ['rocketpartners.ph', 'rocketpartners.io'];
-        
+
         $request->validate([
             'first_name' => 'required|string|max:255',
             'middle_name' => 'nullable|string|max:255',
@@ -49,17 +49,18 @@ class RegisteredUserController extends Controller
                 function ($attribute, $value, $fail) use ($allowedDomains) {
                     // Extract domain
                     $emailParts = explode('@', strtolower($value));
-                    
+
                     // Must have exactly 2 parts
                     if (count($emailParts) !== 2) {
                         $fail('Invalid email format.');
+
                         return;
                     }
-                    
+
                     $domain = $emailParts[1];
-                    
+
                     // Check exact domain match
-                    if (!in_array($domain, $allowedDomains)) {
+                    if (! in_array($domain, $allowedDomains)) {
                         $fail('Only @rocketpartners.ph or @rocketpartners.io email addresses are allowed.');
                     }
                 },
@@ -73,12 +74,12 @@ class RegisteredUserController extends Controller
             $nameParts[] = $request->middle_name;
         }
         $nameParts[] = $request->last_name;
-        
+
         $fullName = implode(' ', $nameParts);
-        
+
         // Add suffix if provided and not "none"
         if ($request->suffix && $request->suffix !== 'none') {
-            $fullName .= ' ' . $request->suffix;
+            $fullName .= ' '.$request->suffix;
         }
 
         $user = User::create([

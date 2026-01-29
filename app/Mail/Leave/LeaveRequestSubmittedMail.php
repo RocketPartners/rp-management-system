@@ -3,7 +3,6 @@
 namespace App\Mail\Leave;
 
 use App\Models\LeaveRequest;
-use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -15,6 +14,7 @@ class LeaveRequestSubmittedMail extends Mailable
     use Queueable, SerializesModels;
 
     public $leaveRequest;
+
     public $employee;
 
     /**
@@ -32,7 +32,7 @@ class LeaveRequestSubmittedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Leave Request Submitted - ' . $this->employee->name,
+            subject: 'New Leave Request Submitted - '.$this->employee->name,
         );
     }
 

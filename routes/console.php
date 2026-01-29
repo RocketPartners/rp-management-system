@@ -23,8 +23,8 @@ Schedule::command('leaves:reset-year')
         return now()->month === 1 && now()->day === 1; // Only on Jan 1st
     })
     ->onSuccess(function () {
-        \Log::info('Leave balances reset successfully for year ' . now()->year);
+        \Log::info('Leave balances reset successfully for year '.now()->year);
     })
     ->onFailure(function () {
-        \Log::error('Failed to reset leave balances for year ' . now()->year);
+        \Log::error('Failed to reset leave balances for year '.now()->year);
     });

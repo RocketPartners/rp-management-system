@@ -3,16 +3,16 @@
 namespace App\Http\Controllers\Onboarding;
 
 use App\Http\Controllers\Controller;
-use App\Models\OnboardingDocument;
-use App\Services\Onboarding\OnboardingSubmissionService;
-use App\Services\Onboarding\OnboardingDocumentService;
 use App\Http\Resources\OnboardingChecklistResource;
+use App\Services\Onboarding\OnboardingDocumentService;
+use App\Services\Onboarding\OnboardingSubmissionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class GuestOnboardingController extends Controller
 {
     protected $submissionService;
+
     protected $documentService;
 
     public function __construct(
@@ -156,7 +156,7 @@ class GuestOnboardingController extends Controller
         $this->validateSubmissionEditable($invite->submission);
 
         $validated = $request->validate([
-            'document_type' => 'required|string|in:' . implode(',', array_keys(config('onboarding.document_types'))),
+            'document_type' => 'required|string|in:'.implode(',', array_keys(config('onboarding.document_types'))),
             'file' => 'required|file',
             'description' => 'nullable|string|max:500',
         ]);
@@ -167,9 +167,9 @@ class GuestOnboardingController extends Controller
 
         // Validate file type
         $extension = $file->getClientOriginalExtension();
-        if (!in_array($extension, $docConfig['accepted_formats'])) {
+        if (! in_array($extension, $docConfig['accepted_formats'])) {
             return back()->withErrors([
-                'file' => "This document type only accepts: " . implode(', ', $docConfig['accepted_formats'])
+                'file' => 'This document type only accepts: '.implode(', ', $docConfig['accepted_formats']),
             ]);
         }
 
@@ -177,7 +177,7 @@ class GuestOnboardingController extends Controller
         $maxSizeBytes = $docConfig['max_size'] * 1024;
         if ($file->getSize() > $maxSizeBytes) {
             return back()->withErrors([
-                'file' => "File too large. Maximum size: {$docConfig['max_size']}KB"
+                'file' => "File too large. Maximum size: {$docConfig['max_size']}KB",
             ]);
         }
 
@@ -192,7 +192,7 @@ class GuestOnboardingController extends Controller
             return back()->with('success', 'Document uploaded successfully!');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Upload failed: ' . $e->getMessage());
+            return back()->with('error', 'Upload failed: '.$e->getMessage());
         }
     }
 
@@ -205,7 +205,7 @@ class GuestOnboardingController extends Controller
         $document = $invite->submission->documents()->findOrFail($documentId);
 
         // Check if document can be replaced
-        if (!$invite->submission->canBeEdited() || $document->isApproved()) {
+        if (! $invite->submission->canBeEdited() || $document->isApproved()) {
             return back()->with('error', 'This document cannot be replaced.');
         }
 
@@ -213,7 +213,7 @@ class GuestOnboardingController extends Controller
         $docConfig = config("onboarding.document_types.{$document->document_type}");
 
         $validated = $request->validate([
-            'file' => 'required|file|mimes:' . implode(',', $docConfig['accepted_formats']) . '|max:' . $docConfig['max_size'],
+            'file' => 'required|file|mimes:'.implode(',', $docConfig['accepted_formats']).'|max:'.$docConfig['max_size'],
         ]);
 
         try {
@@ -225,7 +225,7 @@ class GuestOnboardingController extends Controller
             return back()->with('success', 'Document replaced successfully!');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Replace failed: ' . $e->getMessage());
+            return back()->with('error', 'Replace failed: '.$e->getMessage());
         }
     }
 
@@ -280,13 +280,13 @@ class GuestOnboardingController extends Controller
     /**
      * Validate that submission can be edited
      *
-     * @param \App\Models\OnboardingSubmission $submission
-     * @return void
+     * @param  \App\Models\OnboardingSubmission  $submission
+     *
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      */
     private function validateSubmissionEditable($submission): void
     {
-        if (!$submission->canBeEdited()) {
+        if (! $submission->canBeEdited()) {
             abort(403, 'This submission is locked. Contact HR if you need to make changes.');
         }
     }
@@ -294,15 +294,14 @@ class GuestOnboardingController extends Controller
     /**
      * Transform documents for frontend display
      *
-     * @param \App\Models\OnboardingSubmission $submission
-     * @return void
+     * @param  \App\Models\OnboardingSubmission  $submission
      */
     private function transformDocumentsForFrontend($submission): void
     {
-        $submission->documents->each(function($doc) use ($submission) {
+        $submission->documents->each(function ($doc) use ($submission) {
             $doc->document_type_label = $doc->document_type_label;
             $doc->status_label = $doc->status_label;
-            $doc->can_be_replaced = $submission->canBeEdited() && !$doc->isApproved();
+            $doc->can_be_replaced = $submission->canBeEdited() && ! $doc->isApproved();
             $doc->needs_action = $doc->isRejected();
         });
     }

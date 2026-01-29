@@ -100,16 +100,16 @@ class OnboardingInvite extends Model
     public function scopeActive($query)
     {
         return $query->whereIn('status', ['pending', 'in_progress', 'submitted'])
-                     ->where(function($q) {
-                         $q->whereNull('expires_at')
-                           ->orWhere('expires_at', '>', now());
-                     });
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                    ->orWhere('expires_at', '>', now());
+            });
     }
 
     public function scopeExpired($query)
     {
         return $query->where('expires_at', '<=', now())
-                     ->whereNotIn('status', ['approved', 'submitted']);
+            ->whereNotIn('status', ['approved', 'submitted']);
     }
 
     // ============================================
@@ -138,7 +138,7 @@ class OnboardingInvite extends Model
      */
     public function isValid()
     {
-        return $this->status !== 'expired' 
+        return $this->status !== 'expired'
                && $this->status !== 'cancelled'
                && ($this->expires_at === null || $this->expires_at->isFuture());
     }
@@ -148,8 +148,8 @@ class OnboardingInvite extends Model
      */
     public function isExpired()
     {
-        return $this->expires_at && $this->expires_at->isPast() 
-               && !in_array($this->status, ['approved', 'submitted']);
+        return $this->expires_at && $this->expires_at->isPast()
+               && ! in_array($this->status, ['approved', 'submitted']);
     }
 
     /**
@@ -194,7 +194,7 @@ class OnboardingInvite extends Model
      */
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending' => 'yellow',
             'in_progress' => 'blue',
             'submitted' => 'purple',
@@ -210,7 +210,7 @@ class OnboardingInvite extends Model
      */
     public function getDaysUntilExpirationAttribute()
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return null;
         }
 

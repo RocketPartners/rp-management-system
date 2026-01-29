@@ -3,10 +3,10 @@
  * Consolidates 4 separate useForm hooks into one unified interface
  */
 
-import { useState } from 'react';
-import { useForm, router } from '@inertiajs/react';
-import { DEFAULT_COUNTRY } from '@/lib/constants/onboarding/selectOptions';
 import { GUEST_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
+import { DEFAULT_COUNTRY } from '@/lib/constants/onboarding/selectOptions';
+import { router, useForm } from '@inertiajs/react';
+import { useState } from 'react';
 
 /**
  * Determines the initial step based on submission completion
@@ -17,24 +17,30 @@ function determineInitialStep(submission) {
     if (!submission) return 1;
 
     // If emergency contact is filled, go to step 4 (documents)
-    if (submission.emergency_contact?.name && submission.emergency_contact?.phone) {
+    if (
+        submission.emergency_contact?.name &&
+        submission.emergency_contact?.phone
+    ) {
         return 4;
     }
 
     // If government IDs are filled, go to step 3 (emergency contact)
-    if (submission.government_ids && (
-        submission.government_ids.sss_number ||
-        submission.government_ids.tin_number ||
-        submission.government_ids.hdmf_number ||
-        submission.government_ids.philhealth_number
-    )) {
+    if (
+        submission.government_ids &&
+        (submission.government_ids.sss_number ||
+            submission.government_ids.tin_number ||
+            submission.government_ids.hdmf_number ||
+            submission.government_ids.philhealth_number)
+    ) {
         return 3;
     }
 
     // If personal info is filled, go to step 2 (government IDs)
-    if (submission.personal_info?.first_name &&
+    if (
+        submission.personal_info?.first_name &&
         submission.personal_info?.last_name &&
-        submission.personal_info?.birthday) {
+        submission.personal_info?.birthday
+    ) {
         return 2;
     }
 
@@ -50,7 +56,9 @@ function determineInitialStep(submission) {
  * @returns {Object} Form state and handlers
  */
 export function useOnboardingForm(submission, inviteToken) {
-    const [currentStep, setCurrentStep] = useState(() => determineInitialStep(submission));
+    const [currentStep, setCurrentStep] = useState(() =>
+        determineInitialStep(submission),
+    );
 
     // Personal Info Form (Step 1)
     const personalForm = useForm({
@@ -96,40 +104,62 @@ export function useOnboardingForm(submission, inviteToken) {
 
     // Step navigation handlers
     const handleSavePersonalInfo = () => {
-        personalForm.post(route(GUEST_ONBOARDING_ROUTES.UPDATE_PERSONAL_INFO, inviteToken), {
-            preserveScroll: true,
-            onSuccess: () => setCurrentStep(2),
-        });
+        personalForm.post(
+            route(GUEST_ONBOARDING_ROUTES.UPDATE_PERSONAL_INFO, inviteToken),
+            {
+                preserveScroll: true,
+                onSuccess: () => setCurrentStep(2),
+            },
+        );
     };
 
     const handleSaveGovIds = () => {
-        govIdForm.post(route(GUEST_ONBOARDING_ROUTES.UPDATE_GOVERNMENT_IDS, inviteToken), {
-            preserveScroll: true,
-            onSuccess: () => setCurrentStep(3),
-        });
+        govIdForm.post(
+            route(GUEST_ONBOARDING_ROUTES.UPDATE_GOVERNMENT_IDS, inviteToken),
+            {
+                preserveScroll: true,
+                onSuccess: () => setCurrentStep(3),
+            },
+        );
     };
 
     const handleSaveEmergency = () => {
-        emergencyForm.post(route(GUEST_ONBOARDING_ROUTES.UPDATE_EMERGENCY_CONTACT, inviteToken), {
-            preserveScroll: true,
-            onSuccess: () => setCurrentStep(4),
-        });
+        emergencyForm.post(
+            route(
+                GUEST_ONBOARDING_ROUTES.UPDATE_EMERGENCY_CONTACT,
+                inviteToken,
+            ),
+            {
+                preserveScroll: true,
+                onSuccess: () => setCurrentStep(4),
+            },
+        );
     };
 
     const handleDeleteDocument = (documentId) => {
         if (confirm('Are you sure you want to delete this document?')) {
-            router.delete(route(GUEST_ONBOARDING_ROUTES.DELETE_DOCUMENT, [inviteToken, documentId]), {
-                preserveScroll: true,
-            });
+            router.delete(
+                route(GUEST_ONBOARDING_ROUTES.DELETE_DOCUMENT, [
+                    inviteToken,
+                    documentId,
+                ]),
+                {
+                    preserveScroll: true,
+                },
+            );
         }
     };
 
     const handleFinalSubmit = () => {
-        router.post(route(GUEST_ONBOARDING_ROUTES.SUBMIT, inviteToken), {}, {
-            onSuccess: () => {
-                // Will redirect to checklist page
+        router.post(
+            route(GUEST_ONBOARDING_ROUTES.SUBMIT, inviteToken),
+            {},
+            {
+                onSuccess: () => {
+                    // Will redirect to checklist page
+                },
             },
-        });
+        );
     };
 
     const goToStep = (step) => {

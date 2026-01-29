@@ -23,7 +23,7 @@ class OnboardingInviteController extends Controller
     public function index(Request $request)
     {
         // Check permission (HR/Admin only)
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403, 'Only HR can access onboarding invites.');
         }
 
@@ -32,11 +32,11 @@ class OnboardingInviteController extends Controller
         // Search
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('email', 'like', "%{$search}%")
-                  ->orWhere('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('position', 'like', "%{$search}%");
+                    ->orWhere('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('position', 'like', "%{$search}%");
             });
         }
 
@@ -63,7 +63,7 @@ class OnboardingInviteController extends Controller
     public function create()
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403, 'Only HR can create onboarding invites.');
         }
 
@@ -103,7 +103,7 @@ class OnboardingInviteController extends Controller
     public function store(Request $request)
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403, 'Only HR can create onboarding invites.');
         }
 
@@ -114,18 +114,18 @@ class OnboardingInviteController extends Controller
             'email' => 'required|email|unique:onboarding_invites,email',
             'first_name' => 'nullable|string|max:255',
             'last_name' => 'nullable|string|max:255',
-            'position' => ['required', 'string', 'in:' . implode(',', $validRoles)], // ✅ Dynamic validation
+            'position' => ['required', 'string', 'in:'.implode(',', $validRoles)], // ✅ Dynamic validation
             'department' => 'required|string|max:255',
         ]);
 
         try {
             $invite = $this->inviteService->createInvite($validated);
-            
+
             return redirect()->route('onboarding.invites.index')
                 ->with('success', "Onboarding invite sent to {$invite->email}! Guest link: {$invite->guest_url}");
-                
+
         } catch (\Exception $e) {
-            return back()->withInput()->with('error', 'Failed to create invite: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Failed to create invite: '.$e->getMessage());
         }
     }
 
@@ -135,7 +135,7 @@ class OnboardingInviteController extends Controller
     public function show(OnboardingInvite $invite)
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403, 'Only HR can view onboarding invites.');
         }
 
@@ -152,15 +152,15 @@ class OnboardingInviteController extends Controller
     public function resend(OnboardingInvite $invite)
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403);
         }
 
         try {
             $this->inviteService->resendInvite($invite);
-            
+
             return back()->with('success', 'Invitation email resent successfully!');
-            
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -172,7 +172,7 @@ class OnboardingInviteController extends Controller
     public function extend(Request $request, OnboardingInvite $invite)
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403);
         }
 
@@ -182,9 +182,9 @@ class OnboardingInviteController extends Controller
 
         try {
             $this->inviteService->extendExpiration($invite, $validated['days']);
-            
+
             return back()->with('success', "Invite extended by {$validated['days']} days!");
-            
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -196,16 +196,16 @@ class OnboardingInviteController extends Controller
     public function cancel(OnboardingInvite $invite)
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403);
         }
 
         try {
             $this->inviteService->cancelInvite($invite);
-            
+
             return redirect()->route('onboarding.invites.index')
                 ->with('success', 'Invite cancelled successfully.');
-                
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -217,16 +217,16 @@ class OnboardingInviteController extends Controller
     public function convertToUser(OnboardingInvite $invite)
     {
         // Check permission
-        if (!auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        if (! auth()->user()->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
             abort(403);
         }
 
         try {
             $user = $this->inviteService->convertToUser($invite);
-            
+
             return redirect()->route('users.show', $user->id)
                 ->with('success', "User account created for {$user->name}! Temporary password sent via email.");
-                
+
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }

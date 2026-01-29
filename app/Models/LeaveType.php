@@ -94,9 +94,9 @@ class LeaveType extends Model
      */
     public function scopeForGender($query, $gender)
     {
-        return $query->where(function($q) use ($gender) {
+        return $query->where(function ($q) use ($gender) {
             $q->whereNull('gender_specific')
-              ->orWhere('gender_specific', $gender);
+                ->orWhere('gender_specific', $gender);
         });
     }
 
@@ -110,7 +110,7 @@ class LeaveType extends Model
      */
     public function requiresMedicalCertForDays($days)
     {
-        if (!$this->requires_medical_cert) {
+        if (! $this->requires_medical_cert) {
             return false;
         }
 
@@ -152,7 +152,7 @@ class LeaveType extends Model
         return self::active()
             ->ordered()
             ->get()
-            ->filter(function($leaveType) use ($user) {
+            ->filter(function ($leaveType) use ($user) {
                 return $leaveType->isEligibleForUser($user);
             });
     }
@@ -166,7 +166,7 @@ class LeaveType extends Model
         if (empty($this->can_approve_roles)) {
             return true;
         }
-        
+
         // Check if user has any of the allowed roles
         return $user->roles()->whereIn('slug', $this->can_approve_roles)->exists();
     }
@@ -176,12 +176,13 @@ class LeaveType extends Model
      */
     public function shouldSkipManagerApproval($user)
     {
-        if (!$this->skip_manager_for_roles) {
+        if (! $this->skip_manager_for_roles) {
             return false;
         }
-        
+
         // Check if user has admin/HR roles that skip manager approval
         $adminRoles = ['super-admin', 'admin', 'hr-manager'];
+
         return $user->roles()->whereIn('slug', $adminRoles)->exists();
     }
 }

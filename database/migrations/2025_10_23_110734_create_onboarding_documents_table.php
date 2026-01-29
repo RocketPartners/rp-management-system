@@ -30,7 +30,7 @@ return new class extends Migration
                 'diploma',
                 'transcript',
                 'previous_employment_coe', // Certificate of Employment
-                'other'
+                'other',
             ]);
 
             $table->string('filename');          // Original filename

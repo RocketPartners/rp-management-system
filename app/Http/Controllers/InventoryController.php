@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\InventoryItem;
 use App\Models\Category;
+use App\Models\InventoryItem;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -17,11 +17,11 @@ class InventoryController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%")
-                  ->orWhere('barcode', 'like', "%{$search}%")
-                  ->orWhere('serial_number', 'like', "%{$search}%");
+                    ->orWhere('sku', 'like', "%{$search}%")
+                    ->orWhere('barcode', 'like', "%{$search}%")
+                    ->orWhere('serial_number', 'like', "%{$search}%");
             });
         }
 
@@ -46,7 +46,7 @@ class InventoryController extends Controller
         }
 
         $items = $query->latest()->paginate(15)->withQueryString();
-        
+
         $categories = Category::where('type', 'inventory')->get();
 
         return Inertia::render('Admin/Inventory/Index', [
@@ -97,7 +97,7 @@ class InventoryController extends Controller
             for ($i = 1; $i <= $validated['quantity']; $i++) {
                 \App\Models\Asset::create([
                     'inventory_item_id' => $inventoryItem->id,
-                    'asset_tag' => 'ASSET-' . $inventoryItem->id . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
+                    'asset_tag' => 'ASSET-'.$inventoryItem->id.'-'.str_pad($i, 3, '0', STR_PAD_LEFT),
                     'serial_number' => null,  // HR will enter manually
                     'barcode' => null,  // HR will enter manually
                     'purchase_date' => $validated['purchase_date'],
@@ -111,7 +111,7 @@ class InventoryController extends Controller
             }
         }
 
-        return redirect()->route('inventory.index')->with('success', 'Inventory item created successfully!' . 
+        return redirect()->route('inventory.index')->with('success', 'Inventory item created successfully!'.
             ($validated['asset_type'] === 'asset' ? " {$validated['quantity']} individual assets were created. Please add serial numbers and barcodes." : ''));
     }
 
@@ -119,13 +119,13 @@ class InventoryController extends Controller
     {
         // Load both old assignments and new individual assets
         $inventory->load([
-            'category', 
-            'creator', 
-            'assignments.user', 
-            'assignments.assignedBy', 
-            'history.user', 
+            'category',
+            'creator',
+            'assignments.user',
+            'assignments.assignedBy',
+            'history.user',
             'history.performedBy',
-            'assets.currentAssignment.user'  // NEW: Load individual assets
+            'assets.currentAssignment.user',  // NEW: Load individual assets
         ]);
 
         return Inertia::render('Admin/Inventory/Show', [
@@ -136,7 +136,7 @@ class InventoryController extends Controller
     public function edit(InventoryItem $inventory)
     {
         $categories = Category::where('type', 'inventory')->get();
-        
+
         return Inertia::render('Admin/Inventory/Edit', [
             'item' => [
                 ...$inventory->toArray(),
@@ -151,8 +151,8 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'required|string|unique:inventory_items,sku,' . $inventory->id,
-            'barcode' => 'nullable|string|unique:inventory_items,barcode,' . $inventory->id,
+            'sku' => 'required|string|unique:inventory_items,sku,'.$inventory->id,
+            'barcode' => 'nullable|string|unique:inventory_items,barcode,'.$inventory->id,
             'serial_number' => 'nullable|string',
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
@@ -177,13 +177,13 @@ class InventoryController extends Controller
             if ($newQuantity > $currentAssetCount) {
                 // INCREASE: Create more assets
                 $assetsToCreate = $newQuantity - $currentAssetCount;
-                
+
                 for ($i = 1; $i <= $assetsToCreate; $i++) {
                     $assetNumber = $currentAssetCount + $i;
-                    
+
                     \App\Models\Asset::create([
                         'inventory_item_id' => $inventory->id,
-                        'asset_tag' => 'ASSET-' . $inventory->id . '-' . str_pad($assetNumber, 3, '0', STR_PAD_LEFT),
+                        'asset_tag' => 'ASSET-'.$inventory->id.'-'.str_pad($assetNumber, 3, '0', STR_PAD_LEFT),
                         'serial_number' => null,
                         'barcode' => null,
                         'purchase_date' => $validated['purchase_date'],
@@ -195,13 +195,13 @@ class InventoryController extends Controller
                         'notes' => "Placeholder asset #{$assetNumber} - Please add serial number and barcode",
                     ]);
                 }
-                
+
                 $message = "Inventory updated! Added {$assetsToCreate} new placeholder asset(s). Total: {$newQuantity}";
-                
+
             } elseif ($newQuantity < $currentAssetCount) {
                 // DECREASE: Try to auto-delete placeholder assets
                 $assetsToRemove = $currentAssetCount - $newQuantity;
-                
+
                 // Find empty placeholder assets (safe to delete)
                 $placeholderAssets = $inventory->assets()
                     ->where('status', 'Available')
@@ -209,26 +209,26 @@ class InventoryController extends Controller
                     ->whereNull('barcode')
                     ->limit($assetsToRemove)
                     ->get();
-                
+
                 // Check if we have enough placeholders to delete
                 if ($placeholderAssets->count() < $assetsToRemove) {
                     $assetsWithData = $currentAssetCount - $placeholderAssets->count();
-                    
-                    return back()->withInput()->with('error', 
-                        "Cannot reduce quantity from {$currentAssetCount} to {$newQuantity}. " .
-                        "Only {$placeholderAssets->count()} empty placeholder(s) available to remove. " .
-                        "{$assetsWithData} asset(s) have serial numbers, barcodes, or are assigned. " .
+
+                    return back()->withInput()->with('error',
+                        "Cannot reduce quantity from {$currentAssetCount} to {$newQuantity}. ".
+                        "Only {$placeholderAssets->count()} empty placeholder(s) available to remove. ".
+                        "{$assetsWithData} asset(s) have serial numbers, barcodes, or are assigned. ".
                         "Please delete specific assets from the 'View Details' page using selective delete."
                     );
                 }
-                
+
                 // Safe to delete - all are empty placeholders
                 foreach ($placeholderAssets as $asset) {
                     $asset->delete();
                 }
-                
+
                 $message = "Inventory updated! Removed {$placeholderAssets->count()} placeholder asset(s). Total: {$newQuantity}";
-                
+
             } else {
                 // Same quantity - no asset changes needed
                 $message = 'Inventory item updated successfully!';
@@ -248,29 +248,29 @@ class InventoryController extends Controller
         // Check if this item has individual assets
         if ($inventory->asset_type === 'asset') {
             $totalAssets = $inventory->assets()->count();
-            
+
             if ($totalAssets > 0) {
                 // Check for ANY assigned assets
                 $assignedCount = $inventory->assets()
                     ->where('status', 'Assigned')
                     ->count();
-                
+
                 if ($assignedCount > 0) {
-                    return back()->with('error', 
+                    return back()->with('error',
                         "Cannot delete '{$inventory->name}'. {$assignedCount} asset(s) are currently assigned to users. Please return them first."
                     );
                 }
-                
+
                 // All assets are unassigned - safe to delete everything
                 // This includes both empty placeholders AND assets with serial/barcode
                 $inventory->assets()->delete();
             }
         }
-        
+
         $inventory->delete();
-        
+
         return redirect()->route('inventory.index')
-                         ->with('success', 'Inventory item and all associated assets deleted successfully!');
+            ->with('success', 'Inventory item and all associated assets deleted successfully!');
     }
 
     /**
@@ -282,7 +282,7 @@ class InventoryController extends Controller
     {
         $validated = $request->validate([
             'asset_ids' => 'required|array',
-            'asset_ids.*' => 'required|exists:assets,id'
+            'asset_ids.*' => 'required|exists:assets,id',
         ]);
 
         // Get the assets
@@ -294,8 +294,8 @@ class InventoryController extends Controller
         });
 
         if ($assignedAssets->count() > 0) {
-            return back()->with('error', 
-                'Cannot delete selected assets. ' . $assignedAssets->count() . ' asset(s) are currently assigned to users. Please return them first.'
+            return back()->with('error',
+                'Cannot delete selected assets. '.$assignedAssets->count().' asset(s) are currently assigned to users. Please return them first.'
             );
         }
 
@@ -309,7 +309,7 @@ class InventoryController extends Controller
         // Update the inventory quantity
         $inventoryItem->decrement('quantity', $deletedCount);
 
-        return back()->with('success', 
+        return back()->with('success',
             "Successfully deleted {$deletedCount} asset(s). Inventory quantity updated to {$inventoryItem->fresh()->quantity}."
         );
     }

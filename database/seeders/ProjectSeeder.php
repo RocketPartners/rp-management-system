@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +15,7 @@ class ProjectSeeder extends Seeder
         $webDevCategory = Category::where('slug', 'web-development')->first();
         $internalToolsCategory = Category::where('slug', 'internal-tools')->first();
         $mobileDevCategory = Category::where('slug', 'mobile-development')->first();
-        
+
         $firstUser = User::first();
 
         // Project 1

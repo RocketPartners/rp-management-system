@@ -21,11 +21,13 @@ class CalendarTestDataSeeder extends Seeder
 
         if ($users->isEmpty()) {
             $this->command->error('No users found. Please create users first.');
+
             return;
         }
 
         if ($leaveTypes->isEmpty()) {
             $this->command->error('No leave types found. Please run leave types seeder first.');
+
             return;
         }
 
@@ -144,6 +146,6 @@ class CalendarTestDataSeeder extends Seeder
         }
 
         $this->command->info('✓ Calendar test data created successfully!');
-        $this->command->info('Total approved leaves: ' . LeaveRequest::where('status', 'approved')->count());
+        $this->command->info('Total approved leaves: '.LeaveRequest::where('status', 'approved')->count());
     }
 }

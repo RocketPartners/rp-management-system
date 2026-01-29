@@ -21,11 +21,11 @@ class CheckPermission
     {
         $user = $request->user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Unauthenticated.');
         }
 
-        if (!$user->hasAnyPermission($permissions)) {
+        if (! $user->hasAnyPermission($permissions)) {
             abort(403, 'You do not have permission to perform this action.');
         }
 

@@ -2,14 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\CalendarEvent;
 use App\Models\CalendarEventType;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class CalendarService
 {
@@ -60,25 +59,25 @@ class CalendarService
         $query = $this->applyLeaveVisibilityRules($query, $viewer);
 
         // Apply filters
-        if (!empty($filters['user_ids'])) {
+        if (! empty($filters['user_ids'])) {
             $query->forUsers($filters['user_ids']);
         }
 
-        if (!empty($filters['department'])) {
+        if (! empty($filters['department'])) {
             $query->forDepartment($filters['department']);
         }
 
-        if (!empty($filters['leave_type_ids'])) {
+        if (! empty($filters['leave_type_ids'])) {
             $query->whereIn('leave_type_id', $filters['leave_type_ids']);
         }
 
-        if (!empty($filters['search'])) {
+        if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->whereHas('user', function ($q2) use ($search) {
                     $q2->where('name', 'like', "%{$search}%");
                 })
-                ->orWhere('reason', 'like', "%{$search}%");
+                    ->orWhere('reason', 'like', "%{$search}%");
             });
         }
 
@@ -284,7 +283,7 @@ class CalendarService
     protected function escapeCsv($field): string
     {
         if (strpos($field, ',') !== false || strpos($field, '"') !== false || strpos($field, "\n") !== false) {
-            return '"' . str_replace('"', '""', $field) . '"';
+            return '"'.str_replace('"', '""', $field).'"';
         }
 
         return $field;

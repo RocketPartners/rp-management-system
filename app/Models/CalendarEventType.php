@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Builder;
 
 class CalendarEventType extends Model
 {
@@ -84,7 +84,7 @@ class CalendarEventType extends Model
 
         // Handle 3-character hex codes
         if (strlen($hex) === 3) {
-            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            $hex = $hex[0].$hex[0].$hex[1].$hex[1].$hex[2].$hex[2];
         }
 
         // Convert to RGB
@@ -108,7 +108,7 @@ class CalendarEventType extends Model
      */
     public function canBeDeleted(): bool
     {
-        return !$this->is_system;
+        return ! $this->is_system;
     }
 
     /**

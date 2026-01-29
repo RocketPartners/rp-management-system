@@ -1,32 +1,51 @@
 // resources/js/Pages/Users/Create.jsx
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import {
+    HDMFInput,
+    PayrollAccountInput,
+    PhilHealthInput,
+    PhoneInput,
+    SSSInput,
+    TINInput,
+} from '@/Components/FormattedInput';
+import ProfilePictureUpload from '@/Components/ProfilePictureUpload';
+import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
-import { Badge } from '@/Components/ui/badge';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import ProfilePictureUpload from '@/Components/ProfilePictureUpload';
-import { SSSInput, TINInput, PhilHealthInput, HDMFInput, PayrollAccountInput, PhoneInput } from '@/Components/FormattedInput';
 import {
-    Users as UsersIcon,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/Components/ui/select';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, Link, useForm } from '@inertiajs/react';
+import {
     ArrowLeft,
-    Save,
-    Loader2,
-    Mail,
-    Lock,
-    User,
-    Shield,
-    Phone,
-    MapPin,
     Briefcase,
-    Heart,
-    CreditCard,
     CheckCircle2,
+    CreditCard,
+    Heart,
     Info,
+    Loader2,
+    Lock,
+    Mail,
+    MapPin,
+    Phone,
+    Save,
+    Shield,
+    User,
+    Users as UsersIcon,
 } from 'lucide-react';
 
 export default function Create({ auth, roles = [] }) {
@@ -78,22 +97,25 @@ export default function Create({ auth, roles = [] }) {
     const handleRoleToggle = (roleId) => {
         const currentRoles = [...data.roles];
         const index = currentRoles.indexOf(roleId);
-        
+
         if (index > -1) {
             currentRoles.splice(index, 1);
         } else {
             currentRoles.push(roleId);
         }
-        
+
         setData('roles', currentRoles);
     };
 
     // ✅ Get selected roles and their permissions
-    const selectedRoles = Array.isArray(roles) ? roles.filter(r => data.roles.includes(r.id)) : [];
+    const selectedRoles = Array.isArray(roles)
+        ? roles.filter((r) => data.roles.includes(r.id))
+        : [];
     const rolePermissions = selectedRoles
-        .flatMap(role => role.permissions || [])
-        .filter((perm, index, self) => 
-            index === self.findIndex(p => p.id === perm.id)
+        .flatMap((role) => role.permissions || [])
+        .filter(
+            (perm, index, self) =>
+                index === self.findIndex((p) => p.id === perm.id),
         );
 
     return (
@@ -103,17 +125,21 @@ export default function Create({ auth, roles = [] }) {
                     <div className="flex items-center gap-3">
                         <Button asChild variant="ghost" size="sm">
                             <Link href={route('users.index')}>
-                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back
                             </Link>
                         </Button>
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-blue-100 rounded-lg">
+                            <div className="rounded-lg bg-blue-100 p-2">
                                 <UsersIcon className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">Add New User</h2>
-                                <p className="text-gray-600 mt-1">Create a new user account</p>
+                                <h2 className="text-3xl font-bold text-gray-900">
+                                    Add New User
+                                </h2>
+                                <p className="mt-1 text-gray-600">
+                                    Create a new user account
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -127,13 +153,19 @@ export default function Create({ auth, roles = [] }) {
                 <Card className="animate-fade-in">
                     <CardHeader>
                         <CardTitle>Profile Picture</CardTitle>
-                        <CardDescription>Upload a profile photo</CardDescription>
+                        <CardDescription>
+                            Upload a profile photo
+                        </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ProfilePictureUpload
                             currentImage={null}
-                            onImageChange={(file) => setData('profile_picture', file)}
-                            onImageRemove={() => setData('profile_picture', null)}
+                            onImageChange={(file) =>
+                                setData('profile_picture', file)
+                            }
+                            onImageRemove={() =>
+                                setData('profile_picture', null)
+                            }
                         />
                     </CardContent>
                 </Card>
@@ -145,20 +177,32 @@ export default function Create({ auth, roles = [] }) {
                             <User className="h-5 w-5" />
                             Personal Information
                         </CardTitle>
-                        <CardDescription>Basic personal details</CardDescription>
+                        <CardDescription>
+                            Basic personal details
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="first_name">First Name *</Label>
                                 <Input
                                     id="first_name"
                                     value={data.first_name}
-                                    onChange={(e) => setData('first_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('first_name', e.target.value)
+                                    }
                                     placeholder="John"
-                                    className={errors.first_name ? 'border-red-500' : ''}
+                                    className={
+                                        errors.first_name
+                                            ? 'border-red-500'
+                                            : ''
+                                    }
                                 />
-                                {errors.first_name && <p className="text-sm text-red-500">{errors.first_name}</p>}
+                                {errors.first_name && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.first_name}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -166,7 +210,9 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="middle_name"
                                     value={data.middle_name}
-                                    onChange={(e) => setData('middle_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('middle_name', e.target.value)
+                                    }
                                     placeholder="Optional"
                                 />
                             </div>
@@ -176,23 +222,38 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="last_name"
                                     value={data.last_name}
-                                    onChange={(e) => setData('last_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('last_name', e.target.value)
+                                    }
                                     placeholder="Doe"
-                                    className={errors.last_name ? 'border-red-500' : ''}
+                                    className={
+                                        errors.last_name ? 'border-red-500' : ''
+                                    }
                                 />
-                                {errors.last_name && <p className="text-sm text-red-500">{errors.last_name}</p>}
+                                {errors.last_name && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.last_name}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div className="space-y-2">
                                 <Label htmlFor="suffix">Suffix</Label>
-                                <Select value={data.suffix} onValueChange={(value) => setData('suffix', value)}>
+                                <Select
+                                    value={data.suffix}
+                                    onValueChange={(value) =>
+                                        setData('suffix', value)
+                                    }
+                                >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">None</SelectItem>
+                                        <SelectItem value="none">
+                                            None
+                                        </SelectItem>
                                         <SelectItem value="Jr.">Jr.</SelectItem>
                                         <SelectItem value="Sr.">Sr.</SelectItem>
                                         <SelectItem value="II">II</SelectItem>
@@ -204,31 +265,61 @@ export default function Create({ auth, roles = [] }) {
 
                             <div className="space-y-2">
                                 <Label htmlFor="gender">Gender</Label>
-                                <Select value={data.gender} onValueChange={(value) => setData('gender', value)}>
+                                <Select
+                                    value={data.gender}
+                                    onValueChange={(value) =>
+                                        setData('gender', value)
+                                    }
+                                >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="male">Male</SelectItem>
-                                        <SelectItem value="female">Female</SelectItem>
-                                        <SelectItem value="other">Other</SelectItem>
-                                        <SelectItem value="prefer_not_to_say">Prefer not to say</SelectItem>
+                                        <SelectItem value="male">
+                                            Male
+                                        </SelectItem>
+                                        <SelectItem value="female">
+                                            Female
+                                        </SelectItem>
+                                        <SelectItem value="other">
+                                            Other
+                                        </SelectItem>
+                                        <SelectItem value="prefer_not_to_say">
+                                            Prefer not to say
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="civil_status">Civil Status</Label>
-                                <Select value={data.civil_status} onValueChange={(value) => setData('civil_status', value)}>
+                                <Label htmlFor="civil_status">
+                                    Civil Status
+                                </Label>
+                                <Select
+                                    value={data.civil_status}
+                                    onValueChange={(value) =>
+                                        setData('civil_status', value)
+                                    }
+                                >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="single">Single</SelectItem>
-                                        <SelectItem value="married">Married</SelectItem>
-                                        <SelectItem value="widowed">Widowed</SelectItem>
-                                        <SelectItem value="divorced">Divorced</SelectItem>
-                                        <SelectItem value="separated">Separated</SelectItem>
+                                        <SelectItem value="single">
+                                            Single
+                                        </SelectItem>
+                                        <SelectItem value="married">
+                                            Married
+                                        </SelectItem>
+                                        <SelectItem value="widowed">
+                                            Widowed
+                                        </SelectItem>
+                                        <SelectItem value="divorced">
+                                            Divorced
+                                        </SelectItem>
+                                        <SelectItem value="separated">
+                                            Separated
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -239,7 +330,9 @@ export default function Create({ auth, roles = [] }) {
                                     id="birthday"
                                     type="date"
                                     value={data.birthday}
-                                    onChange={(e) => setData('birthday', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('birthday', e.target.value)
+                                    }
                                 />
                             </div>
                         </div>
@@ -253,24 +346,34 @@ export default function Create({ auth, roles = [] }) {
                             <Phone className="h-5 w-5" />
                             Contact Information
                         </CardTitle>
-                        <CardDescription>Email addresses and phone numbers</CardDescription>
+                        <CardDescription>
+                            Email addresses and phone numbers
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="email">Primary Email (Login) *</Label>
+                                <Label htmlFor="email">
+                                    Primary Email (Login) *
+                                </Label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <Input
                                         id="email"
                                         type="email"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('email', e.target.value)
+                                        }
                                         placeholder="john.doe@company.com"
                                         className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
                                     />
                                 </div>
-                                {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
+                                {errors.email && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.email}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
@@ -281,7 +384,12 @@ export default function Create({ auth, roles = [] }) {
                                         id="work_email"
                                         type="email"
                                         value={data.work_email}
-                                        onChange={(e) => setData('work_email', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'work_email',
+                                                e.target.value,
+                                            )
+                                        }
                                         placeholder="john.doe@company.com"
                                         className="pl-10"
                                     />
@@ -289,16 +397,23 @@ export default function Create({ auth, roles = [] }) {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="personal_email">Personal Email</Label>
+                                <Label htmlFor="personal_email">
+                                    Personal Email
+                                </Label>
                                 <div className="relative">
                                     <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <Input
                                         id="personal_email"
                                         type="email"
                                         value={data.personal_email}
-                                        onChange={(e) => setData('personal_email', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'personal_email',
+                                                e.target.value,
+                                            )
+                                        }
                                         placeholder="john@gmail.com"
                                         className="pl-10"
                                     />
@@ -306,21 +421,29 @@ export default function Create({ auth, roles = [] }) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="phone_number">Mobile Number</Label>
+                                <Label htmlFor="phone_number">
+                                    Mobile Number
+                                </Label>
                                 <PhoneInput
                                     id="phone_number"
                                     value={data.phone_number}
-                                    onChange={(e) => setData('phone_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('phone_number', e.target.value)
+                                    }
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="personal_mobile">Personal Mobile</Label>
+                            <Label htmlFor="personal_mobile">
+                                Personal Mobile
+                            </Label>
                             <PhoneInput
                                 id="personal_mobile"
                                 value={data.personal_mobile}
-                                onChange={(e) => setData('personal_mobile', e.target.value)}
+                                onChange={(e) =>
+                                    setData('personal_mobile', e.target.value)
+                                }
                             />
                         </div>
                     </CardContent>
@@ -337,32 +460,42 @@ export default function Create({ auth, roles = [] }) {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="address_line_1">Address Line 1</Label>
+                            <Label htmlFor="address_line_1">
+                                Address Line 1
+                            </Label>
                             <Input
                                 id="address_line_1"
                                 value={data.address_line_1}
-                                onChange={(e) => setData('address_line_1', e.target.value)}
+                                onChange={(e) =>
+                                    setData('address_line_1', e.target.value)
+                                }
                                 placeholder="Street address, P.O. box"
                             />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="address_line_2">Address Line 2</Label>
+                            <Label htmlFor="address_line_2">
+                                Address Line 2
+                            </Label>
                             <Input
                                 id="address_line_2"
                                 value={data.address_line_2}
-                                onChange={(e) => setData('address_line_2', e.target.value)}
+                                onChange={(e) =>
+                                    setData('address_line_2', e.target.value)
+                                }
                                 placeholder="Apartment, suite, unit"
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
                             <div className="space-y-2">
                                 <Label htmlFor="city">City</Label>
                                 <Input
                                     id="city"
                                     value={data.city}
-                                    onChange={(e) => setData('city', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('city', e.target.value)
+                                    }
                                     placeholder="Manila"
                                 />
                             </div>
@@ -372,7 +505,9 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="state"
                                     value={data.state}
-                                    onChange={(e) => setData('state', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('state', e.target.value)
+                                    }
                                     placeholder="Metro Manila"
                                 />
                             </div>
@@ -382,7 +517,9 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="postal_code"
                                     value={data.postal_code}
-                                    onChange={(e) => setData('postal_code', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('postal_code', e.target.value)
+                                    }
                                     placeholder="1000"
                                 />
                             </div>
@@ -392,7 +529,9 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="country"
                                     value={data.country}
-                                    onChange={(e) => setData('country', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('country', e.target.value)
+                                    }
                                 />
                             </div>
                         </div>
@@ -406,16 +545,20 @@ export default function Create({ auth, roles = [] }) {
                             <Briefcase className="h-5 w-5" />
                             Employment Information
                         </CardTitle>
-                        <CardDescription>Job details and employment status</CardDescription>
+                        <CardDescription>
+                            Job details and employment status
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="employee_id">Employee ID</Label>
                                 <Input
                                     id="employee_id"
                                     value={data.employee_id}
-                                    onChange={(e) => setData('employee_id', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('employee_id', e.target.value)
+                                    }
                                     placeholder="EMP-001"
                                 />
                             </div>
@@ -425,7 +568,9 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="department"
                                     value={data.department}
-                                    onChange={(e) => setData('department', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('department', e.target.value)
+                                    }
                                     placeholder="Engineering"
                                 />
                             </div>
@@ -435,49 +580,83 @@ export default function Create({ auth, roles = [] }) {
                                 <Input
                                     id="position"
                                     value={data.position}
-                                    onChange={(e) => setData('position', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('position', e.target.value)
+                                    }
                                     placeholder="Software Engineer"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                             <div className="space-y-2">
                                 <Label htmlFor="hire_date">Hire Date</Label>
                                 <Input
                                     id="hire_date"
                                     type="date"
                                     value={data.hire_date}
-                                    onChange={(e) => setData('hire_date', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('hire_date', e.target.value)
+                                    }
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="employment_status">Employment Status</Label>
-                                <Select value={data.employment_status} onValueChange={(value) => setData('employment_status', value)}>
+                                <Label htmlFor="employment_status">
+                                    Employment Status
+                                </Label>
+                                <Select
+                                    value={data.employment_status}
+                                    onValueChange={(value) =>
+                                        setData('employment_status', value)
+                                    }
+                                >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="active">Active</SelectItem>
-                                        <SelectItem value="on_leave">On Leave</SelectItem>
-                                        <SelectItem value="terminated">Terminated</SelectItem>
-                                        <SelectItem value="resigned">Resigned</SelectItem>
+                                        <SelectItem value="active">
+                                            Active
+                                        </SelectItem>
+                                        <SelectItem value="on_leave">
+                                            On Leave
+                                        </SelectItem>
+                                        <SelectItem value="terminated">
+                                            Terminated
+                                        </SelectItem>
+                                        <SelectItem value="resigned">
+                                            Resigned
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="employment_type">Employment Type</Label>
-                                <Select value={data.employment_type} onValueChange={(value) => setData('employment_type', value)}>
+                                <Label htmlFor="employment_type">
+                                    Employment Type
+                                </Label>
+                                <Select
+                                    value={data.employment_type}
+                                    onValueChange={(value) =>
+                                        setData('employment_type', value)
+                                    }
+                                >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="full_time">Full-Time</SelectItem>
-                                        <SelectItem value="part_time">Part-Time</SelectItem>
-                                        <SelectItem value="contract">Contract</SelectItem>
-                                        <SelectItem value="intern">Intern</SelectItem>
+                                        <SelectItem value="full_time">
+                                            Full-Time
+                                        </SelectItem>
+                                        <SelectItem value="part_time">
+                                            Part-Time
+                                        </SelectItem>
+                                        <SelectItem value="contract">
+                                            Contract
+                                        </SelectItem>
+                                        <SelectItem value="intern">
+                                            Intern
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -492,18 +671,24 @@ export default function Create({ auth, roles = [] }) {
                             <CreditCard className="h-5 w-5" />
                             Government IDs & Benefits
                         </CardTitle>
-                        <CardDescription>Philippine government identification numbers</CardDescription>
+                        <CardDescription>
+                            Philippine government identification numbers
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="sss_number">SSS Number</Label>
                                 <SSSInput
                                     id="sss_number"
                                     value={data.sss_number}
-                                    onChange={(e) => setData('sss_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('sss_number', e.target.value)
+                                    }
                                 />
-                                <p className="text-xs text-gray-500">Format: XX-XXXXXXX-X</p>
+                                <p className="text-xs text-gray-500">
+                                    Format: XX-XXXXXXX-X
+                                </p>
                             </div>
 
                             <div className="space-y-2">
@@ -511,42 +696,67 @@ export default function Create({ auth, roles = [] }) {
                                 <TINInput
                                     id="tin_number"
                                     value={data.tin_number}
-                                    onChange={(e) => setData('tin_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('tin_number', e.target.value)
+                                    }
                                 />
-                                <p className="text-xs text-gray-500">Format: XXX-XXX-XXX-XXXXX</p>
+                                <p className="text-xs text-gray-500">
+                                    Format: XXX-XXX-XXX-XXXXX
+                                </p>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="philhealth_number">PhilHealth Number</Label>
+                                <Label htmlFor="philhealth_number">
+                                    PhilHealth Number
+                                </Label>
                                 <PhilHealthInput
                                     id="philhealth_number"
                                     value={data.philhealth_number}
-                                    onChange={(e) => setData('philhealth_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'philhealth_number',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
-                                <p className="text-xs text-gray-500">Format: XXXX-XXXXX-XX</p>
+                                <p className="text-xs text-gray-500">
+                                    Format: XXXX-XXXXX-XX
+                                </p>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="hdmf_number">HDMF (Pag-IBIG) Number</Label>
+                                <Label htmlFor="hdmf_number">
+                                    HDMF (Pag-IBIG) Number
+                                </Label>
                                 <HDMFInput
                                     id="hdmf_number"
                                     value={data.hdmf_number}
-                                    onChange={(e) => setData('hdmf_number', e.target.value)}
+                                    onChange={(e) =>
+                                        setData('hdmf_number', e.target.value)
+                                    }
                                 />
-                                <p className="text-xs text-gray-500">Format: 12 digits</p>
+                                <p className="text-xs text-gray-500">
+                                    Format: 12 digits
+                                </p>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="payroll_account">Union Bank Payroll Account</Label>
+                            <Label htmlFor="payroll_account">
+                                Union Bank Payroll Account
+                            </Label>
                             <PayrollAccountInput
                                 id="payroll_account"
                                 value={data.payroll_account}
-                                onChange={(e) => setData('payroll_account', e.target.value)}
+                                onChange={(e) =>
+                                    setData('payroll_account', e.target.value)
+                                }
                             />
-                            <p className="text-xs text-gray-500">Format: 12 digits</p>
+                            <p className="text-xs text-gray-500">
+                                Format: 12 digits
+                            </p>
                         </div>
                     </CardContent>
                 </Card>
@@ -558,47 +768,77 @@ export default function Create({ auth, roles = [] }) {
                             <Heart className="h-5 w-5" />
                             Emergency Contact
                         </CardTitle>
-                        <CardDescription>Person to contact in case of emergency</CardDescription>
+                        <CardDescription>
+                            Person to contact in case of emergency
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="emergency_contact_name">Contact Name</Label>
+                                <Label htmlFor="emergency_contact_name">
+                                    Contact Name
+                                </Label>
                                 <Input
                                     id="emergency_contact_name"
                                     value={data.emergency_contact_name}
-                                    onChange={(e) => setData('emergency_contact_name', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'emergency_contact_name',
+                                            e.target.value,
+                                        )
+                                    }
                                     placeholder="Jane Doe"
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="emergency_contact_relationship">Relationship</Label>
+                                <Label htmlFor="emergency_contact_relationship">
+                                    Relationship
+                                </Label>
                                 <Input
                                     id="emergency_contact_relationship"
                                     value={data.emergency_contact_relationship}
-                                    onChange={(e) => setData('emergency_contact_relationship', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'emergency_contact_relationship',
+                                            e.target.value,
+                                        )
+                                    }
                                     placeholder="Spouse, Parent, Sibling..."
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
-                                <Label htmlFor="emergency_contact_phone">Contact Phone</Label>
+                                <Label htmlFor="emergency_contact_phone">
+                                    Contact Phone
+                                </Label>
                                 <PhoneInput
                                     id="emergency_contact_phone"
                                     value={data.emergency_contact_phone}
-                                    onChange={(e) => setData('emergency_contact_phone', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'emergency_contact_phone',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="emergency_contact_mobile">Contact Mobile</Label>
+                                <Label htmlFor="emergency_contact_mobile">
+                                    Contact Mobile
+                                </Label>
                                 <PhoneInput
                                     id="emergency_contact_mobile"
                                     value={data.emergency_contact_mobile}
-                                    onChange={(e) => setData('emergency_contact_mobile', e.target.value)}
+                                    onChange={(e) =>
+                                        setData(
+                                            'emergency_contact_mobile',
+                                            e.target.value,
+                                        )
+                                    }
                                 />
                             </div>
                         </div>
@@ -615,7 +855,7 @@ export default function Create({ auth, roles = [] }) {
                         <CardDescription>Login credentials</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password *</Label>
                                 <div className="relative">
@@ -624,23 +864,36 @@ export default function Create({ auth, roles = [] }) {
                                         id="password"
                                         type="password"
                                         value={data.password}
-                                        onChange={(e) => setData('password', e.target.value)}
+                                        onChange={(e) =>
+                                            setData('password', e.target.value)
+                                        }
                                         placeholder="••••••••"
                                         className={`pl-10 ${errors.password ? 'border-red-500' : ''}`}
                                     />
                                 </div>
-                                {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
+                                {errors.password && (
+                                    <p className="text-sm text-red-500">
+                                        {errors.password}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="password_confirmation">Confirm Password *</Label>
+                                <Label htmlFor="password_confirmation">
+                                    Confirm Password *
+                                </Label>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                                     <Input
                                         id="password_confirmation"
                                         type="password"
                                         value={data.password_confirmation}
-                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        onChange={(e) =>
+                                            setData(
+                                                'password_confirmation',
+                                                e.target.value,
+                                            )
+                                        }
                                         placeholder="••••••••"
                                         className="pl-10"
                                     />
@@ -657,43 +910,64 @@ export default function Create({ auth, roles = [] }) {
                             <Shield className="h-5 w-5" />
                             Roles & Permissions
                         </CardTitle>
-                        <CardDescription>Assign roles to define user permissions</CardDescription>
+                        <CardDescription>
+                            Assign roles to define user permissions
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             {roles.map((role) => (
-                                <label 
-                                    key={role.id} 
+                                <label
+                                    key={role.id}
                                     htmlFor={`role-${role.id}`}
-                                    className={`flex items-start space-x-3 p-4 border-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer ${
-                                        data.roles.includes(role.id) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
+                                    className={`flex cursor-pointer items-start space-x-3 rounded-lg border-2 p-4 transition-colors hover:bg-gray-50 ${
+                                        data.roles.includes(role.id)
+                                            ? 'border-blue-500 bg-blue-50'
+                                            : 'border-gray-200'
                                     }`}
                                 >
                                     <Checkbox
                                         id={`role-${role.id}`}
                                         checked={data.roles.includes(role.id)}
-                                        onCheckedChange={() => handleRoleToggle(role.id)}
+                                        onCheckedChange={() =>
+                                            handleRoleToggle(role.id)
+                                        }
                                     />
-                                    <div className="flex-1 min-w-0">
-                                        <p className="font-medium text-gray-900">{role.name}</p>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-medium text-gray-900">
+                                            {role.name}
+                                        </p>
                                         {role.description && (
-                                            <p className="text-sm text-gray-500 mt-1">{role.description}</p>
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                {role.description}
+                                            </p>
                                         )}
                                         {/* ✅ Show permissions from this role */}
-                                        {role.permissions && role.permissions.length > 0 && (
-                                            <div className="flex flex-wrap gap-1 mt-2">
-                                                {role.permissions.slice(0, 3).map(perm => (
-                                                    <Badge key={perm.id} className="bg-blue-100 text-blue-700 text-xs border-blue-200 border">
-                                                        {perm.name}
-                                                    </Badge>
-                                                ))}
-                                                {role.permissions.length > 3 && (
-                                                    <Badge className="bg-gray-100 text-gray-600 text-xs">
-                                                        +{role.permissions.length - 3} more
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        )}
+                                        {role.permissions &&
+                                            role.permissions.length > 0 && (
+                                                <div className="mt-2 flex flex-wrap gap-1">
+                                                    {role.permissions
+                                                        .slice(0, 3)
+                                                        .map((perm) => (
+                                                            <Badge
+                                                                key={perm.id}
+                                                                className="border border-blue-200 bg-blue-100 text-xs text-blue-700"
+                                                            >
+                                                                {perm.name}
+                                                            </Badge>
+                                                        ))}
+                                                    {role.permissions.length >
+                                                        3 && (
+                                                        <Badge className="bg-gray-100 text-xs text-gray-600">
+                                                            +
+                                                            {role.permissions
+                                                                .length -
+                                                                3}{' '}
+                                                            more
+                                                        </Badge>
+                                                    )}
+                                                </div>
+                                            )}
                                     </div>
                                 </label>
                             ))}
@@ -701,14 +975,19 @@ export default function Create({ auth, roles = [] }) {
 
                         {/* ✅ Permission Summary */}
                         {rolePermissions.length > 0 && (
-                            <Alert className="bg-blue-50 border-blue-200">
+                            <Alert className="border-blue-200 bg-blue-50">
                                 <Info className="h-4 w-4 text-blue-600" />
                                 <AlertDescription className="text-blue-800">
-                                    <strong>This user will have these permissions:</strong>
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                        {rolePermissions.map(perm => (
-                                            <Badge key={perm.id} className="bg-blue-100 text-blue-700 border-blue-200 border">
-                                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                    <strong>
+                                        This user will have these permissions:
+                                    </strong>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {rolePermissions.map((perm) => (
+                                            <Badge
+                                                key={perm.id}
+                                                className="border border-blue-200 bg-blue-100 text-blue-700"
+                                            >
+                                                <CheckCircle2 className="mr-1 h-3 w-3" />
                                                 {perm.name}
                                             </Badge>
                                         ))}
@@ -718,9 +997,10 @@ export default function Create({ auth, roles = [] }) {
                         )}
 
                         {data.roles.length === 0 && (
-                            <Alert className="bg-yellow-50 border-yellow-200">
-                                <AlertDescription className="text-yellow-800 text-sm">
-                                    <strong>No roles selected.</strong> User will have basic employee access only.
+                            <Alert className="border-yellow-200 bg-yellow-50">
+                                <AlertDescription className="text-sm text-yellow-800">
+                                    <strong>No roles selected.</strong> User
+                                    will have basic employee access only.
                                 </AlertDescription>
                             </Alert>
                         )}
@@ -731,16 +1011,30 @@ export default function Create({ auth, roles = [] }) {
                 <Card className="animate-fade-in animation-delay-800">
                     <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
-                            <p className="text-sm text-gray-600">Fields marked with * are required</p>
+                            <p className="text-sm text-gray-600">
+                                Fields marked with * are required
+                            </p>
                             <div className="flex gap-3">
                                 <Button type="button" variant="outline" asChild>
-                                    <Link href={route('users.index')}>Cancel</Link>
+                                    <Link href={route('users.index')}>
+                                        Cancel
+                                    </Link>
                                 </Button>
-                                <Button type="submit" disabled={processing} className="bg-blue-600 hover:bg-blue-700">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="bg-blue-600 hover:bg-blue-700"
+                                >
                                     {processing ? (
-                                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Creating...</>
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Creating...
+                                        </>
                                     ) : (
-                                        <><Save className="h-4 w-4 mr-2" />Create User</>
+                                        <>
+                                            <Save className="mr-2 h-4 w-4" />
+                                            Create User
+                                        </>
                                     )}
                                 </Button>
                             </div>

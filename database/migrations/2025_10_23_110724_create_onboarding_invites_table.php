@@ -13,18 +13,18 @@ return new class extends Migration
     {
         Schema::create('onboarding_invites', function (Blueprint $table) {
             $table->id();
-            
+
             // Candidate Information
             $table->string('email')->unique(); // Personal email
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
             $table->string('position')->nullable(); // Hired position
             $table->string('department')->nullable();
-            
+
             // Guest Access
             $table->string('token')->unique(); // Unique guest link token
             $table->timestamp('expires_at')->nullable(); // Link expiration
-            
+
             // Status
             $table->enum('status', [
                 'pending',      // Sent, waiting for submission
@@ -32,19 +32,19 @@ return new class extends Migration
                 'submitted',    // Candidate completed submission
                 'approved',     // HR approved, account created
                 'expired',      // Link expired
-                'cancelled'     // HR cancelled invite
+                'cancelled',     // HR cancelled invite
             ])->default('pending');
-            
+
             // Metadata
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade'); // HR who sent invite
             $table->timestamp('submitted_at')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('converted_user_id')->nullable()->constrained('users')->onDelete('set null'); // Created user account
-            
+
             $table->timestamps();
             $table->softDeletes();
-            
+
             // Indexes
             $table->index('token');
             $table->index('status');

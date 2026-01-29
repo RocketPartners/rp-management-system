@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LeaveRequest;
-use App\Models\LeaveBalance;
 use App\Models\IndividualAssetAssignment;
-use Illuminate\Http\Request;
+use App\Models\LeaveBalance;
+use App\Models\LeaveRequest;
 use Inertia\Inertia;
 
 class EmployeeDashboardController extends Controller
@@ -13,13 +12,13 @@ class EmployeeDashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        
+
         // Get current year leave balances
         $leaveBalances = LeaveBalance::where('user_id', $user->id)
             ->where('year', now()->year)
             ->with('leaveType')
             ->get();
-        
+
         // Get upcoming approved leaves
         $upcomingLeaves = LeaveRequest::where('user_id', $user->id)
             ->where('status', 'approved')
@@ -28,20 +27,20 @@ class EmployeeDashboardController extends Controller
             ->orderBy('start_date')
             ->limit(5)
             ->get();
-        
+
         // Get pending leave requests
         $pendingLeaves = LeaveRequest::where('user_id', $user->id)
             ->whereIn('status', ['pending_manager', 'pending_hr'])
             ->with('leaveType')
             ->get();
-        
+
         // Get assigned assets
         $assignedAssets = IndividualAssetAssignment::where('user_id', $user->id)
             ->where('status', 'active')
             ->whereNull('actual_return_date')
             ->with('asset.inventoryItem')
             ->get();
-        
+
         // Mock announcements (you can create an Announcement model later)
         $announcements = [
             [
@@ -55,7 +54,7 @@ class EmployeeDashboardController extends Controller
                 'created_at' => now()->subDays(5),
             ],
         ];
-        
+
         return Inertia::render('Employees/Dashboard', [
             'leaveBalances' => $leaveBalances,
             'upcomingLeaves' => $upcomingLeaves,

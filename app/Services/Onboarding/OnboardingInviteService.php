@@ -2,10 +2,10 @@
 
 namespace App\Services\Onboarding;
 
+use App\Mail\Onboarding\GuestInviteMail;
 use App\Models\OnboardingInvite;
 use App\Models\OnboardingSubmission;
 use App\Models\User;
-use App\Mail\Onboarding\GuestInviteMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -18,14 +18,14 @@ class OnboardingInviteService
     public function createInvite(array $data)
     {
         DB::beginTransaction();
-        
+
         try {
             // Generate unique token
             $token = $this->generateUniqueToken();
-            
+
             // Set expiration (14 days from now)
             $expiresAt = now()->addDays(14);
-            
+
             // Create invite
             $invite = OnboardingInvite::create([
                 'email' => $data['email'],
@@ -38,21 +38,21 @@ class OnboardingInviteService
                 'status' => 'pending',
                 'created_by' => auth()->id(),
             ]);
-            
+
             // Create empty submission for the invite
             OnboardingSubmission::create([
                 'invite_id' => $invite->id,
                 'status' => 'draft',
                 'completion_percentage' => 0,
             ]);
-            
+
             // Send invitation email using Mailable
             $this->sendInviteEmail($invite);
-            
+
             DB::commit();
-            
+
             return $invite;
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;
@@ -67,7 +67,7 @@ class OnboardingInviteService
         do {
             $token = Str::random(64);
         } while (OnboardingInvite::where('token', $token)->exists());
-        
+
         return $token;
     }
 
@@ -84,12 +84,12 @@ class OnboardingInviteService
      */
     public function resendInvite(OnboardingInvite $invite)
     {
-        if (!$invite->isValid()) {
+        if (! $invite->isValid()) {
             throw new \Exception('Cannot resend expired or cancelled invite.');
         }
-        
+
         $this->sendInviteEmail($invite);
-        
+
         return true;
     }
 
@@ -98,15 +98,15 @@ class OnboardingInviteService
      */
     public function extendExpiration(OnboardingInvite $invite, int $days = 7)
     {
-        $newExpiration = $invite->expires_at 
+        $newExpiration = $invite->expires_at
             ? $invite->expires_at->addDays($days)
             : now()->addDays($days);
-        
+
         $invite->update([
             'expires_at' => $newExpiration,
             'status' => 'pending', // Reset from expired if needed
         ]);
-        
+
         return $invite;
     }
 
@@ -118,9 +118,9 @@ class OnboardingInviteService
         if (in_array($invite->status, ['approved', 'submitted'])) {
             throw new \Exception('Cannot cancel already submitted or approved invites.');
         }
-        
+
         $invite->update(['status' => 'cancelled']);
-        
+
         return true;
     }
 
@@ -132,11 +132,11 @@ class OnboardingInviteService
         $expiredInvites = OnboardingInvite::where('expires_at', '<=', now())
             ->whereIn('status', ['pending', 'in_progress'])
             ->get();
-        
+
         foreach ($expiredInvites as $invite) {
             $invite->markAsExpired();
         }
-        
+
         return $expiredInvites->count();
     }
 
@@ -148,20 +148,20 @@ class OnboardingInviteService
         if ($invite->status !== 'submitted') {
             throw new \Exception('Can only convert submitted invites to user accounts.');
         }
-        
-        if (!$invite->submission) {
+
+        if (! $invite->submission) {
             throw new \Exception('No submission found for this invite.');
         }
-        
+
         DB::beginTransaction();
-        
+
         try {
             // Convert submission data to user array
             $userData = $invite->submission->toUserArray();
-            
+
             // Create user account
             $user = User::create($userData);
-            
+
             // Update invite
             $invite->update([
                 'status' => 'approved',
@@ -169,21 +169,21 @@ class OnboardingInviteService
                 'approved_by' => auth()->id(),
                 'converted_user_id' => $user->id,
             ]);
-            
+
             // Update submission
             $invite->submission->update([
                 'status' => 'approved',
                 'reviewed_at' => now(),
                 'reviewed_by' => auth()->id(),
             ]);
-            
+
             // TODO: Send welcome email with credentials
             // TODO: Initialize leave balances
-            
+
             DB::commit();
-            
+
             return $user;
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             throw $e;

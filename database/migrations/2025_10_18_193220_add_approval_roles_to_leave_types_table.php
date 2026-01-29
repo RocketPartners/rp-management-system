@@ -12,7 +12,7 @@ return new class extends Migration
             // JSON array of role slugs that can approve this leave type
             // Example: ["super-admin", "admin", "hr-manager"]
             $table->json('can_approve_roles')->nullable()->after('requires_hr_approval');
-            
+
             // Allow specific roles to bypass manager approval and go straight to HR
             $table->boolean('skip_manager_for_roles')->default(false)->after('can_approve_roles');
         });

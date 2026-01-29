@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->enum('account_status', ['pending', 'active', 'suspended', 'rejected'])
-                  ->default('pending')
-                  ->after('employment_status');
+                ->default('pending')
+                ->after('employment_status');
             $table->foreignId('approved_by')->nullable()->constrained('users')->after('account_status');
             $table->timestamp('approved_at')->nullable()->after('approved_by');
         });

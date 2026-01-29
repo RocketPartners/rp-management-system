@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\CalendarEventType;
 use App\Models\CalendarUserSetting;
-use App\Models\LeaveType;
 use App\Services\CalendarService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -29,7 +28,7 @@ class CalendarController extends Controller
 
         // Get event types for legend/filters
         $eventTypes = CalendarEventType::active()->ordered()->get([
-            'id', 'name', 'slug', 'color', 'icon', 'description'
+            'id', 'name', 'slug', 'color', 'icon', 'description',
         ]);
 
         // Get departments for filters
@@ -162,7 +161,7 @@ class CalendarController extends Controller
         } else {
             // Just return event types without counts
             $eventTypes = CalendarEventType::active()->ordered()->get([
-                'id', 'name', 'slug', 'color', 'icon', 'is_active'
+                'id', 'name', 'slug', 'color', 'icon', 'is_active',
             ])->map(function ($eventType) {
                 return [
                     'id' => $eventType->id,
@@ -187,7 +186,7 @@ class CalendarController extends Controller
     public function export(Request $request)
     {
         // Check permission
-        if (!$request->user()->hasPermission('leaves.view-team')) {
+        if (! $request->user()->hasPermission('leaves.view-team')) {
             abort(403, 'You do not have permission to export calendar data.');
         }
 
@@ -212,11 +211,11 @@ class CalendarController extends Controller
                 $request->user()
             );
 
-            $filename = 'calendar_' . $startDate->format('Y-m-d') . '_to_' . $endDate->format('Y-m-d') . '.csv';
+            $filename = 'calendar_'.$startDate->format('Y-m-d').'_to_'.$endDate->format('Y-m-d').'.csv';
 
             return response($csv, 200, [
                 'Content-Type' => 'text/csv',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
             ]);
         }
 

@@ -111,8 +111,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'permission_user')
-                    ->withPivot(['type', 'granted_by', 'granted_at', 'reason', 'expires_at'])
-                    ->withTimestamps();
+            ->withPivot(['type', 'granted_by', 'granted_at', 'reason', 'expires_at'])
+            ->withTimestamps();
     }
 
     /**
@@ -197,7 +197,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->roles()->whereIn('slug', [
             'super-admin',
             'admin',
-            'hr-manager'
+            'hr-manager',
         ])->exists();
     }
 
@@ -263,13 +263,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Grant a permission directly to this user
+     *
      * @deprecated Use PermissionService::grantToUser() instead
      */
     public function grantPermission($permissionSlug, $grantedBy = null, $reason = null)
     {
         $permission = Permission::where('slug', $permissionSlug)->first();
 
-        if (!$permission) {
+        if (! $permission) {
             return false;
         }
 
@@ -279,7 +280,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 'granted_by' => $grantedBy ?? auth()->id(),
                 'granted_at' => now(),
                 'reason' => $reason,
-            ]
+            ],
         ]);
 
         return true;
@@ -287,13 +288,14 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Revoke a permission directly from this user
+     *
      * @deprecated Use PermissionService::revokeFromUser() instead
      */
     public function revokePermission($permissionSlug, $revokedBy = null, $reason = null)
     {
         $permission = Permission::where('slug', $permissionSlug)->first();
 
-        if (!$permission) {
+        if (! $permission) {
             return false;
         }
 
@@ -303,7 +305,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 'granted_by' => $revokedBy ?? auth()->id(),
                 'granted_at' => now(),
                 'reason' => $reason,
-            ]
+            ],
         ]);
 
         return true;
@@ -315,7 +317,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function clearPermissionOverride($permissionSlug)
     {
         $permission = Permission::where('slug', $permissionSlug)->first();
-        
+
         if ($permission) {
             $this->permissions()->detach($permission->id);
         }
@@ -323,6 +325,7 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Get all user permissions (from roles + direct assignments)
+     *
      * @deprecated Use getEffectivePermissions() instead
      */
     public function getAllPermissions()
@@ -349,6 +352,7 @@ class User extends Authenticatable implements MustVerifyEmail
                 return true;
             }
         }
+
         return false;
     }
 
@@ -358,10 +362,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasAllPermissions(array $slugs): bool
     {
         foreach ($slugs as $slug) {
-            if (!$this->hasPermission($slug)) {
+            if (! $this->hasPermission($slug)) {
                 return false;
             }
         }
+
         return true;
     }
 
@@ -404,7 +409,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return \Cache::remember(
             "user:{$this->id}:permissions",
             now()->addHours(1),
-            fn() => $this->getEffectivePermissions()->pluck('slug')->toArray()
+            fn () => $this->getEffectivePermissions()->pluck('slug')->toArray()
         );
     }
 
@@ -443,7 +448,7 @@ class User extends Authenticatable implements MustVerifyEmail
         foreach ($allPermissions as $permission) {
             $group = $permission->group ?? $permission->category ?? 'general';
 
-            if (!isset($grouped[$group])) {
+            if (! isset($grouped[$group])) {
                 $grouped[$group] = [];
             }
 
@@ -476,7 +481,7 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasPermissionOverride(string $slug): ?string
     {
         $permission = Permission::where('slug', $slug)->first();
-        if (!$permission) {
+        if (! $permission) {
             return null;
         }
 
@@ -568,9 +573,9 @@ class User extends Authenticatable implements MustVerifyEmail
     public function currentIndividualAssets()
     {
         return $this->hasMany(IndividualAssetAssignment::class)
-                    ->where('status', 'active')
-                    ->whereNull('actual_return_date')
-                    ->with('asset.inventoryItem');
+            ->where('status', 'active')
+            ->whereNull('actual_return_date')
+            ->with('asset.inventoryItem');
     }
 
     public function assignedAssets()
@@ -583,7 +588,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'id',
             'asset_id'
         )->where('individual_asset_assignments.status', 'active')
-         ->whereNull('individual_asset_assignments.actual_return_date');
+            ->whereNull('individual_asset_assignments.actual_return_date');
     }
 
     // ============================================
@@ -608,8 +613,8 @@ class User extends Authenticatable implements MustVerifyEmail
     public function currentYearLeaveBalances()
     {
         return $this->hasMany(LeaveBalance::class)
-                    ->where('year', now()->year)
-                    ->with('leaveType');
+            ->where('year', now()->year)
+            ->with('leaveType');
     }
 
     public function leaveRequests()
@@ -620,28 +625,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function pendingLeaveRequests()
     {
         return $this->hasMany(LeaveRequest::class)
-                    ->whereIn('status', ['pending_manager', 'pending_hr']);
+            ->whereIn('status', ['pending_manager', 'pending_hr']);
     }
 
     public function approvedLeaveRequests()
     {
         return $this->hasMany(LeaveRequest::class)
-                    ->where('status', 'approved');
+            ->where('status', 'approved');
     }
 
     public function leaveRequestsToApprove()
     {
         return $this->hasMany(LeaveRequest::class, 'manager_id')
-                    ->where('status', 'pending_manager')
-                    ->with(['user', 'leaveType']);
+            ->where('status', 'pending_manager')
+            ->with(['user', 'leaveType']);
     }
 
     public function getLeaveBalance($leaveTypeId)
     {
         return $this->leaveBalances()
-                    ->where('leave_type_id', $leaveTypeId)
-                    ->where('year', now()->year)
-                    ->first();
+            ->where('leave_type_id', $leaveTypeId)
+            ->where('year', now()->year)
+            ->first();
     }
 
     public function isManager()

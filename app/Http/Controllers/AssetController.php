@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
+use App\Models\IndividualAssetAssignment;
 use App\Models\InventoryItem;
 use App\Models\User;
-use App\Models\IndividualAssetAssignment;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -20,14 +20,14 @@ class AssetController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('asset_tag', 'like', "%{$search}%")
-                  ->orWhere('barcode', 'like', "%{$search}%")
-                  ->orWhere('serial_number', 'like', "%{$search}%")
-                  ->orWhereHas('inventoryItem', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('sku', 'like', "%{$search}%");
-                  });
+                    ->orWhere('barcode', 'like', "%{$search}%")
+                    ->orWhere('serial_number', 'like', "%{$search}%")
+                    ->orWhereHas('inventoryItem', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%")
+                            ->orWhere('sku', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -42,7 +42,7 @@ class AssetController extends Controller
         }
 
         $assets = $query->latest()->paginate(15)->withQueryString();
-        
+
         $inventoryItems = InventoryItem::where('asset_type', 'asset')->get();
 
         return Inertia::render('Admin/Assets/Index', [
@@ -59,7 +59,7 @@ class AssetController extends Controller
             'inventoryItem.category',
             'assignments.user',
             'assignments.assignedBy',
-            'currentAssignment.user'
+            'currentAssignment.user',
         ]);
 
         return Inertia::render('Assets/IndividualAssets/Show', [
@@ -89,9 +89,9 @@ class AssetController extends Controller
     public function update(Request $request, Asset $asset)
     {
         $validated = $request->validate([
-            'asset_tag' => 'required|string|unique:assets,asset_tag,' . $asset->id,
-            'serial_number' => 'nullable|string|unique:assets,serial_number,' . $asset->id,
-            'barcode' => 'nullable|string|unique:assets,barcode,' . $asset->id,
+            'asset_tag' => 'required|string|unique:assets,asset_tag,'.$asset->id,
+            'serial_number' => 'nullable|string|unique:assets,serial_number,'.$asset->id,
+            'barcode' => 'nullable|string|unique:assets,barcode,'.$asset->id,
             'purchase_date' => 'nullable|date',
             'purchase_price' => 'nullable|numeric|min:0',
             'warranty_expiry' => 'nullable|date',
@@ -104,25 +104,25 @@ class AssetController extends Controller
         // ✅ CHECK: If status changed from "Assigned" to something else, auto-return the asset
         $oldStatus = $asset->status;
         $newStatus = $validated['status'];
-        
+
         if ($oldStatus === 'Assigned' && $newStatus !== 'Assigned') {
             // Find the active assignment and mark it as returned
             $activeAssignment = $asset->currentAssignment;
-            
+
             if ($activeAssignment) {
                 $activeAssignment->update([
                     'actual_return_date' => now(),
                     'status' => 'returned',
-                    'return_notes' => 'Asset status changed to ' . $newStatus . ' via Edit Asset form',
+                    'return_notes' => 'Asset status changed to '.$newStatus.' via Edit Asset form',
                     'condition_on_return' => $validated['condition'],
                 ]);
             }
         }
-        
+
         // ✅ CHECK: If status changed TO "Assigned" but no active assignment exists
-        if ($newStatus === 'Assigned' && !$asset->currentAssignment) {
+        if ($newStatus === 'Assigned' && ! $asset->currentAssignment) {
             // This shouldn't happen through normal flow, but let's prevent orphaned "Assigned" status
-            return back()->withInput()->with('error', 
+            return back()->withInput()->with('error',
                 'Cannot set status to "Assigned" without creating an assignment. Please use the "Assign Asset" feature instead.'
             );
         }
@@ -130,7 +130,7 @@ class AssetController extends Controller
         $asset->update($validated);
 
         return redirect()->route('individual-assets.index')
-                        ->with('success', 'Asset updated successfully!');
+            ->with('success', 'Asset updated successfully!');
     }
 
     // Show assign form
@@ -178,7 +178,7 @@ class AssetController extends Controller
         $asset->update(['status' => 'Assigned']);
 
         return redirect()->route('individual-assets.index')
-                         ->with('success', 'Asset assigned successfully!');
+            ->with('success', 'Asset assigned successfully!');
     }
 
     // Return asset
@@ -210,28 +210,28 @@ class AssetController extends Controller
     public function lookup(Request $request)
     {
         $barcode = $request->input('barcode');
-        
-        if (!$barcode) {
+
+        if (! $barcode) {
             return response()->json([
                 'found' => false,
-                'message' => 'Please provide a barcode'
+                'message' => 'Please provide a barcode',
             ]);
         }
-        
+
         $asset = Asset::where('barcode', $barcode)
             ->with(['inventoryItem.category', 'currentAssignment.user'])
             ->first();
 
-        if (!$asset) {
+        if (! $asset) {
             return response()->json([
                 'found' => false,
-                'message' => 'No asset found with this barcode'
+                'message' => 'No asset found with this barcode',
             ]);
         }
 
         return response()->json([
             'found' => true,
-            'asset' => $asset
+            'asset' => $asset,
         ]);
     }
 }

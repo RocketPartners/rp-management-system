@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->enum('event_type', ['leave', 'announcement', 'holiday', 'birthday', 'event', 'other'])
-                  ->default('other');
+                ->default('other');
 
             // Date and time
             $table->date('start_date');
