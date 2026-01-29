@@ -58,7 +58,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: production-assets-${{ github.sha }}
-          path: ./build-artifacts
+          path: ./
+
+      - name: Debug Artifact Structure
+        run: |
+          echo "=== Checking artifact structure ==="
+          ls -la
+          echo "=== public/build contents ==="
+          ls -la public/build/ || echo "public/build not found"
+          echo "=== bootstrap/ssr contents ==="
+          ls -la bootstrap/ssr/ || echo "bootstrap/ssr not found"
 
       - name: Prepare Server
         uses: appleboy/ssh-action@v1.0.3
@@ -73,19 +82,6 @@ jobs:
             git fetch origin develop
             git reset --hard origin/develop
             composer install --no-dev --optimize-autoloader --no-interaction
-            rm -rf public/build/*
-
-      - name: Transfer Build Artifacts
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_PORT || 22 }}
-          command_timeout: 2m
-          script: |
-            mkdir -p ${{ secrets.STAGING_PATH }}/public/build
-            mkdir -p ${{ secrets.STAGING_PATH }}/bootstrap/ssr
 
       - name: Copy Build Assets to Server
         uses: appleboy/scp-action@v0.1.7
@@ -94,9 +90,9 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_PORT || 22 }}
-          source: "./build-artifacts/public/build/*"
-          target: "${{ secrets.STAGING_PATH }}/public/build/"
-          strip_components: 4
+          source: "public/build"
+          target: "${{ secrets.STAGING_PATH }}"
+          overwrite: true
 
       - name: Copy SSR Assets to Server
         uses: appleboy/scp-action@v0.1.7
@@ -105,9 +101,9 @@ jobs:
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_PORT || 22 }}
-          source: "./build-artifacts/bootstrap/ssr/*"
-          target: "${{ secrets.STAGING_PATH }}/bootstrap/ssr/"
-          strip_components: 4
+          source: "bootstrap/ssr"
+          target: "${{ secrets.STAGING_PATH }}"
+          overwrite: true
 
       - name: Finalize Deployment
         uses: appleboy/ssh-action@v1.0.3
@@ -143,7 +139,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: production-assets-${{ github.sha }}
-          path: ./build-artifacts
+          path: ./
 
       - name: Prepare Production Server
         uses: appleboy/ssh-action@v1.0.3
@@ -159,19 +155,6 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             composer install --no-dev --optimize-autoloader --no-interaction
-            rm -rf public/build/*
-
-      - name: Create Asset Directories
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          command_timeout: 2m
-          script: |
-            mkdir -p ${{ secrets.PRODUCTION_PATH }}/public/build
-            mkdir -p ${{ secrets.PRODUCTION_PATH }}/bootstrap/ssr
 
       - name: Copy Build Assets to Production
         uses: appleboy/scp-action@v0.1.7
@@ -180,9 +163,9 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          source: "./build-artifacts/public/build/*"
-          target: "${{ secrets.PRODUCTION_PATH }}/public/build/"
-          strip_components: 4
+          source: "public/build"
+          target: "${{ secrets.PRODUCTION_PATH }}"
+          overwrite: true
 
       - name: Copy SSR Assets to Production
         uses: appleboy/scp-action@v0.1.7
@@ -191,9 +174,9 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          source: "./build-artifacts/bootstrap/ssr/*"
-          target: "${{ secrets.PRODUCTION_PATH }}/bootstrap/ssr/"
-          strip_components: 4
+          source: "bootstrap/ssr"
+          target: "${{ secrets.PRODUCTION_PATH }}"
+          overwrite: true
 
       - name: Finalize Production Deployment
         uses: appleboy/ssh-action@v1.0.3
