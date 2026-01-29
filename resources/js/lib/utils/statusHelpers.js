@@ -4,10 +4,10 @@
  */
 
 import {
-    DOCUMENT_STATUSES,
-    getDocumentStatusConfig,
     getSubmissionStatusConfig,
+    getDocumentStatusConfig,
     SUBMISSION_STATUSES,
+    DOCUMENT_STATUSES,
 } from '@/lib/constants/onboarding/statuses';
 
 /**
@@ -64,9 +64,10 @@ export const isSubmissionApproved = (status) => {
  * @returns {boolean}
  */
 export const canDocumentBeReviewed = (status) => {
-    return [DOCUMENT_STATUSES.PENDING, DOCUMENT_STATUSES.UPLOADED].includes(
-        status,
-    );
+    return [
+        DOCUMENT_STATUSES.PENDING,
+        DOCUMENT_STATUSES.UPLOADED,
+    ].includes(status);
 };
 
 /**
