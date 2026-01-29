@@ -58,23 +58,45 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: production-assets-${{ github.sha }}
-          path: public/build
+          path: ./build-artifacts
 
-      - name: Deploy to Staging Server
+      - name: Prepare Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_PORT || 22 }}
-          command_timeout: 20m
+          command_timeout: 5m
           script: |
             cd ${{ secrets.STAGING_PATH }}
             git fetch origin develop
             git reset --hard origin/develop
             composer install --no-dev --optimize-autoloader --no-interaction
-            npm ci
-            npm run build
+            rm -rf public/build/*
+
+      - name: Transfer Build Artifacts
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          source: "./build-artifacts/"
+          target: "${{ secrets.STAGING_PATH }}/public/build/"
+          strip_components: 1
+          rm: true
+
+      - name: Finalize Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          command_timeout: 5m
+          script: |
+            cd ${{ secrets.STAGING_PATH }}
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
@@ -99,24 +121,46 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: production-assets-${{ github.sha }}
-          path: public/build
+          path: ./build-artifacts
 
-      - name: Deploy to Production Server
+      - name: Prepare Production Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          command_timeout: 20m
+          command_timeout: 5m
           script: |
             cd ${{ secrets.PRODUCTION_PATH }}
             php artisan down
             git fetch origin main
             git reset --hard origin/main
             composer install --no-dev --optimize-autoloader --no-interaction
-            npm ci
-            npm run build
+            rm -rf public/build/*
+
+      - name: Transfer Build Artifacts to Production
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT || 22 }}
+          source: "./build-artifacts/"
+          target: "${{ secrets.PRODUCTION_PATH }}/public/build/"
+          strip_components: 1
+          rm: true
+
+      - name: Finalize Production Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT || 22 }}
+          command_timeout: 5m
+          script: |
+            cd ${{ secrets.PRODUCTION_PATH }}
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
