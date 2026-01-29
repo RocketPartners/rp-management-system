@@ -1,12 +1,25 @@
+import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { Badge } from '@/Components/ui/badge';
-import { useState, useEffect } from 'react';
-import { AlertCircle, RefreshCcw, Shield, ShieldCheck, ShieldX, CheckCircle2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
+import {
+    AlertCircle,
+    CheckCircle2,
+    RefreshCcw,
+    Shield,
+    ShieldCheck,
+    ShieldX,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function UserPermissions({ user, permissionMatrix }) {
     const { flash } = usePage().props;
@@ -73,8 +86,9 @@ export default function UserPermissions({ user, permissionMatrix }) {
             {
                 onFinish: () => setSaving(false),
                 onSuccess: () => console.log('Permissions saved successfully'),
-                onError: (errors) => console.error('Error saving permissions:', errors),
-            }
+                onError: (errors) =>
+                    console.error('Error saving permissions:', errors),
+            },
         );
     };
 
@@ -92,7 +106,9 @@ export default function UserPermissions({ user, permissionMatrix }) {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">User Permissions</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            User Permissions
+                        </h1>
                         <p className="text-muted-foreground">
                             Manage permission overrides for {user.name}
                         </p>
@@ -110,17 +126,17 @@ export default function UserPermissions({ user, permissionMatrix }) {
 
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <Alert className="bg-green-50 border-green-200">
+                    <Alert className="border-green-200 bg-green-50">
                         <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="text-green-800 font-medium">
+                        <AlertDescription className="font-medium text-green-800">
                             {flash.success}
                         </AlertDescription>
                     </Alert>
                 )}
                 {flash?.error && (
-                    <Alert className="bg-red-50 border-red-200">
+                    <Alert className="border-red-200 bg-red-50">
                         <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800 font-medium">
+                        <AlertDescription className="font-medium text-red-800">
                             {flash.error}
                         </AlertDescription>
                     </Alert>
@@ -140,13 +156,16 @@ export default function UserPermissions({ user, permissionMatrix }) {
                     <AlertDescription>
                         <div className="flex gap-4 text-sm">
                             <span className="flex items-center gap-1">
-                                <Shield className="h-4 w-4 text-blue-600" /> From Role
+                                <Shield className="h-4 w-4 text-blue-600" />{' '}
+                                From Role
                             </span>
                             <span className="flex items-center gap-1">
-                                <ShieldCheck className="h-4 w-4 text-green-600" /> Granted
+                                <ShieldCheck className="h-4 w-4 text-green-600" />{' '}
+                                Granted
                             </span>
                             <span className="flex items-center gap-1">
-                                <ShieldX className="h-4 w-4 text-red-600" /> Revoked
+                                <ShieldX className="h-4 w-4 text-red-600" />{' '}
+                                Revoked
                             </span>
                         </div>
                     </AlertDescription>
@@ -154,47 +173,66 @@ export default function UserPermissions({ user, permissionMatrix }) {
 
                 {/* Permission Groups */}
                 <div className="space-y-4">
-                    {Object.entries(permissionMatrix).map(([group, permissions]) => (
-                        <Card key={group}>
-                            <CardHeader>
-                                <CardTitle className="capitalize">{group}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {permissions.map((permission) => (
-                                    <div key={permission.id} className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3">
-                                            <Checkbox
-                                                id={`permission-${permission.id}`}
-                                                checked={isChecked(permission.id, permission.from_role)}
-                                                onCheckedChange={() =>
-                                                    handleCheckboxChange(
+                    {Object.entries(permissionMatrix).map(
+                        ([group, permissions]) => (
+                            <Card key={group}>
+                                <CardHeader>
+                                    <CardTitle className="capitalize">
+                                        {group}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {permissions.map((permission) => (
+                                        <div
+                                            key={permission.id}
+                                            className="flex items-center justify-between"
+                                        >
+                                            <div className="flex items-center space-x-3">
+                                                <Checkbox
+                                                    id={`permission-${permission.id}`}
+                                                    checked={isChecked(
                                                         permission.id,
                                                         permission.from_role,
-                                                        permission.override
-                                                    )
-                                                }
-                                            />
-                                            {getPermissionIcon(permission.id, permission.from_role)}
-                                            <label
-                                                htmlFor={`permission-${permission.id}`}
-                                                className="flex-1 cursor-pointer"
-                                            >
-                                                <div className="font-medium">{permission.name}</div>
-                                                <div className="text-sm text-muted-foreground">
-                                                    {permission.description}
-                                                </div>
-                                            </label>
+                                                    )}
+                                                    onCheckedChange={() =>
+                                                        handleCheckboxChange(
+                                                            permission.id,
+                                                            permission.from_role,
+                                                            permission.override,
+                                                        )
+                                                    }
+                                                />
+                                                {getPermissionIcon(
+                                                    permission.id,
+                                                    permission.from_role,
+                                                )}
+                                                <label
+                                                    htmlFor={`permission-${permission.id}`}
+                                                    className="flex-1 cursor-pointer"
+                                                >
+                                                    <div className="font-medium">
+                                                        {permission.name}
+                                                    </div>
+                                                    <div className="text-sm text-muted-foreground">
+                                                        {permission.description}
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            {permission.effective ? (
+                                                <Badge variant="default">
+                                                    Active
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="secondary">
+                                                    Inactive
+                                                </Badge>
+                                            )}
                                         </div>
-                                        {permission.effective ? (
-                                            <Badge variant="default">Active</Badge>
-                                        ) : (
-                                            <Badge variant="secondary">Inactive</Badge>
-                                        )}
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-                    ))}
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        ),
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

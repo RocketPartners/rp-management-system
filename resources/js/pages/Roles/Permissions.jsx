@@ -1,11 +1,17 @@
+import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert';
+import { Button } from '@/Components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/Components/ui/card';
+import { Checkbox } from '@/Components/ui/checkbox';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { useState, useEffect } from 'react';
 import { AlertCircle, Users } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/Components/ui/alert';
+import { useEffect, useState } from 'react';
 
 export default function RolePermissions({ role, permissionMatrix }) {
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -26,7 +32,9 @@ export default function RolePermissions({ role, permissionMatrix }) {
 
     const handleCheckboxChange = (permissionId) => {
         if (selectedPermissions.includes(permissionId)) {
-            setSelectedPermissions(selectedPermissions.filter((id) => id !== permissionId));
+            setSelectedPermissions(
+                selectedPermissions.filter((id) => id !== permissionId),
+            );
         } else {
             setSelectedPermissions([...selectedPermissions, permissionId]);
         }
@@ -39,7 +47,7 @@ export default function RolePermissions({ role, permissionMatrix }) {
             { permissions: selectedPermissions },
             {
                 onFinish: () => setSaving(false),
-            }
+            },
         );
     };
 
@@ -51,7 +59,9 @@ export default function RolePermissions({ role, permissionMatrix }) {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Role Permissions</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">
+                            Role Permissions
+                        </h1>
                         <p className="text-muted-foreground">
                             Manage built-in permissions for {role.name}
                         </p>
@@ -68,8 +78,9 @@ export default function RolePermissions({ role, permissionMatrix }) {
                         <CardDescription>
                             <div className="flex items-center gap-2">
                                 <Users className="h-4 w-4" />
-                                {role.users_count} {role.users_count === 1 ? 'user' : 'users'} have this
-                                role
+                                {role.users_count}{' '}
+                                {role.users_count === 1 ? 'user' : 'users'} have
+                                this role
                             </div>
                         </CardDescription>
                     </CardHeader>
@@ -81,42 +92,59 @@ export default function RolePermissions({ role, permissionMatrix }) {
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Impact Warning</AlertTitle>
                         <AlertDescription>
-                            Changes to role permissions will affect all {role.users_count}{' '}
-                            {role.users_count === 1 ? 'user' : 'users'} with this role. Users with
-                            individual permission overrides may not be affected by all changes.
+                            Changes to role permissions will affect all{' '}
+                            {role.users_count}{' '}
+                            {role.users_count === 1 ? 'user' : 'users'} with
+                            this role. Users with individual permission
+                            overrides may not be affected by all changes.
                         </AlertDescription>
                     </Alert>
                 )}
 
                 {/* Permission Groups */}
                 <div className="space-y-4">
-                    {Object.entries(permissionMatrix).map(([group, permissions]) => (
-                        <Card key={group}>
-                            <CardHeader>
-                                <CardTitle className="capitalize">{group}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {permissions.map((permission) => (
-                                    <div key={permission.id} className="flex items-center space-x-3">
-                                        <Checkbox
-                                            id={`permission-${permission.id}`}
-                                            checked={selectedPermissions.includes(permission.id)}
-                                            onCheckedChange={() => handleCheckboxChange(permission.id)}
-                                        />
-                                        <label
-                                            htmlFor={`permission-${permission.id}`}
-                                            className="flex-1 cursor-pointer"
+                    {Object.entries(permissionMatrix).map(
+                        ([group, permissions]) => (
+                            <Card key={group}>
+                                <CardHeader>
+                                    <CardTitle className="capitalize">
+                                        {group}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {permissions.map((permission) => (
+                                        <div
+                                            key={permission.id}
+                                            className="flex items-center space-x-3"
                                         >
-                                            <div className="font-medium">{permission.name}</div>
-                                            <div className="text-sm text-muted-foreground">
-                                                {permission.description}
-                                            </div>
-                                        </label>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-                    ))}
+                                            <Checkbox
+                                                id={`permission-${permission.id}`}
+                                                checked={selectedPermissions.includes(
+                                                    permission.id,
+                                                )}
+                                                onCheckedChange={() =>
+                                                    handleCheckboxChange(
+                                                        permission.id,
+                                                    )
+                                                }
+                                            />
+                                            <label
+                                                htmlFor={`permission-${permission.id}`}
+                                                className="flex-1 cursor-pointer"
+                                            >
+                                                <div className="font-medium">
+                                                    {permission.name}
+                                                </div>
+                                                <div className="text-sm text-muted-foreground">
+                                                    {permission.description}
+                                                </div>
+                                            </label>
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        ),
+                    )}
                 </div>
             </div>
         </AuthenticatedLayout>

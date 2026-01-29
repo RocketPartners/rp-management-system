@@ -166,9 +166,14 @@ jobs:
           cp .env.example .env
           php artisan key:generate
           php artisan config:clear
-          php artisan cache:clear
 
-      - name: Run Database Migrations
+      - name: Run SQLite Migrations
+        run: php artisan migrate --force
+
+      - name: Clear Application Cache
+        run: php artisan cache:clear
+
+      - name: Run MySQL Migrations for Tests
         env:
           DB_CONNECTION: mysql
           DB_HOST: 127.0.0.1

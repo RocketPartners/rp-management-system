@@ -4,12 +4,12 @@
  * Eliminates duplicate badge logic across Form.jsx, Index.jsx, and Review.jsx
  */
 
-import React from 'react';
 import { Badge } from '@/Components/ui/badge';
 import {
-    getSubmissionStatusConfig,
     getDocumentStatusConfig,
+    getSubmissionStatusConfig,
 } from '@/lib/constants/onboarding/statuses';
+import React from 'react';
 
 /**
  * StatusBadge - Unified status badge component
@@ -20,21 +20,24 @@ import {
  * @param {string} props.className - Additional CSS classes
  * @returns {JSX.Element}
  */
-export const StatusBadge = React.memo(({ status, variant = 'submission', className = '' }) => {
-    // Get configuration based on variant
-    const config = variant === 'document'
-        ? getDocumentStatusConfig(status)
-        : getSubmissionStatusConfig(status);
+export const StatusBadge = React.memo(
+    ({ status, variant = 'submission', className = '' }) => {
+        // Get configuration based on variant
+        const config =
+            variant === 'document'
+                ? getDocumentStatusConfig(status)
+                : getSubmissionStatusConfig(status);
 
-    const Icon = config.icon;
+        const Icon = config.icon;
 
-    return (
-        <Badge className={`${config.color} border ${className}`}>
-            <Icon className="h-3 w-3 mr-1" />
-            {config.label}
-        </Badge>
-    );
-});
+        return (
+            <Badge className={`${config.color} border ${className}`}>
+                <Icon className="mr-1 h-3 w-3" />
+                {config.label}
+            </Badge>
+        );
+    },
+);
 
 StatusBadge.displayName = 'StatusBadge';
 

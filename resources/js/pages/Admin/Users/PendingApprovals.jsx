@@ -1,12 +1,9 @@
 // resources/js/Pages/Admin/Users/PendingApprovals.jsx
-import { useState, useRef, useEffect } from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { Button } from '@/Components/ui/button';
-import { Input } from '@/Components/ui/input';
-import { Card, CardContent } from '@/Components/ui/card';
-import { Badge } from '@/Components/ui/badge';
 import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent } from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
 import {
     Table,
     TableBody,
@@ -15,31 +12,35 @@ import {
     TableHeader,
     TableRow,
 } from '@/Components/ui/table';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, router, usePage } from '@inertiajs/react';
 import {
-    Search,
-    ChevronLeft,
-    ChevronRight,
-    X,
-    Mail,
-    Shield,
-    CheckCircle2,
     AlertCircle,
-    Clock,
-    UserCheck,
-    UserX,
-    Users as UsersIcon,
-    Phone,
     Briefcase,
     Calendar,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    Clock,
+    Mail,
+    Phone,
+    Search,
+    Shield,
+    UserCheck,
+    UserX,
+    X,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function PendingApprovals({ auth, users, filters }) {
     const [search, setSearch] = useState(filters.search || '');
 
     const [selected, setSelected] = useState([]);
     const selectAllRef = useRef(null);
-    const allChecked = selected.length === users.data.length && selected.length > 0;
-    const isIndeterminate = selected.length > 0 && selected.length < users.length;
+    const allChecked =
+        selected.length === users.data.length && selected.length > 0;
+    const isIndeterminate =
+        selected.length > 0 && selected.length < users.length;
 
     useEffect(() => {
         if (selectAllRef.current) {
@@ -49,17 +50,17 @@ export default function PendingApprovals({ auth, users, filters }) {
 
     const handleSelectAll = (e) => {
         if (e.target.checked) {
-            setSelected(users.data.map(user => user.id));
+            setSelected(users.data.map((user) => user.id));
         } else {
             setSelected([]);
         }
     };
 
     const handleItemToggle = (itemId) => {
-        setSelected(prev =>
+        setSelected((prev) =>
             prev.includes(itemId)
-                ? prev.filter(id => id !== itemId)
-                : [...prev, itemId]
+                ? prev.filter((id) => id !== itemId)
+                : [...prev, itemId],
         );
     };
 
@@ -67,9 +68,13 @@ export default function PendingApprovals({ auth, users, filters }) {
 
     const handleSearch = (e) => {
         e.preventDefault();
-        router.get(route('users.pending-approvals'), { search }, {
-            preserveState: true,
-        });
+        router.get(
+            route('users.pending-approvals'),
+            { search },
+            {
+                preserveState: true,
+            },
+        );
     };
 
     const handleReset = () => {
@@ -78,16 +83,24 @@ export default function PendingApprovals({ auth, users, filters }) {
     };
 
     const handleApprove = (user) => {
-        if (confirm(`Are you sure you want to approve ${user.name}? They will be able to access the system.`)) {
-            router.post(route('users.approve', user), {}, {
-                preserveScroll: true,
-            });
+        if (
+            confirm(
+                `Are you sure you want to approve ${user.name}? They will be able to access the system.`,
+            )
+        ) {
+            router.post(
+                route('users.approve', user),
+                {},
+                {
+                    preserveScroll: true,
+                },
+            );
         }
     };
 
     const handleBulkApprove = () => {
         if (selected.length === 0) {
-            alert("Please select at least one user.");
+            alert('Please select at least one user.');
             return;
         }
         if (confirm(`Are you sure you want to approve ${selected}?`)) {
@@ -107,19 +120,31 @@ export default function PendingApprovals({ auth, users, filters }) {
     };
 
     const handleReject = (user) => {
-        if (confirm(`Are you sure you want to reject ${user.name}? They will need to register again.`)) {
-            router.post(route('users.reject', user.id), {}, {
-                preserveScroll: true,
-            });
+        if (
+            confirm(
+                `Are you sure you want to reject ${user.name}? They will need to register again.`,
+            )
+        ) {
+            router.post(
+                route('users.reject', user.id),
+                {},
+                {
+                    preserveScroll: true,
+                },
+            );
         }
     };
 
     const handleBulkReject = () => {
         if (selected.length === 0) {
-            alert("Please select at least one user.");
+            alert('Please select at least one user.');
             return;
         }
-        if (confirm(`Are you sure you want to reject ${selected}? They will need to register again.`)) {
+        if (
+            confirm(
+                `Are you sure you want to reject ${selected}? They will need to register again.`,
+            )
+        ) {
             router.post(
                 route('users.bulkReject'),
                 {
@@ -142,16 +167,20 @@ export default function PendingApprovals({ auth, users, filters }) {
             header={
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-100 rounded-lg">
+                        <div className="rounded-lg bg-yellow-100 p-2">
                             <UserCheck className="h-6 w-6 text-yellow-600" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold text-gray-900">Pending User Approvals</h2>
-                            <p className="text-gray-600 mt-1">Review and approve new user registrations</p>
+                            <h2 className="text-3xl font-bold text-gray-900">
+                                Pending User Approvals
+                            </h2>
+                            <p className="mt-1 text-gray-600">
+                                Review and approve new user registrations
+                            </p>
                         </div>
                     </div>
-                    <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 border text-lg px-4 py-2">
-                        <Clock className="h-5 w-5 mr-2" />
+                    <Badge className="border border-yellow-200 bg-yellow-100 px-4 py-2 text-lg text-yellow-700">
+                        <Clock className="mr-2 h-5 w-5" />
                         {users.total} Pending
                     </Badge>
                 </div>
@@ -162,17 +191,17 @@ export default function PendingApprovals({ auth, users, filters }) {
             <div className="space-y-6">
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <Alert className="bg-green-50 border-green-200 animate-fade-in">
+                    <Alert className="animate-fade-in border-green-200 bg-green-50">
                         <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="text-green-800 font-medium">
+                        <AlertDescription className="font-medium text-green-800">
                             {flash.success}
                         </AlertDescription>
                     </Alert>
                 )}
                 {flash?.error && (
-                    <Alert className="bg-red-50 border-red-200 animate-fade-in">
+                    <Alert className="animate-fade-in border-red-200 bg-red-50">
                         <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="text-red-800 font-medium">
+                        <AlertDescription className="font-medium text-red-800">
                             {flash.error}
                         </AlertDescription>
                     </Alert>
@@ -180,100 +209,133 @@ export default function PendingApprovals({ auth, users, filters }) {
 
                 {/* Info Banner */}
                 {users.total > 0 && (
-                    <Alert className="bg-blue-50 border-blue-200 animate-fade-in">
+                    <Alert className="animate-fade-in border-blue-200 bg-blue-50">
                         <AlertCircle className="h-5 w-5 text-blue-600" />
                         <AlertDescription className="text-blue-800">
-                            <strong>Quick Action Required:</strong> These users have registered and are waiting for approval to access the system.
+                            <strong>Quick Action Required:</strong> These users
+                            have registered and are waiting for approval to
+                            access the system.
                         </AlertDescription>
                     </Alert>
                 )}
 
                 {/* Search Filter */}
-                <Card className="shadow-sm animate-fade-in animation-delay-100">
+                <Card className="animate-fade-in animation-delay-100 shadow-sm">
                     <CardContent className="pt-6">
                         <form onSubmit={handleSearch} className="space-y-4">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 transform text-gray-400" />
                                 <Input
                                     type="text"
                                     placeholder="Search by name or email..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-10 h-11"
+                                    className="h-11 pl-10"
                                 />
                             </div>
 
                             <div className="flex items-end gap-3">
-                                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white h-10">
-                                    <Search className="h-4 w-4 mr-2" />
+                                <Button
+                                    type="submit"
+                                    className="h-10 bg-blue-600 text-white hover:bg-blue-700"
+                                >
+                                    <Search className="mr-2 h-4 w-4" />
                                     Search
                                 </Button>
                                 {hasFilters && (
-                                    <Button type="button" variant="outline" onClick={handleReset} className="h-10">
-                                        <X className="h-4 w-4 mr-2" />
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleReset}
+                                        className="h-10"
+                                    >
+                                        <X className="mr-2 h-4 w-4" />
                                         Reset
                                     </Button>
                                 )}
                             </div>
 
-                            <div className="text-sm text-gray-600 pt-2 border-t">
-                                Showing <span className="font-semibold text-gray-900">{users.total}</span> pending {users.total === 1 ? 'user' : 'users'}
+                            <div className="border-t pt-2 text-sm text-gray-600">
+                                Showing{' '}
+                                <span className="font-semibold text-gray-900">
+                                    {users.total}
+                                </span>{' '}
+                                pending {users.total === 1 ? 'user' : 'users'}
                             </div>
                         </form>
                     </CardContent>
                 </Card>
 
                 {/* Users Table */}
-                <Card className="shadow-sm animate-fade-in animation-delay-200">
+                <Card className="animate-fade-in animation-delay-200 shadow-sm">
                     <div className="flex items-center justify-end gap-2 px-6">
                         <Button
                             size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white"
+                            className="bg-green-600 text-white hover:bg-green-700"
                             onClick={() => handleBulkApprove()}
                         >
-                            <UserCheck className="h-4 w-4 mr-1" />
+                            <UserCheck className="mr-1 h-4 w-4" />
                             Approve
                         </Button>
                         <Button
                             size="sm"
                             variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
+                            className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
                             onClick={() => handleBulkReject(selected)}
                         >
-                            <UserX className="h-4 w-4 mr-1" />
+                            <UserX className="mr-1 h-4 w-4" />
                             Reject
                         </Button>
                     </div>
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-gray-50 hover:bg-gray-50 border-b-2">
-                                    <TableHead className="font-semibold text-gray-700 h-12">
+                                <TableRow className="border-b-2 bg-gray-50 hover:bg-gray-50">
+                                    <TableHead className="h-12 font-semibold text-gray-700">
                                         <input
                                             ref={selectAllRef}
                                             type="checkbox"
                                             checked={allChecked}
                                             onChange={handleSelectAll}
-                                            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                            className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                                         />
                                     </TableHead>
-                                    <TableHead className="font-semibold text-gray-700 h-12">User</TableHead>
-                                    <TableHead className="font-semibold text-gray-700 h-12">Contact</TableHead>
-                                    <TableHead className="font-semibold text-gray-700 h-12">Roles</TableHead>
-                                    <TableHead className="font-semibold text-gray-700 h-12">Registered</TableHead>
-                                    <TableHead className="font-semibold text-gray-700 h-12 text-center">Actions</TableHead>
+                                    <TableHead className="h-12 font-semibold text-gray-700">
+                                        User
+                                    </TableHead>
+                                    <TableHead className="h-12 font-semibold text-gray-700">
+                                        Contact
+                                    </TableHead>
+                                    <TableHead className="h-12 font-semibold text-gray-700">
+                                        Roles
+                                    </TableHead>
+                                    <TableHead className="h-12 font-semibold text-gray-700">
+                                        Registered
+                                    </TableHead>
+                                    <TableHead className="h-12 text-center font-semibold text-gray-700">
+                                        Actions
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {users.data.length > 0 ? (
                                     users.data.map((user) => (
-                                        <TableRow key={user.id} className="hover:bg-yellow-50/30 border-b bg-yellow-50/20">
+                                        <TableRow
+                                            key={user.id}
+                                            className="border-b bg-yellow-50/20 hover:bg-yellow-50/30"
+                                        >
                                             <TableCell className="py-4 align-middle">
                                                 <input
                                                     type="checkbox"
-                                                    checked={selected.includes(user.id)}
-                                                    onChange={() => handleItemToggle(user.id)}
-                                                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                                    checked={selected.includes(
+                                                        user.id,
+                                                    )}
+                                                    onChange={() =>
+                                                        handleItemToggle(
+                                                            user.id,
+                                                        )
+                                                    }
+                                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
                                                 />
                                             </TableCell>
                                             <TableCell className="py-4 align-middle">
@@ -282,24 +344,32 @@ export default function PendingApprovals({ auth, users, filters }) {
                                                         <img
                                                             src={`/storage/${user.profile_picture}`}
                                                             alt={user.name}
-                                                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                                                            className="h-12 w-12 flex-shrink-0 rounded-full object-cover"
                                                         />
                                                     ) : (
-                                                        <div className="flex items-center justify-center w-12 h-12 bg-yellow-600 rounded-full flex-shrink-0">
+                                                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-yellow-600">
                                                             <span className="text-sm font-medium text-white">
-                                                                {user.name.charAt(0).toUpperCase()}
+                                                                {user.name
+                                                                    .charAt(0)
+                                                                    .toUpperCase()}
                                                             </span>
                                                         </div>
                                                     )}
                                                     <div className="min-w-0">
-                                                        <p className="font-semibold text-gray-900 truncate">{user.name}</p>
+                                                        <p className="truncate font-semibold text-gray-900">
+                                                            {user.name}
+                                                        </p>
                                                         {user.position && (
-                                                            <p className="text-sm text-gray-600 truncate">{user.position}</p>
+                                                            <p className="truncate text-sm text-gray-600">
+                                                                {user.position}
+                                                            </p>
                                                         )}
                                                         {user.department && (
-                                                            <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                                                            <div className="mt-0.5 flex items-center gap-1 text-xs text-gray-500">
                                                                 <Briefcase className="h-3 w-3" />
-                                                                {user.department}
+                                                                {
+                                                                    user.department
+                                                                }
                                                             </div>
                                                         )}
                                                     </div>
@@ -308,42 +378,63 @@ export default function PendingApprovals({ auth, users, filters }) {
                                             <TableCell className="align-middle">
                                                 <div className="space-y-1">
                                                     <div className="flex items-center gap-2">
-                                                        <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                                                        <span className="text-sm text-gray-700 truncate">{user.email}</span>
+                                                        <Mail className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                                        <span className="truncate text-sm text-gray-700">
+                                                            {user.email}
+                                                        </span>
                                                     </div>
                                                     {user.phone_number && (
                                                         <div className="flex items-center gap-2">
-                                                            <Phone className="h-4 w-4 text-gray-400 flex-shrink-0" />
-                                                            <span className="text-sm text-gray-600">{user.phone_number}</span>
+                                                            <Phone className="h-4 w-4 flex-shrink-0 text-gray-400" />
+                                                            <span className="text-sm text-gray-600">
+                                                                {
+                                                                    user.phone_number
+                                                                }
+                                                            </span>
                                                         </div>
                                                     )}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="align-middle">
                                                 <div className="flex flex-wrap gap-1">
-                                                    {user.roles && user.roles.length > 0 ? (
-                                                        user.roles.map((role) => (
-                                                            <Badge key={role.id} className="bg-purple-100 text-purple-700 border-purple-200 border text-xs whitespace-nowrap">
-                                                                <Shield className="h-3 w-3 mr-1" />
-                                                                {role.name}
-                                                            </Badge>
-                                                        ))
+                                                    {user.roles &&
+                                                    user.roles.length > 0 ? (
+                                                        user.roles.map(
+                                                            (role) => (
+                                                                <Badge
+                                                                    key={
+                                                                        role.id
+                                                                    }
+                                                                    className="whitespace-nowrap border border-purple-200 bg-purple-100 text-xs text-purple-700"
+                                                                >
+                                                                    <Shield className="mr-1 h-3 w-3" />
+                                                                    {role.name}
+                                                                </Badge>
+                                                            ),
+                                                        )
                                                     ) : (
-                                                        <span className="text-gray-400 text-sm">No roles assigned</span>
+                                                        <span className="text-sm text-gray-400">
+                                                            No roles assigned
+                                                        </span>
                                                     )}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="align-middle">
                                                 <div className="flex items-center gap-2">
                                                     <Calendar className="h-4 w-4 text-gray-400" />
-                                                    <span className="text-sm text-gray-600 whitespace-nowrap">
-                                                        {new Date(user.created_at).toLocaleDateString('en-US', {
-                                                            month: 'short',
-                                                            day: 'numeric',
-                                                            year: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit'
-                                                        })}
+                                                    <span className="whitespace-nowrap text-sm text-gray-600">
+                                                        {new Date(
+                                                            user.created_at,
+                                                        ).toLocaleDateString(
+                                                            'en-US',
+                                                            {
+                                                                month: 'short',
+                                                                day: 'numeric',
+                                                                year: 'numeric',
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                            },
+                                                        )}
                                                     </span>
                                                 </div>
                                             </TableCell>
@@ -351,19 +442,23 @@ export default function PendingApprovals({ auth, users, filters }) {
                                                 <div className="flex items-center justify-center gap-2">
                                                     <Button
                                                         size="sm"
-                                                        className="bg-green-600 hover:bg-green-700 text-white"
-                                                        onClick={() => handleApprove(user)}
+                                                        className="bg-green-600 text-white hover:bg-green-700"
+                                                        onClick={() =>
+                                                            handleApprove(user)
+                                                        }
                                                     >
-                                                        <UserCheck className="h-4 w-4 mr-1" />
+                                                        <UserCheck className="mr-1 h-4 w-4" />
                                                         Approve
                                                     </Button>
                                                     <Button
                                                         size="sm"
                                                         variant="outline"
-                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-300"
-                                                        onClick={() => handleReject(user)}
+                                                        className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                        onClick={() =>
+                                                            handleReject(user)
+                                                        }
                                                     >
-                                                        <UserX className="h-4 w-4 mr-1" />
+                                                        <UserX className="mr-1 h-4 w-4" />
                                                         Reject
                                                     </Button>
                                                 </div>
@@ -372,13 +467,18 @@ export default function PendingApprovals({ auth, users, filters }) {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="h-64 text-center">
+                                        <TableCell
+                                            colSpan={5}
+                                            className="h-64 text-center"
+                                        >
                                             <div className="flex flex-col items-center justify-center">
-                                                <div className="p-4 bg-green-100 rounded-full mb-4">
+                                                <div className="mb-4 rounded-full bg-green-100 p-4">
                                                     <CheckCircle2 className="h-12 w-12 text-green-600" />
                                                 </div>
-                                                <p className="text-gray-900 font-medium text-lg mb-1">All caught up!</p>
-                                                <p className="text-gray-500 text-sm">
+                                                <p className="mb-1 text-lg font-medium text-gray-900">
+                                                    All caught up!
+                                                </p>
+                                                <p className="text-sm text-gray-500">
                                                     {hasFilters
                                                         ? 'No pending users match your search'
                                                         : 'There are no pending user approvals at the moment'}
@@ -393,32 +493,44 @@ export default function PendingApprovals({ auth, users, filters }) {
 
                     {/* Pagination */}
                     {users.data.length > 0 && (
-                        <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50">
+                        <div className="flex items-center justify-between border-t bg-gray-50 px-6 py-4">
                             <p className="text-sm text-gray-700">
-                                Showing <span className="font-medium">{users.from}</span> to{' '}
-                                <span className="font-medium">{users.to}</span> of{' '}
-                                <span className="font-medium">{users.total}</span> results
+                                Showing{' '}
+                                <span className="font-medium">
+                                    {users.from}
+                                </span>{' '}
+                                to{' '}
+                                <span className="font-medium">{users.to}</span>{' '}
+                                of{' '}
+                                <span className="font-medium">
+                                    {users.total}
+                                </span>{' '}
+                                results
                             </p>
                             <div className="flex gap-2">
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => router.get(users.prev_page_url)}
+                                    onClick={() =>
+                                        router.get(users.prev_page_url)
+                                    }
                                     disabled={!users.prev_page_url}
                                     className="h-9"
                                 >
-                                    <ChevronLeft className="h-4 w-4 mr-1" />
+                                    <ChevronLeft className="mr-1 h-4 w-4" />
                                     Previous
                                 </Button>
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => router.get(users.next_page_url)}
+                                    onClick={() =>
+                                        router.get(users.next_page_url)
+                                    }
                                     disabled={!users.next_page_url}
                                     className="h-9"
                                 >
                                     Next
-                                    <ChevronRight className="h-4 w-4 ml-1" />
+                                    <ChevronRight className="ml-1 h-4 w-4" />
                                 </Button>
                             </div>
                         </div>
