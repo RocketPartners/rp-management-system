@@ -1,15 +1,15 @@
 // resources/js/Pages/Admin/Leaves/CreateType.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { useState } from 'react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
 import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
+import { Textarea } from '@/Components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Switch } from '@/Components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
     Select,
     SelectContent,
@@ -17,23 +17,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/Components/ui/select';
-import { Switch } from '@/Components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
-import { Textarea } from '@/Components/ui/textarea';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
-    AlertCircle,
     ArrowLeft,
-    Calendar,
-    CheckCircle2,
-    FileText,
-    Info,
     Plus,
+    AlertCircle,
+    CheckCircle2,
+    Settings,
+    Calendar,
+    FileText,
     Shield,
+    Info,
     Sparkles,
 } from 'lucide-react';
-import { useState } from 'react';
 
 export default function CreateType({ auth, availableColors, availableIcons }) {
     const { flash } = usePage().props;
@@ -70,38 +65,35 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                     <div className="flex items-center gap-3">
                         <Button asChild variant="ghost" size="sm">
                             <Link href={route('leave-types.index')}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back
                             </Link>
                         </Button>
                         <div className="h-8 w-px bg-gray-300" />
                         <div className="flex items-center gap-3">
-                            <div
-                                className="rounded-lg p-2"
+                            <div 
+                                className="p-2 rounded-lg"
                                 style={{ backgroundColor: `${data.color}20` }}
                             >
-                                <Sparkles
-                                    className="h-6 w-6"
+                                <Sparkles 
+                                    className="h-6 w-6" 
                                     style={{ color: data.color }}
                                 />
                             </div>
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">
-                                    Create New Leave Type
-                                </h2>
-                                <p className="mt-1 text-gray-600">
-                                    Configure a new leave type for your
-                                    organization
+                                <h2 className="text-3xl font-bold text-gray-900">Create New Leave Type</h2>
+                                <p className="text-gray-600 mt-1">
+                                    Configure a new leave type for your organization
                                 </p>
                             </div>
                         </div>
                     </div>
-                    <Button
-                        onClick={handleSubmit}
+                    <Button 
+                        onClick={handleSubmit} 
                         disabled={processing}
                         className="bg-purple-600 hover:bg-purple-700"
                     >
-                        <Plus className="mr-2 h-4 w-4" />
+                        <Plus className="h-4 w-4 mr-2" />
                         {processing ? 'Creating...' : 'Create Leave Type'}
                     </Button>
                 </div>
@@ -112,18 +104,18 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
             <div className="space-y-6">
                 {/* Flash Messages */}
                 {flash?.success && (
-                    <Alert className="animate-fade-in border-green-200 bg-green-50">
+                    <Alert className="bg-green-50 border-green-200 animate-fade-in">
                         <CheckCircle2 className="h-4 w-4 text-green-600" />
-                        <AlertDescription className="font-medium text-green-800">
+                        <AlertDescription className="text-green-800 font-medium">
                             {flash.success}
                         </AlertDescription>
                     </Alert>
                 )}
 
                 {flash?.error && (
-                    <Alert className="animate-fade-in border-red-200 bg-red-50">
+                    <Alert className="bg-red-50 border-red-200 animate-fade-in">
                         <AlertCircle className="h-4 w-4 text-red-600" />
-                        <AlertDescription className="font-medium text-red-800">
+                        <AlertDescription className="text-red-800 font-medium">
                             {flash.error}
                         </AlertDescription>
                     </Alert>
@@ -133,51 +125,30 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                 <Alert className="border-blue-200 bg-blue-50">
                     <Info className="h-4 w-4 text-blue-600" />
                     <AlertDescription className="text-blue-800">
-                        <strong>Note:</strong> After creating this leave type,
-                        leave balances will be automatically created for all
-                        active employees.
+                        <strong>Note:</strong> After creating this leave type, leave balances will be automatically created for all active employees.
                     </AlertDescription>
                 </Alert>
 
                 <form onSubmit={handleSubmit}>
-                    <Tabs
-                        value={activeTab}
-                        onValueChange={setActiveTab}
-                        className="space-y-6"
-                    >
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
                         <TabsList className="grid w-full grid-cols-5">
-                            <TabsTrigger
-                                value="basic"
-                                className="flex items-center gap-2"
-                            >
+                            <TabsTrigger value="basic" className="flex items-center gap-2">
                                 <FileText className="h-4 w-4" />
                                 Basic Info
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="allocation"
-                                className="flex items-center gap-2"
-                            >
+                            <TabsTrigger value="allocation" className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
                                 Allocation
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="medical"
-                                className="flex items-center gap-2"
-                            >
+                            <TabsTrigger value="medical" className="flex items-center gap-2">
                                 <FileText className="h-4 w-4" />
                                 Medical Cert
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="carryover"
-                                className="flex items-center gap-2"
-                            >
+                            <TabsTrigger value="carryover" className="flex items-center gap-2">
                                 <Calendar className="h-4 w-4" />
                                 Carry Over
                             </TabsTrigger>
-                            <TabsTrigger
-                                value="approval"
-                                className="flex items-center gap-2"
-                            >
+                            <TabsTrigger value="approval" className="flex items-center gap-2">
                                 <Shield className="h-4 w-4" />
                                 Approval
                             </TabsTrigger>
@@ -189,37 +160,23 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                 <CardHeader>
                                     <CardTitle>Basic Information</CardTitle>
                                     <CardDescription>
-                                        Set up the name, code, and appearance of
-                                        this leave type
+                                        Set up the name, code, and appearance of this leave type
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="grid grid-cols-2 gap-6">
                                         {/* Name */}
                                         <div className="space-y-2">
-                                            <Label htmlFor="name">
-                                                Leave Type Name *
-                                            </Label>
+                                            <Label htmlFor="name">Leave Type Name *</Label>
                                             <Input
                                                 id="name"
                                                 value={data.name}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'name',
-                                                        e.target.value,
-                                                    )
-                                                }
+                                                onChange={(e) => setData('name', e.target.value)}
                                                 placeholder="e.g., Vacation Leave"
-                                                className={
-                                                    errors.name
-                                                        ? 'border-red-500'
-                                                        : ''
-                                                }
+                                                className={errors.name ? 'border-red-500' : ''}
                                             />
                                             {errors.name && (
-                                                <p className="text-sm text-red-600">
-                                                    {errors.name}
-                                                </p>
+                                                <p className="text-sm text-red-600">{errors.name}</p>
                                             )}
                                         </div>
 
@@ -229,94 +186,52 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                             <Input
                                                 id="code"
                                                 value={data.code}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'code',
-                                                        e.target.value.toUpperCase(),
-                                                    )
-                                                }
+                                                onChange={(e) => setData('code', e.target.value.toUpperCase())}
                                                 placeholder="e.g., VL"
                                                 maxLength={10}
-                                                className={
-                                                    errors.code
-                                                        ? 'border-red-500'
-                                                        : ''
-                                                }
+                                                className={errors.code ? 'border-red-500' : ''}
                                             />
                                             {errors.code && (
-                                                <p className="text-sm text-red-600">
-                                                    {errors.code}
-                                                </p>
+                                                <p className="text-sm text-red-600">{errors.code}</p>
                                             )}
-                                            <p className="text-xs text-gray-500">
-                                                Short unique identifier (e.g.,
-                                                VL, SL, ML)
-                                            </p>
+                                            <p className="text-xs text-gray-500">Short unique identifier (e.g., VL, SL, ML)</p>
                                         </div>
                                     </div>
 
                                     {/* Description */}
                                     <div className="space-y-2">
-                                        <Label htmlFor="description">
-                                            Description
-                                        </Label>
+                                        <Label htmlFor="description">Description</Label>
                                         <Textarea
                                             id="description"
                                             value={data.description || ''}
-                                            onChange={(e) =>
-                                                setData(
-                                                    'description',
-                                                    e.target.value,
-                                                )
-                                            }
+                                            onChange={(e) => setData('description', e.target.value)}
                                             placeholder="Brief description of this leave type..."
                                             rows={3}
                                         />
-                                        <p className="text-xs text-gray-500">
-                                            Helps employees understand when to
-                                            use this leave type
-                                        </p>
+                                        <p className="text-xs text-gray-500">Helps employees understand when to use this leave type</p>
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-6">
                                         {/* Color */}
                                         <div className="space-y-2">
-                                            <Label htmlFor="color">
-                                                Display Color *
-                                            </Label>
-                                            <Select
-                                                value={data.color}
-                                                onValueChange={(value) =>
-                                                    setData('color', value)
-                                                }
-                                            >
+                                            <Label htmlFor="color">Display Color *</Label>
+                                            <Select value={data.color} onValueChange={(value) => setData('color', value)}>
                                                 <SelectTrigger>
                                                     <div className="flex items-center gap-2">
-                                                        <div
-                                                            className="h-4 w-4 rounded"
-                                                            style={{
-                                                                backgroundColor:
-                                                                    data.color,
-                                                            }}
+                                                        <div 
+                                                            className="w-4 h-4 rounded"
+                                                            style={{ backgroundColor: data.color }}
                                                         />
                                                         <SelectValue />
                                                     </div>
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {Object.entries(
-                                                        availableColors,
-                                                    ).map(([hex, name]) => (
-                                                        <SelectItem
-                                                            key={hex}
-                                                            value={hex}
-                                                        >
+                                                    {Object.entries(availableColors).map(([hex, name]) => (
+                                                        <SelectItem key={hex} value={hex}>
                                                             <div className="flex items-center gap-2">
-                                                                <div
-                                                                    className="h-4 w-4 rounded"
-                                                                    style={{
-                                                                        backgroundColor:
-                                                                            hex,
-                                                                    }}
+                                                                <div 
+                                                                    className="w-4 h-4 rounded"
+                                                                    style={{ backgroundColor: hex }}
                                                                 />
                                                                 {name}
                                                             </div>
@@ -324,95 +239,56 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                                     ))}
                                                 </SelectContent>
                                             </Select>
-                                            <p className="text-xs text-gray-500">
-                                                Color for badges and calendar
-                                            </p>
+                                            <p className="text-xs text-gray-500">Color for badges and calendar</p>
                                         </div>
 
                                         {/* Sort Order */}
                                         <div className="space-y-2">
-                                            <Label htmlFor="sort_order">
-                                                Display Order
-                                            </Label>
+                                            <Label htmlFor="sort_order">Display Order</Label>
                                             <Input
                                                 id="sort_order"
                                                 type="number"
                                                 value={data.sort_order}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'sort_order',
-                                                        parseInt(
-                                                            e.target.value,
-                                                        ),
-                                                    )
-                                                }
+                                                onChange={(e) => setData('sort_order', parseInt(e.target.value))}
                                                 min={0}
                                             />
-                                            <p className="text-xs text-gray-500">
-                                                Lower numbers appear first
-                                            </p>
+                                            <p className="text-xs text-gray-500">Lower numbers appear first</p>
                                         </div>
 
                                         {/* Gender Specific */}
                                         <div className="space-y-2">
-                                            <Label htmlFor="gender_specific">
-                                                Gender Restriction
-                                            </Label>
-                                            <Select
-                                                value={
-                                                    data.gender_specific ||
-                                                    'none'
-                                                }
-                                                onValueChange={(value) =>
-                                                    setData(
-                                                        'gender_specific',
-                                                        value === 'none'
-                                                            ? null
-                                                            : value,
-                                                    )
-                                                }
+                                            <Label htmlFor="gender_specific">Gender Restriction</Label>
+                                            <Select 
+                                                value={data.gender_specific || 'none'} 
+                                                onValueChange={(value) => setData('gender_specific', value === 'none' ? null : value)}
                                             >
                                                 <SelectTrigger>
                                                     <SelectValue />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="none">
-                                                        No Restriction
-                                                    </SelectItem>
-                                                    <SelectItem value="male">
-                                                        Male Only
-                                                    </SelectItem>
-                                                    <SelectItem value="female">
-                                                        Female Only
-                                                    </SelectItem>
+                                                    <SelectItem value="none">No Restriction</SelectItem>
+                                                    <SelectItem value="male">Male Only</SelectItem>
+                                                    <SelectItem value="female">Female Only</SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                            <p className="text-xs text-gray-500">
-                                                For maternity/paternity leaves
-                                            </p>
+                                            <p className="text-xs text-gray-500">For maternity/paternity leaves</p>
                                         </div>
                                     </div>
 
                                     {/* Active Status */}
-                                    <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div className="flex-1">
-                                            <Label
-                                                htmlFor="is_active"
-                                                className="text-base font-semibold"
-                                            >
+                                            <Label htmlFor="is_active" className="text-base font-semibold">
                                                 Active Status
                                             </Label>
-                                            <p className="mt-1 text-sm text-gray-600">
-                                                When active, employees can
-                                                request this leave type
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                When active, employees can request this leave type
                                             </p>
                                         </div>
                                         <Switch
                                             id="is_active"
                                             checked={data.is_active}
-                                            onCheckedChange={(checked) =>
-                                                setData('is_active', checked)
-                                            }
+                                            onCheckedChange={(checked) => setData('is_active', checked)}
                                         />
                                     </div>
                                 </CardContent>
@@ -425,71 +301,42 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                 <CardHeader>
                                     <CardTitle>Leave Allocation</CardTitle>
                                     <CardDescription>
-                                        Configure how many days employees get
-                                        per year
+                                        Configure how many days employees get per year
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="grid grid-cols-2 gap-6">
                                         {/* Days Per Year */}
                                         <div className="space-y-2">
-                                            <Label htmlFor="days_per_year">
-                                                Days Per Year *
-                                            </Label>
+                                            <Label htmlFor="days_per_year">Days Per Year *</Label>
                                             <Input
                                                 id="days_per_year"
                                                 type="number"
                                                 value={data.days_per_year}
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'days_per_year',
-                                                        parseInt(
-                                                            e.target.value,
-                                                        ),
-                                                    )
-                                                }
+                                                onChange={(e) => setData('days_per_year', parseInt(e.target.value))}
                                                 min={0}
                                                 max={365}
-                                                className={
-                                                    errors.days_per_year
-                                                        ? 'border-red-500'
-                                                        : ''
-                                                }
+                                                className={errors.days_per_year ? 'border-red-500' : ''}
                                             />
                                             {errors.days_per_year && (
-                                                <p className="text-sm text-red-600">
-                                                    {errors.days_per_year}
-                                                </p>
+                                                <p className="text-sm text-red-600">{errors.days_per_year}</p>
                                             )}
-                                            <p className="text-xs text-gray-500">
-                                                Total days allocated per year
-                                                (e.g., 15 for VL, 7 for SL)
-                                            </p>
+                                            <p className="text-xs text-gray-500">Total days allocated per year (e.g., 15 for VL, 7 for SL)</p>
                                         </div>
 
                                         {/* Paid/Unpaid */}
                                         <div className="space-y-4">
                                             <Label>Payment Type *</Label>
-                                            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                                 <div className="flex-1">
-                                                    <p className="font-medium">
-                                                        Paid Leave
-                                                    </p>
+                                                    <p className="font-medium">Paid Leave</p>
                                                     <p className="text-sm text-gray-600">
-                                                        Employee receives salary
-                                                        during leave
+                                                        Employee receives salary during leave
                                                     </p>
                                                 </div>
                                                 <Switch
                                                     checked={data.is_paid}
-                                                    onCheckedChange={(
-                                                        checked,
-                                                    ) =>
-                                                        setData(
-                                                            'is_paid',
-                                                            checked,
-                                                        )
-                                                    }
+                                                    onCheckedChange={(checked) => setData('is_paid', checked)}
                                                 />
                                             </div>
                                         </div>
@@ -498,12 +345,7 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                     <Alert className="border-green-200 bg-green-50">
                                         <CheckCircle2 className="h-4 w-4 text-green-600" />
                                         <AlertDescription className="text-green-800">
-                                            <strong>
-                                                Automatic Initialization:
-                                            </strong>{' '}
-                                            Leave balances will be automatically
-                                            created for all active employees
-                                            when you save this leave type.
+                                            <strong>Automatic Initialization:</strong> Leave balances will be automatically created for all active employees when you save this leave type.
                                         </AlertDescription>
                                     </Alert>
                                 </CardContent>
@@ -514,74 +356,47 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                         <TabsContent value="medical" className="space-y-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>
-                                        Medical Certificate Requirements
-                                    </CardTitle>
+                                    <CardTitle>Medical Certificate Requirements</CardTitle>
                                     <CardDescription>
-                                        Configure when employees must submit
-                                        medical documentation
+                                        Configure when employees must submit medical documentation
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div className="flex-1">
                                             <Label className="text-base font-semibold">
                                                 Require Medical Certificate
                                             </Label>
-                                            <p className="mt-1 text-sm text-gray-600">
-                                                Employees must upload a doctor's
-                                                note
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Employees must upload a doctor's note
                                             </p>
                                         </div>
                                         <Switch
                                             checked={data.requires_medical_cert}
-                                            onCheckedChange={(checked) =>
-                                                setData(
-                                                    'requires_medical_cert',
-                                                    checked,
-                                                )
-                                            }
+                                            onCheckedChange={(checked) => setData('requires_medical_cert', checked)}
                                         />
                                     </div>
 
                                     {data.requires_medical_cert && (
-                                        <div className="animate-fade-in space-y-2">
+                                        <div className="space-y-2 animate-fade-in">
                                             <Label htmlFor="medical_cert_days_threshold">
                                                 Days Threshold (Optional)
                                             </Label>
                                             <Input
                                                 id="medical_cert_days_threshold"
                                                 type="number"
-                                                value={
-                                                    data.medical_cert_days_threshold ||
-                                                    ''
-                                                }
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'medical_cert_days_threshold',
-                                                        e.target.value
-                                                            ? parseInt(
-                                                                  e.target
-                                                                      .value,
-                                                              )
-                                                            : null,
-                                                    )
-                                                }
+                                                value={data.medical_cert_days_threshold || ''}
+                                                onChange={(e) => setData('medical_cert_days_threshold', e.target.value ? parseInt(e.target.value) : null)}
                                                 min={1}
                                                 placeholder="e.g., 2"
                                             />
                                             <p className="text-xs text-gray-500">
-                                                Require certificate only if
-                                                leave exceeds this many days.
-                                                Leave empty to always require.
+                                                Require certificate only if leave exceeds this many days. Leave empty to always require.
                                             </p>
-                                            <Alert className="mt-3 border-blue-200 bg-blue-50">
+                                            <Alert className="border-blue-200 bg-blue-50 mt-3">
                                                 <Info className="h-4 w-4 text-blue-600" />
-                                                <AlertDescription className="text-sm text-blue-800">
-                                                    Example: If set to 2,
-                                                    employees need a medical
-                                                    certificate for 3+ days of
-                                                    sick leave
+                                                <AlertDescription className="text-blue-800 text-sm">
+                                                    Example: If set to 2, employees need a medical certificate for 3+ days of sick leave
                                                 </AlertDescription>
                                             </Alert>
                                         </div>
@@ -596,70 +411,45 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                 <CardHeader>
                                     <CardTitle>Carry Over Rules</CardTitle>
                                     <CardDescription>
-                                        Configure if unused days can transfer to
-                                        the next year
+                                        Configure if unused days can transfer to the next year
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
-                                    <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                                    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                         <div className="flex-1">
                                             <Label className="text-base font-semibold">
                                                 Allow Carry Over
                                             </Label>
-                                            <p className="mt-1 text-sm text-gray-600">
-                                                Unused days can be transferred
-                                                to next year
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Unused days can be transferred to next year
                                             </p>
                                         </div>
                                         <Switch
                                             checked={data.is_carry_over_allowed}
-                                            onCheckedChange={(checked) =>
-                                                setData(
-                                                    'is_carry_over_allowed',
-                                                    checked,
-                                                )
-                                            }
+                                            onCheckedChange={(checked) => setData('is_carry_over_allowed', checked)}
                                         />
                                     </div>
 
                                     {data.is_carry_over_allowed && (
-                                        <div className="animate-fade-in space-y-2">
+                                        <div className="space-y-2 animate-fade-in">
                                             <Label htmlFor="max_carry_over_days">
-                                                Maximum Carry Over Days
-                                                (Optional)
+                                                Maximum Carry Over Days (Optional)
                                             </Label>
                                             <Input
                                                 id="max_carry_over_days"
                                                 type="number"
-                                                value={
-                                                    data.max_carry_over_days ||
-                                                    ''
-                                                }
-                                                onChange={(e) =>
-                                                    setData(
-                                                        'max_carry_over_days',
-                                                        e.target.value
-                                                            ? parseInt(
-                                                                  e.target
-                                                                      .value,
-                                                              )
-                                                            : null,
-                                                    )
-                                                }
+                                                value={data.max_carry_over_days || ''}
+                                                onChange={(e) => setData('max_carry_over_days', e.target.value ? parseInt(e.target.value) : null)}
                                                 min={0}
                                                 placeholder="e.g., 5"
                                             />
                                             <p className="text-xs text-gray-500">
-                                                Maximum days that can carry
-                                                over. Leave empty for no limit.
+                                                Maximum days that can carry over. Leave empty for no limit.
                                             </p>
-                                            <Alert className="mt-3 border-blue-200 bg-blue-50">
+                                            <Alert className="border-blue-200 bg-blue-50 mt-3">
                                                 <Info className="h-4 w-4 text-blue-600" />
-                                                <AlertDescription className="text-sm text-blue-800">
-                                                    Example: If employee has 5
-                                                    unused VL days and max is 5,
-                                                    all 5 days carry to next
-                                                    year
+                                                <AlertDescription className="text-blue-800 text-sm">
+                                                    Example: If employee has 5 unused VL days and max is 5, all 5 days carry to next year
                                                 </AlertDescription>
                                             </Alert>
                                         </div>
@@ -674,55 +464,38 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                 <CardHeader>
                                     <CardTitle>Approval Workflow</CardTitle>
                                     <CardDescription>
-                                        Configure who must approve this leave
-                                        type
+                                        Configure who must approve this leave type
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-6">
                                     <div className="space-y-4">
-                                        <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                             <div className="flex-1">
                                                 <Label className="text-base font-semibold">
                                                     Manager Approval Required
                                                 </Label>
-                                                <p className="mt-1 text-sm text-gray-600">
-                                                    Leave must be approved by
-                                                    employee's manager first
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    Leave must be approved by employee's manager first
                                                 </p>
                                             </div>
                                             <Switch
-                                                checked={
-                                                    data.requires_manager_approval
-                                                }
-                                                onCheckedChange={(checked) =>
-                                                    setData(
-                                                        'requires_manager_approval',
-                                                        checked,
-                                                    )
-                                                }
+                                                checked={data.requires_manager_approval}
+                                                onCheckedChange={(checked) => setData('requires_manager_approval', checked)}
                                             />
                                         </div>
 
-                                        <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                                             <div className="flex-1">
                                                 <Label className="text-base font-semibold">
                                                     HR Approval Required
                                                 </Label>
-                                                <p className="mt-1 text-sm text-gray-600">
-                                                    Leave must be approved by HR
-                                                    department (final approval)
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    Leave must be approved by HR department (final approval)
                                                 </p>
                                             </div>
                                             <Switch
-                                                checked={
-                                                    data.requires_hr_approval
-                                                }
-                                                onCheckedChange={(checked) =>
-                                                    setData(
-                                                        'requires_hr_approval',
-                                                        checked,
-                                                    )
-                                                }
+                                                checked={data.requires_hr_approval}
+                                                onCheckedChange={(checked) => setData('requires_hr_approval', checked)}
                                             />
                                         </div>
                                     </div>
@@ -730,47 +503,36 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                     <Alert className="border-blue-200 bg-blue-50">
                                         <Info className="h-4 w-4 text-blue-600" />
                                         <AlertDescription className="text-blue-800">
-                                            <strong>Approval Flow:</strong>{' '}
-                                            {data.requires_manager_approval &&
-                                                data.requires_hr_approval &&
-                                                'Employee → Manager → HR (Recommended)'}
-                                            {data.requires_manager_approval &&
-                                                !data.requires_hr_approval &&
-                                                'Employee → Manager Only'}
-                                            {!data.requires_manager_approval &&
-                                                data.requires_hr_approval &&
-                                                'Employee → HR Only'}
-                                            {!data.requires_manager_approval &&
-                                                !data.requires_hr_approval &&
-                                                'Auto-approved (Not recommended for most leave types)'}
+                                            <strong>Approval Flow:</strong> {' '}
+                                            {data.requires_manager_approval && data.requires_hr_approval && 'Employee → Manager → HR (Recommended)'}
+                                            {data.requires_manager_approval && !data.requires_hr_approval && 'Employee → Manager Only'}
+                                            {!data.requires_manager_approval && data.requires_hr_approval && 'Employee → HR Only'}
+                                            {!data.requires_manager_approval && !data.requires_hr_approval && 'Auto-approved (Not recommended for most leave types)'}
                                         </AlertDescription>
                                     </Alert>
 
-                                    {!data.requires_manager_approval &&
-                                        !data.requires_hr_approval && (
-                                            <Alert className="border-yellow-200 bg-yellow-50">
-                                                <AlertCircle className="h-4 w-4 text-yellow-600" />
-                                                <AlertDescription className="text-yellow-800">
-                                                    <strong>Warning:</strong>{' '}
-                                                    Without any approval
-                                                    requirements, leave requests
-                                                    will be automatically
-                                                    approved. This is not
-                                                    recommended for most leave
-                                                    types.
-                                                </AlertDescription>
-                                            </Alert>
-                                        )}
+                                    {!data.requires_manager_approval && !data.requires_hr_approval && (
+                                        <Alert className="border-yellow-200 bg-yellow-50">
+                                            <AlertCircle className="h-4 w-4 text-yellow-600" />
+                                            <AlertDescription className="text-yellow-800">
+                                                <strong>Warning:</strong> Without any approval requirements, leave requests will be automatically approved. This is not recommended for most leave types.
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
                                 </CardContent>
                             </Card>
                         </TabsContent>
                     </Tabs>
 
                     {/* Fixed Bottom Bar */}
-                    <Card className="sticky bottom-4 border-2 shadow-lg">
+                    <Card className="sticky bottom-4 shadow-lg border-2">
                         <CardContent className="pt-6">
                             <div className="flex items-center justify-between">
-                                <Button type="button" variant="outline" asChild>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    asChild
+                                >
                                     <Link href={route('leave-types.index')}>
                                         Cancel
                                     </Link>
@@ -780,10 +542,8 @@ export default function CreateType({ auth, availableColors, availableIcons }) {
                                     disabled={processing}
                                     className="bg-purple-600 hover:bg-purple-700"
                                 >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    {processing
-                                        ? 'Creating...'
-                                        : 'Create Leave Type'}
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {processing ? 'Creating...' : 'Create Leave Type'}
                                 </Button>
                             </div>
                         </CardContent>

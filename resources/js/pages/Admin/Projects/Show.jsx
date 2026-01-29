@@ -1,28 +1,27 @@
 // resources/js/Pages/Projects/Show.jsx
-import DeleteConfirmationModal from '@/Components/DeleteConfirmationModal';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
-import { Progress } from '@/Components/ui/progress';
+import { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Progress } from '@/Components/ui/progress';
+import DeleteConfirmationModal from '@/Components/DeleteConfirmationModal';
 import {
-    ArrowLeft,
-    Calendar,
-    ClipboardList,
-    DollarSign,
-    Edit,
     FolderKanban,
+    ArrowLeft,
+    Edit,
     Trash2,
+    Plus,
+    Calendar,
+    DollarSign,
     User,
+    TrendingUp,
+    ClipboardList,
+    Clock,
+    AlertCircle,
+    CheckCircle2,
 } from 'lucide-react';
-import { useState } from 'react';
 
 export default function Show({ auth, project }) {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -66,10 +65,7 @@ export default function Show({ auth, project }) {
         return styles[status] || 'bg-gray-100 text-gray-700';
     };
 
-    const isOverdue =
-        project.end_date &&
-        new Date(project.end_date) < new Date() &&
-        project.status !== 'completed';
+    const isOverdue = project.end_date && new Date(project.end_date) < new Date() && project.status !== 'completed';
 
     return (
         <AuthenticatedLayout
@@ -78,33 +74,29 @@ export default function Show({ auth, project }) {
                     <div className="flex items-center gap-3">
                         <Button asChild variant="ghost" size="sm">
                             <Link href={route('projects.index')}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
+                                <ArrowLeft className="h-4 w-4 mr-2" />
                                 Back
                             </Link>
                         </Button>
                         <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-blue-100 p-2">
+                            <div className="p-2 bg-blue-100 rounded-lg">
                                 <FolderKanban className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">
-                                    {project.name}
-                                </h2>
-                                <p className="mt-1 text-gray-600">
-                                    {project.code}
-                                </p>
+                                <h2 className="text-3xl font-bold text-gray-900">{project.name}</h2>
+                                <p className="text-gray-600 mt-1">{project.code}</p>
                             </div>
                         </div>
                     </div>
                     <div className="flex gap-3">
                         <Button asChild variant="outline">
                             <Link href={route('projects.edit', project.id)}>
-                                <Edit className="mr-2 h-4 w-4" />
+                                <Edit className="h-4 w-4 mr-2" />
                                 Edit
                             </Link>
                         </Button>
                         <Button variant="destructive" onClick={handleDelete}>
-                            <Trash2 className="mr-2 h-4 w-4" />
+                            <Trash2 className="h-4 w-4 mr-2" />
                             Delete
                         </Button>
                     </div>
@@ -113,30 +105,22 @@ export default function Show({ auth, project }) {
         >
             <Head title={project.name} />
 
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Main Column */}
-                <div className="space-y-6 lg:col-span-2">
+                <div className="lg:col-span-2 space-y-6">
                     {/* Overview */}
                     <Card className="animate-fade-in">
                         <CardHeader>
                             <div className="flex items-start justify-between">
                                 <div>
-                                    <CardTitle className="text-2xl">
-                                        {project.name}
-                                    </CardTitle>
-                                    <CardDescription className="mt-1 text-base">
-                                        {project.code}
-                                    </CardDescription>
+                                    <CardTitle className="text-2xl">{project.name}</CardTitle>
+                                    <CardDescription className="text-base mt-1">{project.code}</CardDescription>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Badge
-                                        className={`${getStatusBadge(project.status)} border`}
-                                    >
+                                    <Badge className={`${getStatusBadge(project.status)} border`}>
                                         {project.status.replace('_', ' ')}
                                     </Badge>
-                                    <Badge
-                                        className={`${getPriorityBadge(project.priority)} border`}
-                                    >
+                                    <Badge className={`${getPriorityBadge(project.priority)} border`}>
                                         {project.priority}
                                     </Badge>
                                 </div>
@@ -144,24 +128,18 @@ export default function Show({ auth, project }) {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {project.description && (
-                                <p className="text-gray-700">
-                                    {project.description}
-                                </p>
+                                <p className="text-gray-700">{project.description}</p>
                             )}
 
                             {project.category && (
-                                <div className="border-t pt-4">
-                                    <p className="mb-2 text-sm text-gray-600">
-                                        Category
-                                    </p>
+                                <div className="pt-4 border-t">
+                                    <p className="text-sm text-gray-600 mb-2">Category</p>
                                     <Badge
                                         className="border"
                                         style={{
-                                            backgroundColor:
-                                                project.category.color + '15',
+                                            backgroundColor: project.category.color + '15',
                                             color: project.category.color,
-                                            borderColor:
-                                                project.category.color + '40',
+                                            borderColor: project.category.color + '40'
                                         }}
                                     >
                                         {project.category.name}
@@ -169,19 +147,12 @@ export default function Show({ auth, project }) {
                                 </div>
                             )}
 
-                            <div className="border-t pt-4">
-                                <div className="mb-2 flex items-center justify-between">
-                                    <p className="text-sm text-gray-600">
-                                        Overall Progress
-                                    </p>
-                                    <span className="text-2xl font-bold text-gray-900">
-                                        {project.progress}%
-                                    </span>
+                            <div className="pt-4 border-t">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-sm text-gray-600">Overall Progress</p>
+                                    <span className="text-2xl font-bold text-gray-900">{project.progress}%</span>
                                 </div>
-                                <Progress
-                                    value={project.progress}
-                                    className="h-3"
-                                />
+                                <Progress value={project.progress} className="h-3" />
                             </div>
                         </CardContent>
                     </Card>
@@ -195,10 +166,7 @@ export default function Show({ auth, project }) {
                                     Tasks
                                 </CardTitle>
                                 <span className="text-sm text-gray-600">
-                                    {project.tasks?.length || 0}{' '}
-                                    {project.tasks?.length === 1
-                                        ? 'task'
-                                        : 'tasks'}
+                                    {project.tasks?.length || 0} {project.tasks?.length === 1 ? 'task' : 'tasks'}
                                 </span>
                             </div>
                         </CardHeader>
@@ -206,33 +174,19 @@ export default function Show({ auth, project }) {
                             {project.tasks && project.tasks.length > 0 ? (
                                 <div className="space-y-3">
                                     {project.tasks.map((task) => (
-                                        <div
-                                            key={task.id}
-                                            className="rounded-lg border p-4 transition-colors hover:bg-gray-50"
-                                        >
-                                            <div className="mb-2 flex items-start justify-between">
+                                        <div key={task.id} className="p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                            <div className="flex items-start justify-between mb-2">
                                                 <div className="flex-1">
-                                                    <p className="font-medium text-gray-900">
-                                                        {task.title}
-                                                    </p>
+                                                    <p className="font-medium text-gray-900">{task.title}</p>
                                                     {task.description && (
-                                                        <p className="mt-1 text-sm text-gray-600">
-                                                            {task.description}
-                                                        </p>
+                                                        <p className="text-sm text-gray-600 mt-1">{task.description}</p>
                                                     )}
                                                 </div>
-                                                <Badge
-                                                    className={getTaskStatusBadge(
-                                                        task.status,
-                                                    )}
-                                                >
-                                                    {task.status.replace(
-                                                        '_',
-                                                        ' ',
-                                                    )}
+                                                <Badge className={getTaskStatusBadge(task.status)}>
+                                                    {task.status.replace('_', ' ')}
                                                 </Badge>
                                             </div>
-                                            <div className="mt-3 flex items-center gap-4 text-sm text-gray-600">
+                                            <div className="flex items-center gap-4 text-sm text-gray-600 mt-3">
                                                 {task.assignee && (
                                                     <div className="flex items-center gap-1">
                                                         <User className="h-4 w-4" />
@@ -242,16 +196,10 @@ export default function Show({ auth, project }) {
                                                 {task.due_date && (
                                                     <div className="flex items-center gap-1">
                                                         <Calendar className="h-4 w-4" />
-                                                        {new Date(
-                                                            task.due_date,
-                                                        ).toLocaleDateString()}
+                                                        {new Date(task.due_date).toLocaleDateString()}
                                                     </div>
                                                 )}
-                                                <Badge
-                                                    className={getPriorityBadge(
-                                                        task.priority,
-                                                    )}
-                                                >
+                                                <Badge className={getPriorityBadge(task.priority)}>
                                                     {task.priority}
                                                 </Badge>
                                             </div>
@@ -259,8 +207,8 @@ export default function Show({ auth, project }) {
                                     ))}
                                 </div>
                             ) : (
-                                <div className="py-8 text-center text-gray-500">
-                                    <ClipboardList className="mx-auto mb-2 h-12 w-12 text-gray-400" />
+                                <div className="text-center py-8 text-gray-500">
+                                    <ClipboardList className="h-12 w-12 mx-auto mb-2 text-gray-400" />
                                     <p>No tasks yet</p>
                                 </div>
                             )}
@@ -277,32 +225,24 @@ export default function Show({ auth, project }) {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="flex items-center gap-3">
-                                <div className="rounded-lg bg-blue-50 p-2">
+                                <div className="p-2 bg-blue-50 rounded-lg">
                                     <User className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-600">
-                                        Project Owner
-                                    </p>
-                                    <p className="font-medium text-gray-900">
-                                        {project.owner.name}
-                                    </p>
+                                    <p className="text-sm text-gray-600">Project Owner</p>
+                                    <p className="font-medium text-gray-900">{project.owner.name}</p>
                                 </div>
                             </div>
 
                             {project.start_date && (
                                 <div className="flex items-center gap-3">
-                                    <div className="rounded-lg bg-green-50 p-2">
+                                    <div className="p-2 bg-green-50 rounded-lg">
                                         <Calendar className="h-5 w-5 text-green-600" />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">
-                                            Start Date
-                                        </p>
+                                        <p className="text-sm text-gray-600">Start Date</p>
                                         <p className="font-medium text-gray-900">
-                                            {new Date(
-                                                project.start_date,
-                                            ).toLocaleDateString()}
+                                            {new Date(project.start_date).toLocaleDateString()}
                                         </p>
                                     </div>
                                 </div>
@@ -310,23 +250,13 @@ export default function Show({ auth, project }) {
 
                             {project.end_date && (
                                 <div className="flex items-center gap-3">
-                                    <div
-                                        className={`rounded-lg p-2 ${isOverdue ? 'bg-red-50' : 'bg-purple-50'}`}
-                                    >
-                                        <Calendar
-                                            className={`h-5 w-5 ${isOverdue ? 'text-red-600' : 'text-purple-600'}`}
-                                        />
+                                    <div className={`p-2 rounded-lg ${isOverdue ? 'bg-red-50' : 'bg-purple-50'}`}>
+                                        <Calendar className={`h-5 w-5 ${isOverdue ? 'text-red-600' : 'text-purple-600'}`} />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">
-                                            End Date
-                                        </p>
-                                        <p
-                                            className={`font-medium ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}
-                                        >
-                                            {new Date(
-                                                project.end_date,
-                                            ).toLocaleDateString()}
+                                        <p className="text-sm text-gray-600">End Date</p>
+                                        <p className={`font-medium ${isOverdue ? 'text-red-600' : 'text-gray-900'}`}>
+                                            {new Date(project.end_date).toLocaleDateString()}
                                             {isOverdue && ' (Overdue)'}
                                         </p>
                                     </div>
@@ -335,18 +265,13 @@ export default function Show({ auth, project }) {
 
                             {project.budget && (
                                 <div className="flex items-center gap-3">
-                                    <div className="rounded-lg bg-yellow-50 p-2">
+                                    <div className="p-2 bg-yellow-50 rounded-lg">
                                         <DollarSign className="h-5 w-5 text-yellow-600" />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-600">
-                                            Budget
-                                        </p>
+                                        <p className="text-sm text-gray-600">Budget</p>
                                         <p className="font-medium text-gray-900">
-                                            $
-                                            {parseFloat(
-                                                project.budget,
-                                            ).toLocaleString()}
+                                            ${parseFloat(project.budget).toLocaleString()}
                                         </p>
                                     </div>
                                 </div>
@@ -360,34 +285,22 @@ export default function Show({ auth, project }) {
                             <CardTitle>Task Statistics</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
-                            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                                <span className="text-sm font-medium text-gray-700">
-                                    To Do
-                                </span>
+                            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">To Do</span>
                                 <span className="text-xl font-bold text-gray-900">
-                                    {project.tasks?.filter(
-                                        (t) => t.status === 'todo',
-                                    ).length || 0}
+                                    {project.tasks?.filter(t => t.status === 'todo').length || 0}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg bg-blue-50 p-3">
-                                <span className="text-sm font-medium text-gray-700">
-                                    In Progress
-                                </span>
+                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">In Progress</span>
                                 <span className="text-xl font-bold text-blue-900">
-                                    {project.tasks?.filter(
-                                        (t) => t.status === 'in_progress',
-                                    ).length || 0}
+                                    {project.tasks?.filter(t => t.status === 'in_progress').length || 0}
                                 </span>
                             </div>
-                            <div className="flex items-center justify-between rounded-lg bg-green-50 p-3">
-                                <span className="text-sm font-medium text-gray-700">
-                                    Completed
-                                </span>
+                            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                <span className="text-sm font-medium text-gray-700">Completed</span>
                                 <span className="text-xl font-bold text-green-900">
-                                    {project.tasks?.filter(
-                                        (t) => t.status === 'completed',
-                                    ).length || 0}
+                                    {project.tasks?.filter(t => t.status === 'completed').length || 0}
                                 </span>
                             </div>
                         </CardContent>
@@ -399,22 +312,14 @@ export default function Show({ auth, project }) {
                             <CardTitle>Quick Actions</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            <Button
-                                className="w-full justify-start"
-                                variant="outline"
-                                asChild
-                            >
+                            <Button className="w-full justify-start" variant="outline" asChild>
                                 <Link href={route('projects.edit', project.id)}>
-                                    <Edit className="mr-2 h-4 w-4" />
+                                    <Edit className="h-4 w-4 mr-2" />
                                     Edit Project
                                 </Link>
                             </Button>
-                            <Button
-                                className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
-                                variant="outline"
-                                onClick={handleDelete}
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                            <Button className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" variant="outline" onClick={handleDelete}>
+                                <Trash2 className="h-4 w-4 mr-2" />
                                 Delete Project
                             </Button>
                         </CardContent>
