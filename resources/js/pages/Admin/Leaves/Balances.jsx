@@ -1,9 +1,13 @@
-import { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
-import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
     DialogContent,
@@ -12,11 +16,26 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { CalendarClock, Users, TrendingUp, AlertCircle, RefreshCw, Info } from 'lucide-react';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
+import { Head, router } from '@inertiajs/react';
+import {
+    AlertCircle,
+    CalendarClock,
+    Info,
+    RefreshCw,
+    TrendingUp,
+    Users,
+} from 'lucide-react';
+import { useState } from 'react';
 
-export default function Balances({ currentYear, nextYear, nextYearBalancesExist, stats, balanceHistory }) {
+export default function Balances({
+    currentYear,
+    nextYear,
+    nextYearBalancesExist,
+    stats,
+    balanceHistory,
+}) {
     const [showResetDialog, setShowResetDialog] = useState(false);
     const [resetYear, setResetYear] = useState(nextYear);
     const [confirmed, setConfirmed] = useState(false);
@@ -42,7 +61,7 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                     setConfirmed(false);
                     setForceReset(false);
                 },
-            }
+            },
         );
     };
 
@@ -72,13 +91,15 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-
                     {/* Info Alert */}
                     <Alert className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950">
                         <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
-                            <strong>Automatic Reset:</strong> Leave balances are automatically reset every January 1st at 1:00 AM.
-                            Unused balances from the previous year will be carried over based on each leave type's carry-over policy.
+                            <strong>Automatic Reset:</strong> Leave balances are
+                            automatically reset every January 1st at 1:00 AM.
+                            Unused balances from the previous year will be
+                            carried over based on each leave type's carry-over
+                            policy.
                         </AlertDescription>
                     </Alert>
 
@@ -87,48 +108,72 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                         {/* Active Users */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Active Users
+                                </CardTitle>
                                 <Users className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stats.total_users}</div>
-                                <p className="text-xs text-muted-foreground">Employees with balances</p>
+                                <div className="text-2xl font-bold">
+                                    {stats.total_users}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Employees with balances
+                                </p>
                             </CardContent>
                         </Card>
 
                         {/* Total Balances */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Balances</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Total Balances
+                                </CardTitle>
                                 <CalendarClock className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stats.total_balances}</div>
-                                <p className="text-xs text-muted-foreground">For year {currentYear}</p>
+                                <div className="text-2xl font-bold">
+                                    {stats.total_balances}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    For year {currentYear}
+                                </p>
                             </CardContent>
                         </Card>
 
                         {/* Carried Over */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Carried Over</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Carried Over
+                                </CardTitle>
                                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stats.total_carried_over}</div>
-                                <p className="text-xs text-muted-foreground">Days from previous year</p>
+                                <div className="text-2xl font-bold">
+                                    {stats.total_carried_over}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Days from previous year
+                                </p>
                             </CardContent>
                         </Card>
 
                         {/* Low Balance Count */}
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Low Balances</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Low Balances
+                                </CardTitle>
                                 <AlertCircle className="h-4 w-4 text-muted-foreground" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-orange-600">{stats.low_balance_count}</div>
-                                <p className="text-xs text-muted-foreground">Below 25% remaining</p>
+                                <div className="text-2xl font-bold text-orange-600">
+                                    {stats.low_balance_count}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                    Below 25% remaining
+                                </p>
                             </CardContent>
                         </Card>
                     </div>
@@ -138,32 +183,47 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                         <CardHeader>
                             <CardTitle>Reset Leave Balances</CardTitle>
                             <CardDescription>
-                                Manually reset leave balances for a new year. This will create new balances for all active employees
-                                and carry over unused days based on each leave type's policy.
+                                Manually reset leave balances for a new year.
+                                This will create new balances for all active
+                                employees and carry over unused days based on
+                                each leave type's policy.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {/* Reset for Next Year */}
                             <div className="flex items-center justify-between rounded-lg border p-4">
                                 <div className="space-y-0.5">
-                                    <div className="font-medium">Reset for {nextYear}</div>
+                                    <div className="font-medium">
+                                        Reset for {nextYear}
+                                    </div>
                                     <div className="text-sm text-muted-foreground">
                                         {nextYearBalancesExist ? (
                                             <span className="text-green-600 dark:text-green-400">
-                                                ✓ Balances already exist for {nextYear}
+                                                ✓ Balances already exist for{' '}
+                                                {nextYear}
                                             </span>
                                         ) : (
-                                            <span>Create new balances for {nextYear} with carry-over from {currentYear}</span>
+                                            <span>
+                                                Create new balances for{' '}
+                                                {nextYear} with carry-over from{' '}
+                                                {currentYear}
+                                            </span>
                                         )}
                                     </div>
                                 </div>
                                 <Button
                                     onClick={() => openResetDialog(nextYear)}
                                     disabled={isResetting}
-                                    variant={nextYearBalancesExist ? 'outline' : 'default'}
+                                    variant={
+                                        nextYearBalancesExist
+                                            ? 'outline'
+                                            : 'default'
+                                    }
                                 >
                                     <RefreshCw className="mr-2 h-4 w-4" />
-                                    {nextYearBalancesExist ? 'Reset Again' : 'Reset Now'}
+                                    {nextYearBalancesExist
+                                        ? 'Reset Again'
+                                        : 'Reset Now'}
                                 </Button>
                             </div>
 
@@ -174,7 +234,9 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                                         Reset for {currentYear} (Current Year)
                                     </div>
                                     <div className="text-sm text-orange-700 dark:text-orange-300">
-                                        ⚠️ Warning: This will delete existing balances and recreate them. Use with caution!
+                                        ⚠️ Warning: This will delete existing
+                                        balances and recreate them. Use with
+                                        caution!
                                     </div>
                                 </div>
                                 <Button
@@ -193,7 +255,9 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                     <Card>
                         <CardHeader>
                             <CardTitle>Balance History</CardTitle>
-                            <CardDescription>Previous years' balance records</CardDescription>
+                            <CardDescription>
+                                Previous years' balance records
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
@@ -204,14 +268,21 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                                             className="flex items-center justify-between rounded-lg border p-3"
                                         >
                                             <div>
-                                                <div className="font-medium">Year {record.year}</div>
+                                                <div className="font-medium">
+                                                    Year {record.year}
+                                                </div>
                                                 <div className="text-sm text-muted-foreground">
-                                                    {record.balance_count} balance records
+                                                    {record.balance_count}{' '}
+                                                    balance records
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <div className="text-sm font-medium">{record.total_carried} days</div>
-                                                <div className="text-xs text-muted-foreground">Carried over</div>
+                                                <div className="text-sm font-medium">
+                                                    {record.total_carried} days
+                                                </div>
+                                                <div className="text-xs text-muted-foreground">
+                                                    Carried over
+                                                </div>
                                             </div>
                                         </div>
                                     ))
@@ -230,9 +301,12 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
             <Dialog open={showResetDialog} onOpenChange={setShowResetDialog}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle>Reset Leave Balances for {resetYear}?</DialogTitle>
+                        <DialogTitle>
+                            Reset Leave Balances for {resetYear}?
+                        </DialogTitle>
                         <DialogDescription>
-                            This action will create new leave balances for all active employees in {resetYear}.
+                            This action will create new leave balances for all
+                            active employees in {resetYear}.
                         </DialogDescription>
                     </DialogHeader>
 
@@ -242,9 +316,18 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                             <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
                                 <strong>What will happen:</strong>
                                 <ul className="mt-2 list-inside list-disc space-y-1">
-                                    <li>New balances created for all active employees</li>
-                                    <li>Unused days from {resetYear - 1} will be carried over (if allowed)</li>
-                                    <li>Each leave type's carry-over policy will be applied</li>
+                                    <li>
+                                        New balances created for all active
+                                        employees
+                                    </li>
+                                    <li>
+                                        Unused days from {resetYear - 1} will be
+                                        carried over (if allowed)
+                                    </li>
+                                    <li>
+                                        Each leave type's carry-over policy will
+                                        be applied
+                                    </li>
                                 </ul>
                             </AlertDescription>
                         </Alert>
@@ -256,21 +339,31 @@ export default function Balances({ currentYear, nextYear, nextYearBalancesExist,
                                 checked={confirmed}
                                 onCheckedChange={setConfirmed}
                             />
-                            <Label htmlFor="confirm" className="text-sm leading-relaxed">
-                                I understand that this will create/reset leave balances for {resetYear}
+                            <Label
+                                htmlFor="confirm"
+                                className="text-sm leading-relaxed"
+                            >
+                                I understand that this will create/reset leave
+                                balances for {resetYear}
                             </Label>
                         </div>
 
                         {/* Force Reset Option (if balances already exist) */}
-                        {(resetYear === nextYear && nextYearBalancesExist) || resetYear === currentYear ? (
+                        {(resetYear === nextYear && nextYearBalancesExist) ||
+                        resetYear === currentYear ? (
                             <div className="flex items-start space-x-2 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-900 dark:bg-orange-950">
                                 <Checkbox
                                     id="force"
                                     checked={forceReset}
                                     onCheckedChange={setForceReset}
                                 />
-                                <Label htmlFor="force" className="text-sm leading-relaxed text-orange-800 dark:text-orange-200">
-                                    <strong>Force reset:</strong> Delete existing {resetYear} balances and recreate them
+                                <Label
+                                    htmlFor="force"
+                                    className="text-sm leading-relaxed text-orange-800 dark:text-orange-200"
+                                >
+                                    <strong>Force reset:</strong> Delete
+                                    existing {resetYear} balances and recreate
+                                    them
                                 </Label>
                             </div>
                         ) : null}

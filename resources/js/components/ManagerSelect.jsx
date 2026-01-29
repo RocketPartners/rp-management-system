@@ -1,20 +1,36 @@
 // Create new file: resources/js/Components/ManagerSelect.jsx
-import { useState, useEffect, useRef } from 'react';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/Components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/Components/ui/popover';
 import { Button } from '@/Components/ui/button';
-import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandItem,
+    CommandList,
+} from '@/Components/ui/command';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/Components/ui/popover';
 import { cn } from '@/lib/utils';
+import { Check, ChevronsUpDown, Search } from 'lucide-react';
+import { useState } from 'react';
 
-export function ManagerSelect({ managers = [], value, onChange, error, currentManagerId }) {
+export function ManagerSelect({
+    managers = [],
+    value,
+    onChange,
+    error,
+    currentManagerId,
+}) {
     const [open, setOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
     // Find selected manager
-    const selectedManager = managers.find(m => m.id === parseInt(value));
+    const selectedManager = managers.find((m) => m.id === parseInt(value));
 
     // Filter managers based on search
-    const filteredManagers = managers.filter(manager => {
+    const filteredManagers = managers.filter((manager) => {
         const query = searchQuery.toLowerCase();
         return (
             manager.name.toLowerCase().includes(query) ||
@@ -31,20 +47,24 @@ export function ManagerSelect({ managers = [], value, onChange, error, currentMa
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        "w-full justify-between",
-                        error && "border-red-500",
-                        !value && "text-muted-foreground"
+                        'w-full justify-between',
+                        error && 'border-red-500',
+                        !value && 'text-muted-foreground',
                     )}
                 >
                     {selectedManager ? (
                         <div className="flex items-center gap-2">
-                            <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600">
                                 <span className="text-xs font-medium text-white">
-                                    {selectedManager.name.charAt(0).toUpperCase()}
+                                    {selectedManager.name
+                                        .charAt(0)
+                                        .toUpperCase()}
                                 </span>
                             </div>
                             <div className="flex flex-col items-start">
-                                <span className="font-medium">{selectedManager.name}</span>
+                                <span className="font-medium">
+                                    {selectedManager.name}
+                                </span>
                                 {selectedManager.position && (
                                     <span className="text-xs text-gray-500">
                                         {selectedManager.position}
@@ -53,7 +73,7 @@ export function ManagerSelect({ managers = [], value, onChange, error, currentMa
                             </div>
                         </div>
                     ) : (
-                        "Select your manager..."
+                        'Select your manager...'
                     )}
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
@@ -85,36 +105,46 @@ export function ManagerSelect({ managers = [], value, onChange, error, currentMa
                                 >
                                     <Check
                                         className={cn(
-                                            "mr-2 h-4 w-4",
-                                            value === manager.id.toString() ? "opacity-100" : "opacity-0"
+                                            'mr-2 h-4 w-4',
+                                            value === manager.id.toString()
+                                                ? 'opacity-100'
+                                                : 'opacity-0',
                                         )}
                                     />
-                                    <div className="flex items-center gap-3 flex-1">
-                                        <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full flex-shrink-0">
+                                    <div className="flex flex-1 items-center gap-3">
+                                        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-blue-600">
                                             <span className="text-sm font-medium text-white">
-                                                {manager.name.charAt(0).toUpperCase()}
+                                                {manager.name
+                                                    .charAt(0)
+                                                    .toUpperCase()}
                                             </span>
                                         </div>
-                                        <div className="flex flex-col min-w-0">
+                                        <div className="flex min-w-0 flex-col">
                                             <div className="flex items-center gap-2">
                                                 <span className="font-medium text-gray-900">
                                                     {manager.name}
                                                 </span>
-                                                {currentManagerId === manager.id && (
-                                                    <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
+                                                {currentManagerId ===
+                                                    manager.id && (
+                                                    <span className="rounded bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
                                                         Your Manager
                                                     </span>
                                                 )}
                                             </div>
-                                            <div className="flex items-center gap-2 text-xs text-gray-500 truncate">
+                                            <div className="flex items-center gap-2 truncate text-xs text-gray-500">
                                                 {manager.position && (
-                                                    <span>{manager.position}</span>
+                                                    <span>
+                                                        {manager.position}
+                                                    </span>
                                                 )}
-                                                {manager.position && manager.department && (
-                                                    <span>•</span>
-                                                )}
+                                                {manager.position &&
+                                                    manager.department && (
+                                                        <span>•</span>
+                                                    )}
                                                 {manager.department && (
-                                                    <span>{manager.department}</span>
+                                                    <span>
+                                                        {manager.department}
+                                                    </span>
                                                 )}
                                             </div>
                                         </div>

@@ -36,7 +36,7 @@ export const getDocumentsByType = (documents, docType) => {
     if (!documents || !Array.isArray(documents)) {
         return [];
     }
-    return documents.filter(doc => doc.document_type === docType);
+    return documents.filter((doc) => doc.document_type === docType);
 };
 
 /**
@@ -65,15 +65,17 @@ export const getDocumentTypeCount = (documents, docType) => {
  * @param {Array} uploadedDocuments - Array of uploaded document objects
  * @returns {number} Count of uploaded required document types
  */
-export const countUploadedRequiredTypes = (requiredDocuments, uploadedDocuments) => {
+export const countUploadedRequiredTypes = (
+    requiredDocuments,
+    uploadedDocuments,
+) => {
     if (!requiredDocuments) return 0;
 
-    return Object.keys(requiredDocuments)
-        .filter(key =>
+    return Object.keys(requiredDocuments).filter(
+        (key) =>
             requiredDocuments[key].required &&
-            hasDocumentType(uploadedDocuments, key)
-        )
-        .length;
+            hasDocumentType(uploadedDocuments, key),
+    ).length;
 };
 
 /**
@@ -84,8 +86,7 @@ export const countUploadedRequiredTypes = (requiredDocuments, uploadedDocuments)
 export const countRequiredDocumentTypes = (requiredDocuments) => {
     if (!requiredDocuments) return 0;
 
-    return Object.values(requiredDocuments)
-        .filter(doc => doc.required)
+    return Object.values(requiredDocuments).filter((doc) => doc.required)
         .length;
 };
 
@@ -95,8 +96,14 @@ export const countRequiredDocumentTypes = (requiredDocuments) => {
  * @param {Array} uploadedDocuments - Array of uploaded document objects
  * @returns {boolean}
  */
-export const hasAllRequiredDocuments = (requiredDocuments, uploadedDocuments) => {
-    const uploadedCount = countUploadedRequiredTypes(requiredDocuments, uploadedDocuments);
+export const hasAllRequiredDocuments = (
+    requiredDocuments,
+    uploadedDocuments,
+) => {
+    const uploadedCount = countUploadedRequiredTypes(
+        requiredDocuments,
+        uploadedDocuments,
+    );
     const requiredCount = countRequiredDocumentTypes(requiredDocuments);
     return uploadedCount >= requiredCount;
 };
@@ -107,13 +114,16 @@ export const hasAllRequiredDocuments = (requiredDocuments, uploadedDocuments) =>
  * @param {Array} uploadedDocuments - Array of uploaded document objects
  * @returns {Array} Array of missing document type objects { key, label }
  */
-export const getMissingRequiredDocuments = (requiredDocuments, uploadedDocuments) => {
+export const getMissingRequiredDocuments = (
+    requiredDocuments,
+    uploadedDocuments,
+) => {
     if (!requiredDocuments) return [];
 
     return Object.entries(requiredDocuments)
-        .filter(([key, doc]) =>
-            doc.required &&
-            !hasDocumentType(uploadedDocuments, key)
+        .filter(
+            ([key, doc]) =>
+                doc.required && !hasDocumentType(uploadedDocuments, key),
         )
         .map(([key, doc]) => ({ key, label: doc.label }));
 };
@@ -125,8 +135,8 @@ export const getMissingRequiredDocuments = (requiredDocuments, uploadedDocuments
  */
 export const countPendingDocuments = (documents) => {
     if (!documents || !Array.isArray(documents)) return 0;
-    return documents.filter(doc =>
-        doc.status === 'pending' || doc.status === 'uploaded'
+    return documents.filter(
+        (doc) => doc.status === 'pending' || doc.status === 'uploaded',
     ).length;
 };
 
@@ -137,7 +147,7 @@ export const countPendingDocuments = (documents) => {
  */
 export const countApprovedDocuments = (documents) => {
     if (!documents || !Array.isArray(documents)) return 0;
-    return documents.filter(doc => isDocumentApproved(doc.status)).length;
+    return documents.filter((doc) => isDocumentApproved(doc.status)).length;
 };
 
 /**
@@ -147,7 +157,7 @@ export const countApprovedDocuments = (documents) => {
  */
 export const areAllDocumentsApproved = (documents) => {
     if (!documents || documents.length === 0) return false;
-    return documents.every(doc => isDocumentApproved(doc.status));
+    return documents.every((doc) => isDocumentApproved(doc.status));
 };
 
 /**
@@ -169,7 +179,10 @@ export const formatFileSize = (bytes) => {
  * @param {Array} allowedTypes - Array of allowed extensions (e.g., ['.pdf', '.jpg'])
  * @returns {boolean}
  */
-export const isValidFileType = (file, allowedTypes = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx']) => {
+export const isValidFileType = (
+    file,
+    allowedTypes = ['.pdf', '.jpg', '.jpeg', '.png', '.doc', '.docx'],
+) => {
     if (!file || !file.name) return false;
     const extension = '.' + file.name.split('.').pop().toLowerCase();
     return allowedTypes.includes(extension);
