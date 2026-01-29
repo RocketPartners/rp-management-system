@@ -83,27 +83,23 @@ jobs:
             git reset --hard origin/develop
             composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Copy Build Assets to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_PORT || 22 }}
-          source: "public/build"
-          target: "${{ secrets.STAGING_PATH }}"
-          overwrite: true
+      - name: Transfer Build Artifacts
+        run: |
+          # Save SSH key
+          mkdir -p ~/.ssh
+          echo "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
-      - name: Copy SSR Assets to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_PORT || 22 }}
-          source: "bootstrap/ssr"
-          target: "${{ secrets.STAGING_PATH }}"
-          overwrite: true
+          # Tar and pipe to server
+          tar czf - public/build bootstrap/ssr 2>/dev/null | \
+            ssh -i ~/.ssh/deploy_key \
+                -o StrictHostKeyChecking=no \
+                -p ${{ secrets.STAGING_PORT || 22 }} \
+                ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} \
+                "cd ${{ secrets.STAGING_PATH }} && tar xzf - && echo 'Assets transferred successfully'"
+
+          # Cleanup
+          rm -f ~/.ssh/deploy_key
 
       - name: Finalize Deployment
         uses: appleboy/ssh-action@v1.0.3
@@ -156,27 +152,23 @@ jobs:
             git reset --hard origin/main
             composer install --no-dev --optimize-autoloader --no-interaction
 
-      - name: Copy Build Assets to Production
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          source: "public/build"
-          target: "${{ secrets.PRODUCTION_PATH }}"
-          overwrite: true
+      - name: Transfer Build Artifacts to Production
+        run: |
+          # Save SSH key
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRODUCTION_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
-      - name: Copy SSR Assets to Production
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_SSH_KEY }}
-          port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          source: "bootstrap/ssr"
-          target: "${{ secrets.PRODUCTION_PATH }}"
-          overwrite: true
+          # Tar and pipe to server
+          tar czf - public/build bootstrap/ssr 2>/dev/null | \
+            ssh -i ~/.ssh/deploy_key \
+                -o StrictHostKeyChecking=no \
+                -p ${{ secrets.PRODUCTION_PORT || 22 }} \
+                ${{ secrets.PRODUCTION_USER }}@${{ secrets.PRODUCTION_HOST }} \
+                "cd ${{ secrets.PRODUCTION_PATH }} && tar xzf - && echo 'Assets transferred successfully'"
+
+          # Cleanup
+          rm -f ~/.ssh/deploy_key
 
       - name: Finalize Production Deployment
         uses: appleboy/ssh-action@v1.0.3
