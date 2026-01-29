@@ -76,16 +76,38 @@ jobs:
             rm -rf public/build/*
 
       - name: Transfer Build Artifacts
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          command_timeout: 2m
+          script: |
+            mkdir -p ${{ secrets.STAGING_PATH }}/public/build
+            mkdir -p ${{ secrets.STAGING_PATH }}/bootstrap/ssr
+
+      - name: Copy Build Assets to Server
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.STAGING_HOST }}
           username: ${{ secrets.STAGING_USER }}
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: ${{ secrets.STAGING_PORT || 22 }}
-          source: "./build-artifacts/"
+          source: "./build-artifacts/public/build/*"
           target: "${{ secrets.STAGING_PATH }}/public/build/"
-          strip_components: 1
-          rm: true
+          strip_components: 4
+
+      - name: Copy SSR Assets to Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          source: "./build-artifacts/bootstrap/ssr/*"
+          target: "${{ secrets.STAGING_PATH }}/bootstrap/ssr/"
+          strip_components: 4
 
       - name: Finalize Deployment
         uses: appleboy/ssh-action@v1.0.3
@@ -139,17 +161,39 @@ jobs:
             composer install --no-dev --optimize-autoloader --no-interaction
             rm -rf public/build/*
 
-      - name: Transfer Build Artifacts to Production
+      - name: Create Asset Directories
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT || 22 }}
+          command_timeout: 2m
+          script: |
+            mkdir -p ${{ secrets.PRODUCTION_PATH }}/public/build
+            mkdir -p ${{ secrets.PRODUCTION_PATH }}/bootstrap/ssr
+
+      - name: Copy Build Assets to Production
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.PRODUCTION_HOST }}
           username: ${{ secrets.PRODUCTION_USER }}
           key: ${{ secrets.PRODUCTION_SSH_KEY }}
           port: ${{ secrets.PRODUCTION_PORT || 22 }}
-          source: "./build-artifacts/"
+          source: "./build-artifacts/public/build/*"
           target: "${{ secrets.PRODUCTION_PATH }}/public/build/"
-          strip_components: 1
-          rm: true
+          strip_components: 4
+
+      - name: Copy SSR Assets to Production
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          key: ${{ secrets.PRODUCTION_SSH_KEY }}
+          port: ${{ secrets.PRODUCTION_PORT || 22 }}
+          source: "./build-artifacts/bootstrap/ssr/*"
+          target: "${{ secrets.PRODUCTION_PATH }}/bootstrap/ssr/"
+          strip_components: 4
 
       - name: Finalize Production Deployment
         uses: appleboy/ssh-action@v1.0.3
