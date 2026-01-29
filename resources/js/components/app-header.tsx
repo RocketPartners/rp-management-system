@@ -35,14 +35,7 @@ import { useTimezone } from '@/hooks/use-timezone.jsx';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import {
-    BookOpen,
-    Folder,
-    Globe,
-    LayoutGrid,
-    Menu,
-    Search,
-} from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Globe } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -67,7 +60,8 @@ const rightNavItems: NavItem[] = [
     },
 ];
 
-const activeItemStyles = 'text-neutral-900';
+const activeItemStyles =
+    'text-neutral-900';
 
 interface AppHeaderProps {
     breadcrumbs?: BreadcrumbItem[];
@@ -84,7 +78,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 
     return (
         <>
-            <div className="border-sidebar-border/80 border-b">
+            <div className="border-b border-sidebar-border/80">
                 <div className="mx-auto flex h-16 items-center px-4 md:max-w-7xl">
                     {/* Mobile Menu */}
                     <div className="lg:hidden">
@@ -100,7 +94,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                             </SheetTrigger>
                             <SheetContent
                                 side="left"
-                                className="bg-sidebar flex h-full w-64 flex-col items-stretch justify-between"
+                                className="flex h-full w-64 flex-col items-stretch justify-between bg-sidebar"
                             >
                                 <SheetTitle className="sr-only">
                                     Navigation Menu
@@ -231,7 +225,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                                     }
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                                                    className="group ml-1 inline-flex h-9 w-9 items-center justify-center rounded-md bg-transparent p-0 text-sm font-medium text-accent-foreground ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
                                                 >
                                                     <span className="sr-only">
                                                         {item.title}
@@ -278,8 +272,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                         key={tz.id}
                                         onClick={() => setTimezone(tz.id)}
                                         className={cn(
-                                            'flex cursor-pointer items-center justify-between',
-                                            timezone === tz.id && 'bg-accent',
+                                            "flex items-center justify-between cursor-pointer",
+                                            timezone === tz.id && "bg-accent"
                                         )}
                                     >
                                         <span className="flex items-center gap-2">
@@ -290,9 +284,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                             />
                                             <span>{tz.name}</span>
                                         </span>
-                                        <span className="text-xs text-muted-foreground">
-                                            {tz.offset}
-                                        </span>
+                                        <span className="text-xs text-muted-foreground">{tz.offset}</span>
                                     </DropdownMenuItem>
                                 ))}
                             </DropdownMenuContent>
@@ -322,7 +314,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                 </div>
             </div>
             {breadcrumbs.length > 1 && (
-                <div className="border-sidebar-border/70 flex w-full border-b">
+                <div className="flex w-full border-b border-sidebar-border/70">
                     <div className="mx-auto flex h-12 w-full items-center justify-start px-4 text-neutral-500 md:max-w-7xl">
                         <Breadcrumbs breadcrumbs={breadcrumbs} />
                     </div>
