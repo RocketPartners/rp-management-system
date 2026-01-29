@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\InventoryItem;
 use App\Models\Category;
+use App\Models\InventoryItem;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -15,7 +15,7 @@ class InventoryItemSeeder extends Seeder
         $monitorCategory = Category::where('slug', 'monitors')->first();
         $peripheralCategory = Category::where('slug', 'peripherals')->first();
         $mobileCategory = Category::where('slug', 'mobile-devices')->first();
-        
+
         $firstUser = User::first();
 
         $items = [
@@ -60,7 +60,7 @@ class InventoryItemSeeder extends Seeder
                 'asset_type' => 'asset',
                 'created_by' => $firstUser->id ?? null,
             ],
-            
+
             // Monitors
             [
                 'name' => 'LG UltraWide 34"',
@@ -102,7 +102,7 @@ class InventoryItemSeeder extends Seeder
                 'asset_type' => 'asset',
                 'created_by' => $firstUser->id ?? null,
             ],
-            
+
             // Peripherals
             [
                 'name' => 'Logitech MX Keys',
@@ -144,7 +144,7 @@ class InventoryItemSeeder extends Seeder
                 'asset_type' => 'asset',
                 'created_by' => $firstUser->id ?? null,
             ],
-            
+
             // Mobile Devices
             [
                 'name' => 'iPhone 15 Pro',

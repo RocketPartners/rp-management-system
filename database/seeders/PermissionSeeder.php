@@ -301,7 +301,7 @@ class PermissionSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ Created ' . count($permissions) . ' permissions!');
+        $this->command->info('✅ Created '.count($permissions).' permissions!');
 
         // ============================================
         // ASSIGN PERMISSIONS TO ROLES

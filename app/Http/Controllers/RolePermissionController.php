@@ -21,7 +21,7 @@ class RolePermissionController extends Controller
     public function edit(Role $role)
     {
         // Authorize: must have system.manage-roles
-        if (!auth()->user()->hasPermission('system.manage-roles')) {
+        if (! auth()->user()->hasPermission('system.manage-roles')) {
             abort(403, 'You do not have permission to manage role permissions.');
         }
 
@@ -49,7 +49,7 @@ class RolePermissionController extends Controller
     public function update(UpdateRolePermissionsRequest $request, Role $role)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('system.manage-roles')) {
+        if (! auth()->user()->hasPermission('system.manage-roles')) {
             abort(403, 'You do not have permission to manage role permissions.');
         }
 
@@ -70,7 +70,7 @@ class RolePermissionController extends Controller
     public function preview(Request $request, Role $role)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('system.manage-roles')) {
+        if (! auth()->user()->hasPermission('system.manage-roles')) {
             abort(403, 'You do not have permission to manage role permissions.');
         }
 

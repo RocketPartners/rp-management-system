@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class UserPermissionOverride extends Model
 {
@@ -64,14 +63,14 @@ class UserPermissionOverride extends Model
     {
         return $query->where(function ($q) {
             $q->whereNull('expires_at')
-              ->orWhere('expires_at', '>', now());
+                ->orWhere('expires_at', '>', now());
         });
     }
 
     public function scopeExpired($query)
     {
         return $query->whereNotNull('expires_at')
-                     ->where('expires_at', '<=', now());
+            ->where('expires_at', '<=', now());
     }
 
     // ============================================
@@ -80,7 +79,7 @@ class UserPermissionOverride extends Model
 
     public function getIsExpiredAttribute(): bool
     {
-        if (!$this->expires_at) {
+        if (! $this->expires_at) {
             return false;
         }
 

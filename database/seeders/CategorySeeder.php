@@ -53,7 +53,7 @@ class CategorySeeder extends Seeder
                 'type' => 'inventory',
                 'color' => '#EC4899',
             ],
-            
+
             // Project Categories
             [
                 'name' => 'Web Development',

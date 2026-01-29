@@ -20,7 +20,7 @@ return new class extends Migration
                 'revoked',
                 'override_removed',
                 'role_permission_added',
-                'role_permission_removed'
+                'role_permission_removed',
             ]); // What happened
             $table->foreignId('actor_id')->constrained('users')->onDelete('cascade'); // Who made the change
             $table->json('context')->nullable(); // Additional details (role_id, reason, etc.)

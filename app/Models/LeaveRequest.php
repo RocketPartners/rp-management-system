@@ -146,9 +146,9 @@ class LeaveRequest extends Model
         // 1. Leave is approved
         // 2. Start date is in the future (hasn't started yet)
         // 3. Not already cancelled or pending cancellation
-        return $this->status === 'approved' 
+        return $this->status === 'approved'
             && $this->start_date->isFuture()
-            && !in_array($this->status, ['cancelled', 'pending_cancellation']);
+            && ! in_array($this->status, ['cancelled', 'pending_cancellation']);
     }
 
     /**
@@ -156,7 +156,7 @@ class LeaveRequest extends Model
      */
     public function requestCancellation($reason)
     {
-        if (!$this->canRequestCancellation()) {
+        if (! $this->canRequestCancellation()) {
             throw new \Exception('This leave cannot be cancelled. It may have already started or is not approved.');
         }
 
@@ -229,7 +229,7 @@ class LeaveRequest extends Model
             return [
                 'label' => 'Cancellation Pending',
                 'color' => 'orange',
-                'description' => 'Employee requested to cancel this approved leave'
+                'description' => 'Employee requested to cancel this approved leave',
             ];
         }
 
@@ -237,7 +237,7 @@ class LeaveRequest extends Model
             return [
                 'label' => 'Cancelled by Employee',
                 'color' => 'gray',
-                'description' => 'Leave was cancelled after approval'
+                'description' => 'Leave was cancelled after approval',
             ];
         }
 
@@ -308,7 +308,7 @@ class LeaveRequest extends Model
 
     public function cancel()
     {
-        if (!$this->canBeCancelled()) {
+        if (! $this->canBeCancelled()) {
             throw new \Exception('This request cannot be cancelled.');
         }
 
@@ -342,7 +342,7 @@ class LeaveRequest extends Model
 
     public function getStatusColorAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending_manager' => 'yellow',
             'pending_hr' => 'blue',
             'approved' => 'green',
@@ -354,7 +354,7 @@ class LeaveRequest extends Model
 
     public function getStatusLabelAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'pending_manager' => 'Pending Review',
             'pending_hr' => 'Pending HR Approval',
             'approved' => 'Approved',
@@ -384,12 +384,12 @@ class LeaveRequest extends Model
     {
         return $query->where(function ($q) use ($startDate, $endDate) {
             $q->whereBetween('start_date', [$startDate, $endDate])
-              ->orWhereBetween('end_date', [$startDate, $endDate])
-              ->orWhere(function ($q2) use ($startDate, $endDate) {
-                  // Leaves that span the entire range
-                  $q2->where('start_date', '<=', $startDate)
-                     ->where('end_date', '>=', $endDate);
-              });
+                ->orWhereBetween('end_date', [$startDate, $endDate])
+                ->orWhere(function ($q2) use ($startDate, $endDate) {
+                    // Leaves that span the entire range
+                    $q2->where('start_date', '<=', $startDate)
+                        ->where('end_date', '>=', $endDate);
+                });
         });
     }
 
@@ -425,10 +425,10 @@ class LeaveRequest extends Model
     public function toCalendarEvent(): array
     {
         // Load relationships if not already loaded
-        if (!$this->relationLoaded('user')) {
+        if (! $this->relationLoaded('user')) {
             $this->load('user');
         }
-        if (!$this->relationLoaded('leaveType')) {
+        if (! $this->relationLoaded('leaveType')) {
             $this->load('leaveType');
         }
 
@@ -442,7 +442,7 @@ class LeaveRequest extends Model
         $textColor = $luminance > 0.5 ? '#000000' : '#FFFFFF';
 
         return [
-            'id' => 'leave_' . $this->id,
+            'id' => 'leave_'.$this->id,
             'title' => $this->user->name,
             'start' => $this->start_date->format('Y-m-d'),
             'end' => $this->end_date->copy()->addDay()->format('Y-m-d'), // FullCalendar exclusive end date

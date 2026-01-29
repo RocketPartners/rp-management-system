@@ -1,20 +1,5 @@
-import { useState, useEffect } from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
-import axios from 'axios';
-import { useTimezone } from '@/hooks/use-timezone.jsx';
-import { Button } from '@/Components/ui/button';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
-import { Textarea } from '@/Components/ui/textarea';
 import { Badge } from '@/Components/ui/badge';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/Components/ui/select';
+import { Button } from '@/Components/ui/button';
 import {
     Dialog,
     DialogContent,
@@ -23,7 +8,22 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/Components/ui/dialog';
-import { MessageSquare, Plus, Bug, Lightbulb, Send, X } from 'lucide-react';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/Components/ui/select';
+import { Textarea } from '@/Components/ui/textarea';
+import { useTimezone } from '@/hooks/use-timezone.jsx';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head } from '@inertiajs/react';
+import axios from 'axios';
+import { Bug, Lightbulb, MessageSquare, Plus, Send, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 export default function Support() {
     const [statusFilter, setStatusFilter] = useState('open');
@@ -85,7 +85,7 @@ export default function Support() {
                 month: 'short',
                 day: 'numeric',
                 year: 'numeric',
-                timeZone: timezone
+                timeZone: timezone,
             });
         }
     };
@@ -99,7 +99,7 @@ export default function Support() {
             hour: '2-digit',
             minute: '2-digit',
             hour12: true,
-            timeZone: timezone
+            timeZone: timezone,
         });
     };
 
@@ -134,11 +134,16 @@ export default function Support() {
     };
 
     // Filter tickets based on search and filters
-    const tickets = allTickets.filter(ticket => {
-        const matchesSearch = ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            ticket.description.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
-        const matchesCategory = categoryFilter === 'all' || ticket.category === categoryFilter;
+    const tickets = allTickets.filter((ticket) => {
+        const matchesSearch =
+            ticket.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            ticket.description
+                .toLowerCase()
+                .includes(searchQuery.toLowerCase());
+        const matchesStatus =
+            statusFilter === 'all' || ticket.status === statusFilter;
+        const matchesCategory =
+            categoryFilter === 'all' || ticket.category === categoryFilter;
 
         return matchesSearch && matchesStatus && matchesCategory;
     });
@@ -174,7 +179,13 @@ export default function Support() {
             console.error('Error creating ticket:', error);
             if (error.response) {
                 console.error('Validation errors:', error.response.data);
-                alert('Error creating ticket: ' + JSON.stringify(error.response.data.errors || error.response.data.message));
+                alert(
+                    'Error creating ticket: ' +
+                        JSON.stringify(
+                            error.response.data.errors ||
+                                error.response.data.message,
+                        ),
+                );
             }
         }
     };
@@ -191,12 +202,15 @@ export default function Support() {
         if (!newMessage.trim() || !selectedTicket) return;
 
         try {
-            const response = await axios.post(`/tickets/${selectedTicket.id}/messages`, {
-                message: newMessage,
-            });
+            const response = await axios.post(
+                `/tickets/${selectedTicket.id}/messages`,
+                {
+                    message: newMessage,
+                },
+            );
 
             const updatedTickets = allTickets.map((ticket) =>
-                ticket.id === selectedTicket.id ? response.data.ticket : ticket
+                ticket.id === selectedTicket.id ? response.data.ticket : ticket,
             );
             setAllTickets(updatedTickets);
             setSelectedTicket(response.data.ticket);
@@ -204,7 +218,10 @@ export default function Support() {
         } catch (error) {
             console.error('Error sending message:', error);
             if (error.response) {
-                alert('Error sending message: ' + (error.response.data.message || 'Unknown error'));
+                alert(
+                    'Error sending message: ' +
+                        (error.response.data.message || 'Unknown error'),
+                );
             }
         }
     };
@@ -213,19 +230,25 @@ export default function Support() {
         if (!selectedTicket || !isAdmin) return;
 
         try {
-            const response = await axios.patch(`/tickets/${selectedTicket.id}/status`, {
-                status: newStatus,
-            });
+            const response = await axios.patch(
+                `/tickets/${selectedTicket.id}/status`,
+                {
+                    status: newStatus,
+                },
+            );
 
             const updatedTickets = allTickets.map((ticket) =>
-                ticket.id === selectedTicket.id ? response.data.ticket : ticket
+                ticket.id === selectedTicket.id ? response.data.ticket : ticket,
             );
             setAllTickets(updatedTickets);
             setSelectedTicket(response.data.ticket);
         } catch (error) {
             console.error('Error updating status:', error);
             if (error.response) {
-                alert('Error updating status: ' + (error.response.data.message || 'Unknown error'));
+                alert(
+                    'Error updating status: ' +
+                        (error.response.data.message || 'Unknown error'),
+                );
             }
         }
     };
@@ -236,10 +259,14 @@ export default function Support() {
 
             <div className="p-8">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Support</h1>
-                        <p className="text-gray-600 mt-1">Submit and track your support tickets</p>
+                        <h1 className="text-3xl font-bold text-gray-900">
+                            Support
+                        </h1>
+                        <p className="mt-1 text-gray-600">
+                            Submit and track your support tickets
+                        </p>
                     </div>
                     <Button
                         className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
@@ -251,7 +278,7 @@ export default function Support() {
                 </div>
 
                 {/* Filters Bar */}
-                <div className="flex items-center gap-4 mb-6">
+                <div className="mb-6 flex items-center gap-4">
                     <div className="flex-1">
                         <Input
                             type="text"
@@ -261,56 +288,71 @@ export default function Support() {
                             className="w-full max-w-md"
                         />
                     </div>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <Select
+                        value={statusFilter}
+                        onValueChange={setStatusFilter}
+                    >
                         <SelectTrigger className="w-40">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="open">Open</SelectItem>
-                            <SelectItem value="in_progress">In Progress</SelectItem>
+                            <SelectItem value="in_progress">
+                                In Progress
+                            </SelectItem>
                             <SelectItem value="resolved">Resolved</SelectItem>
                             <SelectItem value="closed">Closed</SelectItem>
                             <SelectItem value="all">All Status</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                    <Select
+                        value={categoryFilter}
+                        onValueChange={setCategoryFilter}
+                    >
                         <SelectTrigger className="w-48">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Categories</SelectItem>
                             <SelectItem value="bug">Bug</SelectItem>
-                            <SelectItem value="feature">Feature Request</SelectItem>
+                            <SelectItem value="feature">
+                                Feature Request
+                            </SelectItem>
                             <SelectItem value="question">Question</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                     </Select>
-                    <div className="text-sm text-gray-500 ml-auto">
-                        Showing {tickets.length > 0 ? `1-${tickets.length}` : '0-0'} of {tickets.length}
+                    <div className="ml-auto text-sm text-gray-500">
+                        Showing{' '}
+                        {tickets.length > 0 ? `1-${tickets.length}` : '0-0'} of{' '}
+                        {tickets.length}
                     </div>
                 </div>
 
                 {/* Tickets List / Empty State */}
-                <div className="bg-white rounded-lg border border-gray-200 min-h-[400px]">
+                <div className="min-h-[400px] rounded-lg border border-gray-200 bg-white">
                     {isLoading ? (
-                        <div className="flex items-center justify-center h-[400px]">
-                            <div className="text-center py-12">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <p className="text-gray-500">Loading tickets...</p>
+                        <div className="flex h-[400px] items-center justify-center">
+                            <div className="py-12 text-center">
+                                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
+                                <p className="text-gray-500">
+                                    Loading tickets...
+                                </p>
                             </div>
                         </div>
                     ) : tickets.length === 0 ? (
-                        <div className="flex items-center justify-center h-[400px]">
-                            <div className="text-center py-12">
-                                <MessageSquare className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        <div className="flex h-[400px] items-center justify-center">
+                            <div className="py-12 text-center">
+                                <MessageSquare className="mx-auto mb-4 h-16 w-16 text-gray-300" />
+                                <h3 className="mb-2 text-lg font-semibold text-gray-900">
                                     No tickets found
                                 </h3>
-                                <p className="text-gray-500 mb-6">
-                                    Click "New Ticket" to submit a support request.
+                                <p className="mb-6 text-gray-500">
+                                    Click "New Ticket" to submit a support
+                                    request.
                                 </p>
                                 <Button
-                                    className="flex items-center gap-2 mx-auto bg-blue-600 text-white hover:bg-blue-700"
+                                    className="mx-auto flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
                                     onClick={() => handleOpenDialog('feature')}
                                 >
                                     <Plus className="h-4 w-4" />
@@ -323,49 +365,77 @@ export default function Support() {
                             {tickets.map((ticket) => (
                                 <div
                                     key={ticket.id}
-                                    className={`p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                                        selectedTicket?.id === ticket.id ? 'bg-blue-50 hover:bg-blue-50' : ''
+                                    className={`cursor-pointer p-4 transition-colors hover:bg-gray-50 ${
+                                        selectedTicket?.id === ticket.id
+                                            ? 'bg-blue-50 hover:bg-blue-50'
+                                            : ''
                                     }`}
                                     onClick={() => setSelectedTicket(ticket)}
                                 >
                                     <div className="flex items-start justify-between">
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-2">
-                                                <h3 className="text-base font-semibold text-gray-900 truncate">
+                                        <div className="min-w-0 flex-1">
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <h3 className="truncate text-base font-semibold text-gray-900">
                                                     {ticket.subject}
                                                 </h3>
-                                                <Badge className={`${getPriorityBadgeColor(ticket.priority)} border-0 text-xs`}>
-                                                    {ticket.priority.charAt(0).toUpperCase() + ticket.priority.slice(1)}
+                                                <Badge
+                                                    className={`${getPriorityBadgeColor(ticket.priority)} border-0 text-xs`}
+                                                >
+                                                    {ticket.priority
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        ticket.priority.slice(
+                                                            1,
+                                                        )}
                                                 </Badge>
                                             </div>
-                                            <p className="text-sm text-gray-600 line-clamp-2 mb-2">
+                                            <p className="mb-2 line-clamp-2 text-sm text-gray-600">
                                                 {ticket.description}
                                             </p>
                                             <div className="flex items-center gap-3 text-xs text-gray-500">
                                                 <span className="flex items-center gap-1">
-                                                    {ticket.category === 'bug' ? (
+                                                    {ticket.category ===
+                                                    'bug' ? (
                                                         <Bug className="h-3 w-3" />
                                                     ) : (
                                                         <Lightbulb className="h-3 w-3" />
                                                     )}
-                                                    {ticket.category.charAt(0).toUpperCase() + ticket.category.slice(1)}
+                                                    {ticket.category
+                                                        .charAt(0)
+                                                        .toUpperCase() +
+                                                        ticket.category.slice(
+                                                            1,
+                                                        )}
                                                 </span>
                                                 <span>•</span>
                                                 <span>Ticket #{ticket.id}</span>
                                                 {isAdmin && ticket.user && (
                                                     <>
                                                         <span>•</span>
-                                                        <span>{ticket.user.name}</span>
+                                                        <span>
+                                                            {ticket.user.name}
+                                                        </span>
                                                     </>
                                                 )}
                                                 <span>•</span>
-                                                <span>Updated {formatDate(ticket.updated_at)}</span>
+                                                <span>
+                                                    Updated{' '}
+                                                    {formatDate(
+                                                        ticket.updated_at,
+                                                    )}
+                                                </span>
                                             </div>
                                         </div>
                                         <div className="ml-4 flex-shrink-0">
-                                            <Badge className={`${getStatusBadgeColor(ticket.status)} border-0`}>
-                                                {ticket.status === 'in_progress' ? 'In Progress' :
-                                                 ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                                            <Badge
+                                                className={`${getStatusBadgeColor(ticket.status)} border-0`}
+                                            >
+                                                {ticket.status === 'in_progress'
+                                                    ? 'In Progress'
+                                                    : ticket.status
+                                                          .charAt(0)
+                                                          .toUpperCase() +
+                                                      ticket.status.slice(1)}
                                             </Badge>
                                         </div>
                                     </div>
@@ -377,38 +447,67 @@ export default function Support() {
 
                 {/* Ticket Conversation */}
                 {selectedTicket && (
-                    <div className="mt-6 bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white">
                         {/* Conversation Header */}
-                        <div className="border-b border-gray-200 p-4 flex items-center justify-between bg-gray-50">
+                        <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-4">
                             <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className="mb-1 flex items-center gap-2">
                                     <h2 className="text-lg font-semibold text-gray-900">
                                         {selectedTicket.subject}
                                     </h2>
                                     {isAdmin ? (
-                                        <Select value={selectedTicket.status} onValueChange={handleStatusChange}>
-                                            <SelectTrigger className="w-36 h-7">
+                                        <Select
+                                            value={selectedTicket.status}
+                                            onValueChange={handleStatusChange}
+                                        >
+                                            <SelectTrigger className="h-7 w-36">
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="open">Open</SelectItem>
-                                                <SelectItem value="in_progress">In Progress</SelectItem>
-                                                <SelectItem value="resolved">Resolved</SelectItem>
-                                                <SelectItem value="closed">Closed</SelectItem>
+                                                <SelectItem value="open">
+                                                    Open
+                                                </SelectItem>
+                                                <SelectItem value="in_progress">
+                                                    In Progress
+                                                </SelectItem>
+                                                <SelectItem value="resolved">
+                                                    Resolved
+                                                </SelectItem>
+                                                <SelectItem value="closed">
+                                                    Closed
+                                                </SelectItem>
                                             </SelectContent>
                                         </Select>
                                     ) : (
-                                        <Badge className={`${getStatusBadgeColor(selectedTicket.status)} border-0`}>
-                                            {selectedTicket.status === 'in_progress' ? 'In Progress' :
-                                             selectedTicket.status.charAt(0).toUpperCase() + selectedTicket.status.slice(1)}
+                                        <Badge
+                                            className={`${getStatusBadgeColor(selectedTicket.status)} border-0`}
+                                        >
+                                            {selectedTicket.status ===
+                                            'in_progress'
+                                                ? 'In Progress'
+                                                : selectedTicket.status
+                                                      .charAt(0)
+                                                      .toUpperCase() +
+                                                  selectedTicket.status.slice(
+                                                      1,
+                                                  )}
                                         </Badge>
                                     )}
                                 </div>
                                 <p className="text-sm text-gray-600">
-                                    Ticket #{selectedTicket.id} • Created {formatFullDate(selectedTicket.created_at)}
-                                    {isAdmin && selectedTicket.user && ` • Reported by ${selectedTicket.user.name}`}
+                                    Ticket #{selectedTicket.id} • Created{' '}
+                                    {formatFullDate(selectedTicket.created_at)}
+                                    {isAdmin &&
+                                        selectedTicket.user &&
+                                        ` • Reported by ${selectedTicket.user.name}`}
                                     {selectedTicket.resolved_at && (
-                                        <span className="text-green-600 font-medium"> • Resolved {formatFullDate(selectedTicket.resolved_at)}</span>
+                                        <span className="font-medium text-green-600">
+                                            {' '}
+                                            • Resolved{' '}
+                                            {formatFullDate(
+                                                selectedTicket.resolved_at,
+                                            )}
+                                        </span>
                                     )}
                                 </p>
                             </div>
@@ -423,18 +522,25 @@ export default function Support() {
                         </div>
 
                         {/* Messages */}
-                        <div className="p-6 space-y-4 max-h-[500px] overflow-y-auto">
+                        <div className="max-h-[500px] space-y-4 overflow-y-auto p-6">
                             {selectedTicket.messages?.map((message) => (
                                 <div
                                     key={message.id}
                                     className={`flex ${message.is_support ? 'justify-start' : 'justify-end'}`}
                                 >
-                                    <div className={`max-w-[70%] ${message.is_support ? '' : 'flex flex-col items-end'}`}>
-                                        <div className="flex items-center gap-2 mb-1">
+                                    <div
+                                        className={`max-w-[70%] ${message.is_support ? '' : 'flex flex-col items-end'}`}
+                                    >
+                                        <div className="mb-1 flex items-center gap-2">
                                             <span className="text-xs font-medium text-gray-700">
                                                 {message.author}
                                             </span>
-                                            <span className="text-xs text-gray-500" title={formatFullDate(message.created_at)}>
+                                            <span
+                                                className="text-xs text-gray-500"
+                                                title={formatFullDate(
+                                                    message.created_at,
+                                                )}
+                                            >
                                                 {formatDate(message.created_at)}
                                             </span>
                                         </div>
@@ -445,7 +551,9 @@ export default function Support() {
                                                     : 'bg-blue-600 text-white'
                                             }`}
                                         >
-                                            <p className="text-sm whitespace-pre-wrap">{message.message}</p>
+                                            <p className="whitespace-pre-wrap text-sm">
+                                                {message.message}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -454,18 +562,23 @@ export default function Support() {
 
                         {/* Message Input */}
                         {selectedTicket.status !== 'closed' && (
-                            <div className="border-t border-gray-200 p-4 bg-gray-50">
-                                <form onSubmit={handleSendMessage} className="flex gap-2">
+                            <div className="border-t border-gray-200 bg-gray-50 p-4">
+                                <form
+                                    onSubmit={handleSendMessage}
+                                    className="flex gap-2"
+                                >
                                     <Textarea
                                         placeholder="Type your message..."
                                         value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
+                                        onChange={(e) =>
+                                            setNewMessage(e.target.value)
+                                        }
                                         rows={2}
                                         className="flex-1 resize-none"
                                     />
                                     <Button
                                         type="submit"
-                                        className="bg-blue-600 text-white hover:bg-blue-700 self-end"
+                                        className="self-end bg-blue-600 text-white hover:bg-blue-700"
                                         disabled={!newMessage.trim()}
                                     >
                                         <Send className="h-4 w-4" />
@@ -485,7 +598,8 @@ export default function Support() {
                                 Create New Ticket
                             </DialogTitle>
                             <DialogDescription>
-                                Provide details about your request and we'll get back to you as soon as possible.
+                                Provide details about your request and we'll get
+                                back to you as soon as possible.
                             </DialogDescription>
                         </DialogHeader>
 
@@ -496,17 +610,27 @@ export default function Support() {
                                     <Label htmlFor="category">Category *</Label>
                                     <Select
                                         value={formData.category}
-                                        onValueChange={(value) => handleInputChange('category', value)}
+                                        onValueChange={(value) =>
+                                            handleInputChange('category', value)
+                                        }
                                         required
                                     >
                                         <SelectTrigger id="category">
                                             <SelectValue placeholder="Select category" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="bug">Bug Report</SelectItem>
-                                            <SelectItem value="feature">Feature Request</SelectItem>
-                                            <SelectItem value="question">Question</SelectItem>
-                                            <SelectItem value="other">Other</SelectItem>
+                                            <SelectItem value="bug">
+                                                Bug Report
+                                            </SelectItem>
+                                            <SelectItem value="feature">
+                                                Feature Request
+                                            </SelectItem>
+                                            <SelectItem value="question">
+                                                Question
+                                            </SelectItem>
+                                            <SelectItem value="other">
+                                                Other
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -518,7 +642,12 @@ export default function Support() {
                                         id="subject"
                                         placeholder="Brief description of the issue"
                                         value={formData.subject}
-                                        onChange={(e) => handleInputChange('subject', e.target.value)}
+                                        onChange={(e) =>
+                                            handleInputChange(
+                                                'subject',
+                                                e.target.value,
+                                            )
+                                        }
                                         required
                                     />
                                 </div>
@@ -528,28 +657,45 @@ export default function Support() {
                                     <Label htmlFor="priority">Priority</Label>
                                     <Select
                                         value={formData.priority}
-                                        onValueChange={(value) => handleInputChange('priority', value)}
+                                        onValueChange={(value) =>
+                                            handleInputChange('priority', value)
+                                        }
                                     >
                                         <SelectTrigger id="priority">
                                             <SelectValue placeholder="Select priority" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="low">Low</SelectItem>
-                                            <SelectItem value="medium">Medium</SelectItem>
-                                            <SelectItem value="high">High</SelectItem>
-                                            <SelectItem value="critical">Critical</SelectItem>
+                                            <SelectItem value="low">
+                                                Low
+                                            </SelectItem>
+                                            <SelectItem value="medium">
+                                                Medium
+                                            </SelectItem>
+                                            <SelectItem value="high">
+                                                High
+                                            </SelectItem>
+                                            <SelectItem value="critical">
+                                                Critical
+                                            </SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 {/* Description */}
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Description *</Label>
+                                    <Label htmlFor="description">
+                                        Description *
+                                    </Label>
                                     <Textarea
                                         id="description"
                                         placeholder="Describe your request in detail..."
                                         value={formData.description}
-                                        onChange={(e) => handleInputChange('description', e.target.value)}
+                                        onChange={(e) =>
+                                            handleInputChange(
+                                                'description',
+                                                e.target.value,
+                                            )
+                                        }
                                         rows={6}
                                         required
                                     />

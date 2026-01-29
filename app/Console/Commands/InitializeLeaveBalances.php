@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\LeaveBalance;
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class InitializeLeaveBalances extends Command
@@ -25,9 +25,10 @@ class InitializeLeaveBalances extends Command
             $users = User::where('id', $userId)
                 ->where('employment_status', 'active')
                 ->get();
-            
+
             if ($users->isEmpty()) {
                 $this->error("User with ID {$userId} not found or not active.");
+
                 return 1;
             }
         } else {
@@ -50,7 +51,7 @@ class InitializeLeaveBalances extends Command
         $bar->finish();
         $this->newLine(2);
 
-        $this->info("✅ Leave balances initialized successfully!");
+        $this->info('✅ Leave balances initialized successfully!');
         $this->table(
             ['Metric', 'Count'],
             [

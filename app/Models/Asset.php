@@ -46,9 +46,9 @@ class Asset extends Model
     public function currentAssignment()
     {
         return $this->hasOne(IndividualAssetAssignment::class)
-                    ->where('status', 'active')
-                    ->whereNull('actual_return_date')
-                    ->latest();
+            ->where('status', 'active')
+            ->whereNull('actual_return_date')
+            ->latest();
     }
 
     // Relationship: Currently assigned user (NEW system)
@@ -62,7 +62,7 @@ class Asset extends Model
             'id',            // Local key on assets
             'user_id'        // Local key on individual_asset_assignments
         )->where('individual_asset_assignments.status', 'active')
-         ->whereNull('individual_asset_assignments.actual_return_date');
+            ->whereNull('individual_asset_assignments.actual_return_date');
     }
 
     // Check if this specific asset is currently assigned
@@ -74,20 +74,20 @@ class Asset extends Model
     // Check if this specific asset is available
     public function isAvailable()
     {
-        return $this->status === 'Available' && !$this->isAssigned();
+        return $this->status === 'Available' && ! $this->isAssigned();
     }
 
     // Scope: Available assets only
     public function scopeAvailable($query)
     {
         return $query->where('status', 'Available')
-                     ->whereDoesntHave('currentAssignment');
+            ->whereDoesntHave('currentAssignment');
     }
 
     // Scope: Assigned assets only
     public function scopeAssigned($query)
     {
         return $query->where('status', 'Assigned')
-                     ->whereHas('currentAssignment');
+            ->whereHas('currentAssignment');
     }
 }

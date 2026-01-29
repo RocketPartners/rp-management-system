@@ -13,11 +13,11 @@ return new class extends Migration
             $table->string('phone_number')->nullable()->after('suffix');
             $table->string('work_email')->nullable()->after('phone_number');
             $table->string('personal_email')->nullable()->after('work_email');
-            
+
             // Personal Information
             $table->enum('gender', ['male', 'female', 'other', 'prefer_not_to_say'])->nullable()->after('personal_email');
             $table->date('birthday')->nullable()->after('gender');
-            
+
             // Address
             $table->text('address_line_1')->nullable()->after('birthday');
             $table->text('address_line_2')->nullable()->after('address_line_1');
@@ -25,12 +25,12 @@ return new class extends Migration
             $table->string('state')->nullable()->after('city');
             $table->string('postal_code')->nullable()->after('state');
             $table->string('country')->default('Philippines')->after('postal_code');
-            
+
             // Emergency Contact
             $table->string('emergency_contact_name')->nullable()->after('country');
             $table->string('emergency_contact_phone')->nullable()->after('emergency_contact_name');
             $table->string('emergency_contact_relationship')->nullable()->after('emergency_contact_phone');
-            
+
             // Employment Information
             $table->string('employee_id')->unique()->nullable()->after('emergency_contact_relationship');
             $table->string('department')->nullable()->after('employee_id');

@@ -16,9 +16,10 @@ class LeaveRequestSeeder extends Seeder
     {
         // Get the first user (admin)
         $user = User::first();
-        
-        if (!$user) {
+
+        if (! $user) {
             $this->command->error('No users found. Please create users first.');
+
             return;
         }
 
@@ -27,8 +28,9 @@ class LeaveRequestSeeder extends Seeder
         $sickLeave = LeaveType::where('code', 'SL')->first();
         $emergencyLeave = LeaveType::where('code', 'EL')->first();
 
-        if (!$vacationLeave || !$sickLeave || !$emergencyLeave) {
+        if (! $vacationLeave || ! $sickLeave || ! $emergencyLeave) {
             $this->command->error('Leave types not found. Run LeaveTypeSeeder first.');
+
             return;
         }
 
@@ -178,6 +180,6 @@ class LeaveRequestSeeder extends Seeder
             LeaveRequest::create($leaveRequest);
         }
 
-        $this->command->info('✅ Created ' . count($leaveRequests) . ' sample leave requests!');
+        $this->command->info('✅ Created '.count($leaveRequests).' sample leave requests!');
     }
 }

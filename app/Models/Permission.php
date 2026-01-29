@@ -32,7 +32,7 @@ class Permission extends Model
     public function roles()
     {
         return $this->belongsToMany(Role::class, 'permission_role')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
@@ -41,8 +41,8 @@ class Permission extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'permission_user')
-                    ->withPivot(['type', 'granted_by', 'granted_at', 'reason', 'expires_at'])
-                    ->withTimestamps();
+            ->withPivot(['type', 'granted_by', 'granted_at', 'reason', 'expires_at'])
+            ->withTimestamps();
     }
 
     /**
@@ -96,6 +96,7 @@ class Permission extends Model
     public function isGrantedToUser($userId)
     {
         $pivot = $this->users()->where('user_id', $userId)->first();
+
         return $pivot ? $pivot->pivot->type : null;
     }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 const TimezoneContext = createContext();
 
@@ -7,20 +7,20 @@ const timezones = [
         id: 'America/New_York',
         name: 'Atlanta',
         flag: '/images/united-states-of-america.png',
-        offset: 'EST/EDT'
+        offset: 'EST/EDT',
     },
     {
         id: 'Europe/Madrid',
         name: 'Spain',
         flag: '/images/spain.png',
-        offset: 'CET/CEST'
+        offset: 'CET/CEST',
     },
     {
         id: 'Asia/Manila',
         name: 'Philippines',
         flag: '/images/philippines.png',
-        offset: 'PHT'
-    }
+        offset: 'PHT',
+    },
 ];
 
 export function TimezoneProvider({ children }) {

@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateUserPermissionsRequest;
 use App\Models\Permission;
 use App\Models\User;
 use App\Services\PermissionService;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class UserPermissionController extends Controller
@@ -23,7 +22,7 @@ class UserPermissionController extends Controller
     public function edit(User $user)
     {
         // Authorize: must have users.assign-permissions
-        if (!auth()->user()->hasPermission('users.assign-permissions')) {
+        if (! auth()->user()->hasPermission('users.assign-permissions')) {
             abort(403, 'You do not have permission to manage user permissions.');
         }
 
@@ -45,7 +44,7 @@ class UserPermissionController extends Controller
     public function update(UpdateUserPermissionsRequest $request, User $user)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('users.assign-permissions')) {
+        if (! auth()->user()->hasPermission('users.assign-permissions')) {
             abort(403, 'You do not have permission to manage user permissions.');
         }
 
@@ -75,7 +74,7 @@ class UserPermissionController extends Controller
     public function reset(User $user)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('users.assign-permissions')) {
+        if (! auth()->user()->hasPermission('users.assign-permissions')) {
             abort(403, 'You do not have permission to manage user permissions.');
         }
 
@@ -90,7 +89,7 @@ class UserPermissionController extends Controller
     public function grant(GrantPermissionRequest $request, User $user, Permission $permission)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('users.assign-permissions')) {
+        if (! auth()->user()->hasPermission('users.assign-permissions')) {
             abort(403, 'You do not have permission to manage user permissions.');
         }
 
@@ -113,7 +112,7 @@ class UserPermissionController extends Controller
     public function revoke(RevokePermissionRequest $request, User $user, Permission $permission)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('users.assign-permissions')) {
+        if (! auth()->user()->hasPermission('users.assign-permissions')) {
             abort(403, 'You do not have permission to manage user permissions.');
         }
 
@@ -136,7 +135,7 @@ class UserPermissionController extends Controller
     public function removeOverride(User $user, Permission $permission)
     {
         // Authorize
-        if (!auth()->user()->hasPermission('users.assign-permissions')) {
+        if (! auth()->user()->hasPermission('users.assign-permissions')) {
             abort(403, 'You do not have permission to manage user permissions.');
         }
 

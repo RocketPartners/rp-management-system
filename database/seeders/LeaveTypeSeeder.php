@@ -194,6 +194,6 @@ class LeaveTypeSeeder extends Seeder
             LeaveType::create($leaveType);
         }
 
-        $this->command->info('✅ Created ' . count($leaveTypes) . ' leave types!');
+        $this->command->info('✅ Created '.count($leaveTypes).' leave types!');
     }
 }

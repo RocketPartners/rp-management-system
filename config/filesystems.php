@@ -39,10 +39,10 @@ return [
         ],
 
         'private' => [
-        'driver' => 'local',
-        'root' => storage_path('app/private'),
-        'visibility' => 'private',
-        'throw' => false,
+            'driver' => 'local',
+            'root' => storage_path('app/private'),
+            'visibility' => 'private',
+            'throw' => false,
             // ✅ S3 Configuration (for production)
             // Uncomment when PRIVATE_DISK_DRIVER=s3 in .env
             // 'key' => env('AWS_ACCESS_KEY_ID'),

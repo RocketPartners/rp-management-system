@@ -51,21 +51,21 @@ class IndividualAssetAssignment extends Model
     public function scopeActive($query)
     {
         return $query->where('status', 'active')
-                     ->whereNull('actual_return_date');
+            ->whereNull('actual_return_date');
     }
 
     // Scope: Returned assignments
     public function scopeReturned($query)
     {
         return $query->where('status', 'returned')
-                     ->whereNotNull('actual_return_date');
+            ->whereNotNull('actual_return_date');
     }
 
     // Check if assignment is overdue (if expected return date passed)
     public function isOverdue()
     {
-        return $this->expected_return_date 
-               && $this->expected_return_date->isPast() 
+        return $this->expected_return_date
+               && $this->expected_return_date->isPast()
                && $this->status === 'active';
     }
 }

@@ -153,18 +153,18 @@ class LeaveBalance extends Model
     public static function initializeForUser($userId, $year = null)
     {
         $year = $year ?? now()->year;
-        
+
         // Get all active leave types
         $leaveTypes = LeaveType::active()->get();
-        
+
         foreach ($leaveTypes as $leaveType) {
             // Check if balance already exists
             $exists = self::where('user_id', $userId)
                 ->where('leave_type_id', $leaveType->id)
                 ->where('year', $year)
                 ->exists();
-            
-            if (!$exists) {
+
+            if (! $exists) {
                 self::create([
                     'user_id' => $userId,
                     'leave_type_id' => $leaveType->id,
@@ -184,20 +184,20 @@ class LeaveBalance extends Model
     public static function resetForNewYear($newYear)
     {
         $previousYear = $newYear - 1;
-        
+
         // Get all users
         $users = User::where('employment_status', 'active')->get();
-        
+
         foreach ($users as $user) {
             $leaveTypes = LeaveType::active()->get();
-            
+
             foreach ($leaveTypes as $leaveType) {
                 // Get previous year's balance
                 $previousBalance = self::where('user_id', $user->id)
                     ->where('leave_type_id', $leaveType->id)
                     ->where('year', $previousYear)
                     ->first();
-                
+
                 // Calculate carry over
                 $carryOver = 0;
                 if ($previousBalance && $leaveType->is_carry_over_allowed) {
@@ -206,7 +206,7 @@ class LeaveBalance extends Model
                         $leaveType->max_carry_over_days ?? 0
                     );
                 }
-                
+
                 // Create new year balance
                 self::create([
                     'user_id' => $user->id,

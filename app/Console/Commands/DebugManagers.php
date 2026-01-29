@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Console\Command;
 
 class DebugManagers extends Command
 {
     protected $signature = 'debug:managers';
+
     protected $description = 'Debug manager selection and roles';
 
     public function handle()
@@ -30,27 +31,27 @@ class DebugManagers extends Command
         $users = User::where('employment_status', 'active')
             ->with('roles')
             ->get();
-        
+
         foreach ($users as $user) {
             $roleNames = $user->roles->pluck('slug')->toArray();
-            $this->line("  • {$user->name} - Roles: [" . implode(', ', $roleNames) . "]");
+            $this->line("  • {$user->name} - Roles: [".implode(', ', $roleNames).']');
         }
         $this->newLine();
 
         // Test the manager query
         $this->info('🎯 Testing Manager Query (excluding current user):');
         $currentUser = User::first();
-        
+
         $managersWithRoles = User::where('employment_status', 'active')
             ->where('id', '!=', $currentUser->id)
-            ->whereHas('roles', function($query) {
+            ->whereHas('roles', function ($query) {
                 $query->whereIn('slug', [
                     'super-admin',
-                    'admin', 
+                    'admin',
                     'hr-manager',
                     'lead-engineer',
                     'senior-engineer',
-                    'project-manager'
+                    'project-manager',
                 ]);
             })
             ->with('roles')
@@ -69,7 +70,7 @@ class DebugManagers extends Command
             ->where('id', '!=', $currentUser->id)
             ->get();
         $this->line("  Found {$allUsers->count()} users total");
-        
+
         return 0;
     }
 }

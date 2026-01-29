@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\Leave\LeaveRequestSubmittedMail;
+use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
-use App\Models\LeaveBalance;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use App\Mail\Leave\LeaveRequestSubmittedMail;
 use Illuminate\Support\Facades\Mail;
+use Inertia\Inertia;
 
 class LeaveRequestController extends Controller
 {
@@ -19,7 +19,7 @@ class LeaveRequestController extends Controller
     public function index(Request $request)
     {
         $user = auth()->user();
-        
+
         $query = LeaveRequest::with(['leaveType', 'managerApprover'])
             ->where('user_id', $user->id);
 
@@ -65,7 +65,7 @@ class LeaveRequestController extends Controller
         $leaveTypes = LeaveType::active()
             ->ordered()
             ->get()
-            ->filter(function($leaveType) use ($user) {
+            ->filter(function ($leaveType) use ($user) {
                 return $leaveType->isEligibleForUser($user);
             })
             ->values();
@@ -121,11 +121,11 @@ class LeaveRequestController extends Controller
             ->where('year', now()->year)
             ->first();
 
-        if (!$balance || !$balance->hasSufficientBalance($totalDays)) {
-            return back()->withInput()->with('error', 
-                'Insufficient leave balance. You have ' . 
-                ($balance ? $balance->remaining_days : 0) . 
-                ' days remaining but requested ' . $totalDays . ' days.'
+        if (! $balance || ! $balance->hasSufficientBalance($totalDays)) {
+            return back()->withInput()->with('error',
+                'Insufficient leave balance. You have '.
+                ($balance ? $balance->remaining_days : 0).
+                ' days remaining but requested '.$totalDays.' days.'
             );
         }
 
@@ -139,14 +139,14 @@ class LeaveRequestController extends Controller
         $initialStatus = 'pending_manager'; // Default
         $successMessage = 'Leave request submitted successfully! Waiting for approval.';
 
-        if (!$leaveType->requires_manager_approval && !$leaveType->requires_hr_approval) {
+        if (! $leaveType->requires_manager_approval && ! $leaveType->requires_hr_approval) {
             // ✅ NO APPROVAL NEEDED - AUTO APPROVE
             $initialStatus = 'approved';
             $successMessage = 'Leave request auto-approved! Your balance has been updated.';
-            
+
             // Deduct balance immediately
             $balance->deductDays($totalDays);
-            
+
             // Set approval data
             $validated['manager_approved_by'] = $user->id;
             $validated['manager_approved_at'] = now();
@@ -154,22 +154,22 @@ class LeaveRequestController extends Controller
             $validated['hr_approved_by'] = $user->id;
             $validated['hr_approved_at'] = now();
             $validated['hr_comments'] = 'Auto-approved (no HR approval required)';
-            
-        } elseif (!$leaveType->requires_manager_approval && $leaveType->requires_hr_approval) {
+
+        } elseif (! $leaveType->requires_manager_approval && $leaveType->requires_hr_approval) {
             // ✅ SKIP MANAGER - GO STRAIGHT TO HR
             $initialStatus = 'pending_hr';
             $successMessage = 'Leave request submitted! Waiting for HR approval (manager approval not required).';
-            
+
             // Mark manager as auto-approved
             $validated['manager_approved_by'] = $user->id;
             $validated['manager_approved_at'] = now();
             $validated['manager_comments'] = 'Skipped (no manager approval required for this leave type)';
-            
-        } elseif ($leaveType->requires_manager_approval && !$leaveType->requires_hr_approval) {
+
+        } elseif ($leaveType->requires_manager_approval && ! $leaveType->requires_hr_approval) {
             // ✅ MANAGER ONLY - NO HR NEEDED
             $initialStatus = 'pending_manager';
             $successMessage = 'Leave request submitted! Waiting for manager approval (HR approval not required).';
-            
+
         } else {
             // ✅ STANDARD FLOW - BOTH APPROVALS REQUIRED
             $initialStatus = 'pending_manager';
@@ -203,7 +203,7 @@ class LeaveRequestController extends Controller
         $leave->load([
             'leaveType',
             'managerApprover',
-            'hrApprover'
+            'hrApprover',
         ]);
 
         return Inertia::render('Employees/Leaves/Show', [
@@ -217,7 +217,7 @@ class LeaveRequestController extends Controller
     public function edit(LeaveRequest $leave)
     {
         $user = auth()->user();
-        
+
         if ($leave->user_id !== $user->id) {
             abort(403, 'Unauthorized access to this leave request.');
         }
@@ -232,7 +232,7 @@ class LeaveRequestController extends Controller
         $leaveTypes = LeaveType::active()
             ->ordered()
             ->get()
-            ->filter(function($leaveType) use ($user) {
+            ->filter(function ($leaveType) use ($user) {
                 return $leaveType->isEligibleForUser($user);
             })
             ->values();
@@ -257,7 +257,7 @@ class LeaveRequestController extends Controller
     public function update(Request $request, LeaveRequest $leave)
     {
         $user = auth()->user();
-        
+
         if ($leave->user_id !== $user->id) {
             abort(403, 'Unauthorized access to this leave request.');
         }
@@ -292,11 +292,11 @@ class LeaveRequestController extends Controller
                 ->where('year', now()->year)
                 ->first();
 
-            if (!$balance || !$balance->hasSufficientBalance($totalDays)) {
-                return back()->withInput()->with('error', 
-                    'Insufficient leave balance. You have ' . 
-                    ($balance ? $balance->remaining_days : 0) . 
-                    ' days remaining but requested ' . $totalDays . ' days.'
+            if (! $balance || ! $balance->hasSufficientBalance($totalDays)) {
+                return back()->withInput()->with('error',
+                    'Insufficient leave balance. You have '.
+                    ($balance ? $balance->remaining_days : 0).
+                    ' days remaining but requested '.$totalDays.' days.'
                 );
             }
         }
@@ -318,7 +318,7 @@ class LeaveRequestController extends Controller
             'total_days' => $totalDays,
         ]);
 
-        return redirect()->route('my-leaves.show', $leave->id)->with('success', 
+        return redirect()->route('my-leaves.show', $leave->id)->with('success',
             'Leave request updated successfully!'
         );
     }
@@ -332,7 +332,7 @@ class LeaveRequestController extends Controller
             abort(403, 'Unauthorized access to this leave request.');
         }
 
-        if (!$leave->canBeCancelled()) {
+        if (! $leave->canBeCancelled()) {
             return back()->with('error', 'This leave request cannot be cancelled.');
         }
 
@@ -340,17 +340,18 @@ class LeaveRequestController extends Controller
 
         return redirect()->route('my-leaves.index')->with('success', 'Leave request cancelled successfully.');
     }
+
     /**
-    * Request cancellation for an approved leave
-    */
+     * Request cancellation for an approved leave
+     */
     public function requestCancellation(Request $request, LeaveRequest $leave)
     {
         if ($leave->user_id !== auth()->id()) {
             abort(403, 'Unauthorized access to this leave request.');
         }
 
-        if (!$leave->canRequestCancellation()) {
-            return back()->with('error', 
+        if (! $leave->canRequestCancellation()) {
+            return back()->with('error',
                 'This leave cannot be cancelled. It may have already started or is not in approved status.'
             );
         }
@@ -361,8 +362,8 @@ class LeaveRequestController extends Controller
 
         try {
             $leave->requestCancellation($validated['cancellation_reason']);
-            
-            return redirect()->route('my-leaves.index')->with('success', 
+
+            return redirect()->route('my-leaves.index')->with('success',
                 'Cancellation request submitted! HR will review your request.'
             );
         } catch (\Exception $e) {
@@ -377,6 +378,7 @@ class LeaveRequestController extends Controller
     {
         $start = \Carbon\Carbon::parse($startDate);
         $end = \Carbon\Carbon::parse($endDate);
+
         return $start->diffInDays($end) + 1;
     }
 
@@ -389,8 +391,8 @@ class LeaveRequestController extends Controller
         $hrAndAdminUsers = User::whereHas('roles', function ($query) {
             $query->whereIn('slug', ['super-admin', 'admin', 'hr-manager']);
         })
-        ->where('employment_status', 'active')
-        ->get();
+            ->where('employment_status', 'active')
+            ->get();
 
         // Load relationships for the email
         $leaveRequest->load(['user', 'leaveType']);

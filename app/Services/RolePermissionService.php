@@ -19,7 +19,7 @@ class RolePermissionService
         }
 
         // Check if already exists
-        if (!$role->permissions()->where('permission_id', $permission->id)->exists()) {
+        if (! $role->permissions()->where('permission_id', $permission->id)->exists()) {
             $role->permissions()->attach($permission->id);
 
             // Log for each user with this role
@@ -150,7 +150,7 @@ class RolePermissionService
         foreach ($allPermissions as $permission) {
             $group = $permission->group ?? $permission->category ?? 'general';
 
-            if (!isset($grouped[$group])) {
+            if (! isset($grouped[$group])) {
                 $grouped[$group] = [];
             }
 
@@ -186,13 +186,13 @@ class RolePermissionService
             if ($override) {
                 // User has override - might not be affected
                 if ($action === 'add' && $override->type === 'grant') {
-                    $unaffected[] = $user->name . ' (already granted)';
+                    $unaffected[] = $user->name.' (already granted)';
                 } elseif ($action === 'remove' && $override->type === 'grant') {
-                    $unaffected[] = $user->name . ' (has grant override)';
+                    $unaffected[] = $user->name.' (has grant override)';
                 } elseif ($action === 'add' && $override->type === 'revoke') {
-                    $unaffected[] = $user->name . ' (has revoke override)';
+                    $unaffected[] = $user->name.' (has revoke override)';
                 } elseif ($action === 'remove' && $override->type === 'revoke') {
-                    $unaffected[] = $user->name . ' (already revoked)';
+                    $unaffected[] = $user->name.' (already revoked)';
                 } else {
                     $affected[] = $user->name;
                 }

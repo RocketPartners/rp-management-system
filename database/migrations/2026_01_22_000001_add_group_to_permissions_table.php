@@ -21,7 +21,7 @@ return new class extends Migration
 
         // Copy category to group for all existing permissions
         DB::table('permissions')->update([
-            'group' => DB::raw('category')
+            'group' => DB::raw('category'),
         ]);
 
         // Add index for group field

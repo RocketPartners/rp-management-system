@@ -14,16 +14,16 @@ return new class extends Migration
             $table->string('tin_number')->nullable()->after('sss_number'); // XXX-XXX-XXX-XXXXX
             $table->string('hdmf_number')->nullable()->after('tin_number'); // XXXXXXXXXXXX (Pag-IBIG)
             $table->string('philhealth_number')->nullable()->after('hdmf_number'); // XXXX-XXXXX-XX
-            
+
             // Banking
             $table->string('payroll_account')->nullable()->after('philhealth_number'); // XXXXXXXXXXXX (Union Bank)
-            
+
             // Employment
             $table->string('employment_type')->nullable()->after('employment_status'); // Full-time, Part-time, Contract, etc.
-            
+
             // Additional phone (personal mobile)
             $table->string('personal_mobile')->nullable()->after('phone_number');
-            
+
             // Emergency contact mobile (separate from emergency contact phone)
             $table->string('emergency_contact_mobile')->nullable()->after('emergency_contact_phone');
         });

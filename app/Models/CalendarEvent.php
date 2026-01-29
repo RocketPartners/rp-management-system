@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
-use Carbon\Carbon;
 
 class CalendarEvent extends Model
 {
@@ -90,12 +90,12 @@ class CalendarEvent extends Model
     {
         return $query->where(function ($q) use ($start, $end) {
             $q->whereBetween('start_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
-              ->orWhereBetween('end_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
-              ->orWhere(function ($q2) use ($start, $end) {
-                  // Events that span the entire range
-                  $q2->where('start_date', '<=', $start->format('Y-m-d'))
-                     ->where('end_date', '>=', $end->format('Y-m-d'));
-              });
+                ->orWhereBetween('end_date', [$start->format('Y-m-d'), $end->format('Y-m-d')])
+                ->orWhere(function ($q2) use ($start, $end) {
+                    // Events that span the entire range
+                    $q2->where('start_date', '<=', $start->format('Y-m-d'))
+                        ->where('end_date', '>=', $end->format('Y-m-d'));
+                });
         });
     }
 
@@ -120,24 +120,24 @@ class CalendarEvent extends Model
             // Public events are visible to everyone
             $q->where('visibility', 'public')
               // User's own private events
-              ->orWhere(function ($q2) use ($user) {
-                  $q2->where('visibility', 'private')
-                     ->where('user_id', $user->id);
-              })
+                ->orWhere(function ($q2) use ($user) {
+                    $q2->where('visibility', 'private')
+                        ->where('user_id', $user->id);
+                })
               // Department events if user is in that department
-              ->orWhere(function ($q2) use ($user) {
-                  $q2->where('visibility', 'department')
-                     ->where('department', $user->department);
-              })
+                ->orWhere(function ($q2) use ($user) {
+                    $q2->where('visibility', 'department')
+                        ->where('department', $user->department);
+                })
               // Team events if user is in the same team
-              ->orWhere(function ($q2) use ($user) {
-                  $q2->where('visibility', 'team')
-                     ->whereHas('user', function ($q3) use ($user) {
-                         // Same manager or user is the manager
-                         $q3->where('manager_id', $user->manager_id)
-                            ->orWhere('manager_id', $user->id);
-                     });
-              });
+                ->orWhere(function ($q2) use ($user) {
+                    $q2->where('visibility', 'team')
+                        ->whereHas('user', function ($q3) use ($user) {
+                            // Same manager or user is the manager
+                            $q3->where('manager_id', $user->manager_id)
+                                ->orWhere('manager_id', $user->id);
+                        });
+                });
         });
     }
 
@@ -171,6 +171,7 @@ class CalendarEvent extends Model
         }
 
         $eventType = $this->eventType;
+
         return $eventType ? $eventType->color : '#6B7280'; // Default gray
     }
 
@@ -231,7 +232,7 @@ class CalendarEvent extends Model
     public static function createFromLeave(LeaveRequest $leave): self
     {
         return static::create([
-            'title' => $leave->user->name . ' - ' . $leave->leaveType->name,
+            'title' => $leave->user->name.' - '.$leave->leaveType->name,
             'description' => $leave->reason,
             'event_type' => 'leave',
             'start_date' => $leave->start_date,

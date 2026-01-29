@@ -148,11 +148,10 @@ return [
 
     'invite' => [
         'expiration_days' => 30,   // Days from invite sent until expiration
-        'max_extensions'  => 2,    // Maximum automatic extensions allowed
-        'extension_days'  => 7,    // Days added per extension
+        'max_extensions' => 2,    // Maximum automatic extensions allowed
+        'extension_days' => 7,    // Days added per extension
         // Total possible days: 30 + (2 * 7) = 44 days maximum
     ],
-
 
     /*
     |--------------------------------------------------------------------------
@@ -202,21 +201,7 @@ return [
     */
 
     'work_email' => [
-        'domain' => env('WORK_EMAIL_DOMAIN', 'gmail.com'), // Testing: janetubigon00@gmail.com
-        'username' => env('WORK_EMAIL_USERNAME', 'janetubigon00'), // Testing username
-        'format' => '{first}{last}', // firstname + lastname (no periods)
-        'use_testing_email' => env('APP_ENV') === 'local', // Use testing email in local env
+        'domain' => 'rocketpartners.io',
+        'format' => '{first}.{last}',
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default Temporary Password
-    |--------------------------------------------------------------------------
-    |
-    | Default password for newly created user accounts from onboarding.
-    | Users will be required to change this on first login.
-    |
-    */
-
-    'default_temp_password' => env('ONBOARDING_DEFAULT_PASSWORD', 'ChangeMe123!'),
 ];

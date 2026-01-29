@@ -12,11 +12,11 @@ class RoleSeeder extends Seeder
     {
         // Disable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        
+
         // Clear existing roles
         DB::table('role_user')->truncate();
         Role::truncate();
-        
+
         // Re-enable foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
@@ -88,6 +88,6 @@ class RoleSeeder extends Seeder
             Role::create($role);
         }
 
-        $this->command->info('✅ Created ' . count($roles) . ' roles!');
+        $this->command->info('✅ Created '.count($roles).' roles!');
     }
 }

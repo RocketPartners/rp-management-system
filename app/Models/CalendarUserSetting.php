@@ -65,7 +65,7 @@ class CalendarUserSetting extends Model
      */
     public function isEventTypeVisible(string $eventTypeSlug): bool
     {
-        if (!$this->visible_event_types) {
+        if (! $this->visible_event_types) {
             return true; // Show all if not configured
         }
 

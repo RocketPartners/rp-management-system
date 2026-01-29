@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Add manager_id column after position field
             $table->foreignId('manager_id')
-                  ->nullable()
-                  ->after('position')
-                  ->constrained('users')
-                  ->onDelete('set null');
+                ->nullable()
+                ->after('position')
+                ->constrained('users')
+                ->onDelete('set null');
         });
     }
 

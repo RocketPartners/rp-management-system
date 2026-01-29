@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\LeaveType;
 use App\Models\LeaveBalance;
+use App\Models\LeaveType;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,9 +15,9 @@ class LeaveTypeController extends Controller
     public function index(Request $request)
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to manage leave types.');
         }
 
@@ -26,10 +26,10 @@ class LeaveTypeController extends Controller
         // Search
         if ($request->has('search') && $request->search) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -46,9 +46,9 @@ class LeaveTypeController extends Controller
         }
 
         $leaveTypes = $query->orderBy('sort_order')
-                           ->orderBy('name')
-                           ->paginate(15)
-                           ->withQueryString();
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
 
         // Calculate statistics
         $stats = [
@@ -73,9 +73,9 @@ class LeaveTypeController extends Controller
     public function create()
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to create leave types.');
         }
 
@@ -92,9 +92,9 @@ class LeaveTypeController extends Controller
         ];
 
         $availableIcons = [
-            'Palmtree', 'Heart', 'AlertTriangle', 'Baby', 
+            'Palmtree', 'Heart', 'AlertTriangle', 'Baby',
             'Cake', 'AlertCircle', 'Plane', 'Home',
-            'Clock', 'Calendar', 'Sun', 'Moon'
+            'Clock', 'Calendar', 'Sun', 'Moon',
         ];
 
         return Inertia::render('Admin/Leaves/CreateType', [
@@ -109,9 +109,9 @@ class LeaveTypeController extends Controller
     public function store(Request $request)
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to create leave types.');
         }
 
@@ -135,7 +135,7 @@ class LeaveTypeController extends Controller
         ]);
 
         // Set default sort order if not provided
-        if (!isset($validated['sort_order'])) {
+        if (! isset($validated['sort_order'])) {
             $validated['sort_order'] = LeaveType::max('sort_order') + 1;
         }
 
@@ -147,7 +147,7 @@ class LeaveTypeController extends Controller
         }
 
         return redirect()->route('leave-types.index')
-                         ->with('success', "Leave type '{$leaveType->name}' created successfully!");
+            ->with('success', "Leave type '{$leaveType->name}' created successfully!");
     }
 
     /**
@@ -156,9 +156,9 @@ class LeaveTypeController extends Controller
     public function edit(LeaveType $leaveType)
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to edit leave types.');
         }
 
@@ -174,19 +174,19 @@ class LeaveTypeController extends Controller
         ];
 
         $availableIcons = [
-            'Palmtree', 'Heart', 'AlertTriangle', 'Baby', 
+            'Palmtree', 'Heart', 'AlertTriangle', 'Baby',
             'Cake', 'AlertCircle', 'Plane', 'Home',
-            'Clock', 'Calendar', 'Sun', 'Moon'
+            'Clock', 'Calendar', 'Sun', 'Moon',
         ];
 
         // Get usage statistics
         $usageStats = [
             'total_balances' => LeaveBalance::where('leave_type_id', $leaveType->id)->count(),
             'active_requests' => $leaveType->leaveRequests()
-                                          ->whereIn('status', ['pending_manager', 'pending_hr', 'approved'])
-                                          ->count(),
+                ->whereIn('status', ['pending_manager', 'pending_hr', 'approved'])
+                ->count(),
             'total_days_used' => LeaveBalance::where('leave_type_id', $leaveType->id)
-                                            ->sum('used_days'),
+                ->sum('used_days'),
         ];
 
         return Inertia::render('Admin/Leaves/EditType', [
@@ -203,15 +203,15 @@ class LeaveTypeController extends Controller
     public function update(Request $request, LeaveType $leaveType)
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to update leave types.');
         }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|max:10|unique:leave_types,code,' . $leaveType->id,
+            'code' => 'required|string|max:10|unique:leave_types,code,'.$leaveType->id,
             'description' => 'nullable|string|max:1000',
             'days_per_year' => 'required|integer|min:0|max:365',
             'is_paid' => 'required|boolean',
@@ -239,7 +239,7 @@ class LeaveTypeController extends Controller
         }
 
         return redirect()->route('leave-types.index')
-                         ->with('success', "Leave type '{$leaveType->name}' updated successfully!");
+            ->with('success', "Leave type '{$leaveType->name}' updated successfully!");
     }
 
     /**
@@ -248,30 +248,30 @@ class LeaveTypeController extends Controller
     public function toggleActive(LeaveType $leaveType)
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to modify leave types.');
         }
 
         // Check if there are active requests
         $activeRequests = $leaveType->leaveRequests()
-                                   ->whereIn('status', ['pending_manager', 'pending_hr', 'approved'])
-                                   ->count();
+            ->whereIn('status', ['pending_manager', 'pending_hr', 'approved'])
+            ->count();
 
         if ($leaveType->is_active && $activeRequests > 0) {
-            return back()->with('error', 
+            return back()->with('error',
                 "Cannot deactivate '{$leaveType->name}'. There are {$activeRequests} active leave request(s) using this type."
             );
         }
 
         $leaveType->update([
-            'is_active' => !$leaveType->is_active
+            'is_active' => ! $leaveType->is_active,
         ]);
 
         $status = $leaveType->is_active ? 'activated' : 'deactivated';
-        
-        return back()->with('success', 
+
+        return back()->with('success',
             "Leave type '{$leaveType->name}' has been {$status}."
         );
     }
@@ -282,24 +282,24 @@ class LeaveTypeController extends Controller
     public function destroy(LeaveType $leaveType)
     {
         // Check permission
-        if (!auth()->user()->hasRole('super-admin') && 
-            !auth()->user()->hasRole('admin') && 
-            !auth()->user()->hasRole('hr-manager')) {
+        if (! auth()->user()->hasRole('super-admin') &&
+            ! auth()->user()->hasRole('admin') &&
+            ! auth()->user()->hasRole('hr-manager')) {
             abort(403, 'You do not have permission to delete leave types.');
         }
 
         // Check if there are any leave requests using this type
         $requestCount = $leaveType->leaveRequests()->count();
-        
+
         if ($requestCount > 0) {
-            return back()->with('error', 
+            return back()->with('error',
                 "Cannot delete '{$leaveType->name}'. There are {$requestCount} leave request(s) using this type. Consider deactivating it instead."
             );
         }
 
         // Check if there are any balances using this type
         $balanceCount = $leaveType->leaveBalances()->count();
-        
+
         if ($balanceCount > 0) {
             // Delete all balances first
             $leaveType->leaveBalances()->delete();
@@ -309,7 +309,7 @@ class LeaveTypeController extends Controller
         $leaveType->delete();
 
         return redirect()->route('leave-types.index')
-                         ->with('success', "Leave type '{$name}' deleted successfully.");
+            ->with('success', "Leave type '{$name}' deleted successfully.");
     }
 
     /**
@@ -349,11 +349,11 @@ class LeaveTypeController extends Controller
     private function updateBalancesForModifiedLeaveType(LeaveType $leaveType, $newDaysPerYear)
     {
         $currentYear = now()->year;
-        
+
         // Only update future years (not current year to avoid conflicts)
         $futureBalances = LeaveBalance::where('leave_type_id', $leaveType->id)
-                                      ->where('year', '>', $currentYear)
-                                      ->get();
+            ->where('year', '>', $currentYear)
+            ->get();
 
         foreach ($futureBalances as $balance) {
             $balance->update([

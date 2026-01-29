@@ -15,7 +15,9 @@ if (token) {
     window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
     console.log('✅ Axios configured with CSRF token');
 } else {
-    console.error('❌ CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+    console.error(
+        '❌ CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token',
+    );
 }
 
 // Intercept requests to always use fresh CSRF token
@@ -33,7 +35,7 @@ window.apiAxios = axios.create({
     withCredentials: true,
     headers: {
         'X-Requested-With': 'XMLHttpRequest',
-    }
+    },
 });
 
 // Also add interceptor for API axios

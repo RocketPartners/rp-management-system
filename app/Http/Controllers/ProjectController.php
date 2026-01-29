@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Project;
 use App\Models\Category;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,10 +17,10 @@ class ProjectController extends Controller
         // Search
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -53,7 +53,7 @@ class ProjectController extends Controller
     {
         $categories = Category::where('type', 'project')->get();
         $users = User::orderBy('name')->get();
-        
+
         return Inertia::render('Admin/Projects/Create', [
             'categories' => $categories,
             'users' => $users,
@@ -87,7 +87,7 @@ class ProjectController extends Controller
             'category',
             'owner',
             'tasks.assignee',
-            'tasks.creator'
+            'tasks.creator',
         ]);
 
         return Inertia::render('Projects/Show', [
@@ -111,7 +111,7 @@ class ProjectController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'code' => 'required|string|unique:projects,code,' . $project->id,
+            'code' => 'required|string|unique:projects,code,'.$project->id,
             'description' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
             'owner_id' => 'required|exists:users,id',
