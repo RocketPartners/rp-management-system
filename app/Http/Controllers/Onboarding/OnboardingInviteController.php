@@ -139,7 +139,7 @@ class OnboardingInviteController extends Controller
             abort(403, 'Only HR can view onboarding invites.');
         }
 
-        $invite->load(['creator', 'submission.documents', 'convertedUser']);
+        $invite->load(['creator', 'approver', 'submission.documents', 'convertedUser']);
 
         return Inertia::render('Admin/Onboarding/Invites/Show', [
             'invite' => $invite,
