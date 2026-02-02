@@ -335,6 +335,21 @@ export default function Show({ auth, leaveRequest }) {
                                 </div>
                             </div>
 
+                            {leaveRequest?.availability && (
+                                <div className="border-t pt-4">
+                                    <p className="mb-2 text-sm text-gray-600">
+                                        Availability During Leave
+                                    </p>
+                                    <div className="rounded-lg bg-gray-50 p-4">
+                                        <p className="font-medium text-gray-900">
+                                            {leaveRequest.availability === 'reachable' && 'Reachable - Can respond to urgent matters'}
+                                            {leaveRequest.availability === 'offline' && 'Completely Offline'}
+                                            {leaveRequest.availability === 'emergency_only' && 'Emergency Only'}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             {leaveRequest?.attachment && (
                                 <div className="pt-4 border-t">
                                     <p className="text-sm text-gray-600 mb-2">Supporting Document</p>
