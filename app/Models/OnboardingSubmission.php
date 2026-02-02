@@ -145,15 +145,6 @@ class OnboardingSubmission extends Model
      */
     public function getSubmissionStatus(): array
     {
-        // Check if form sections are complete
-        if (!$this->isComplete()) {
-            return [
-                'can_submit' => false,
-                'blocker' => 'Please complete all form sections.',
-                'missing_documents' => [],
-            ];
-        }
-
         // Get required document types from config
         $requiredTypes = collect(config('onboarding.document_types'))
             ->filter(fn($doc) => $doc['required']);
