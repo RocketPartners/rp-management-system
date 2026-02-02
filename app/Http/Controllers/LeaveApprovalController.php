@@ -18,48 +18,58 @@ class LeaveApprovalController extends Controller
 
         $userRoles = $user->roles->pluck('slug')->toArray();
 
-        // ✅ FIXED: Cascading hierarchy - each level sees all below them
-        $canApproveRoles = [];
-
-        // Project Manager - sees EVERYONE below (Entry → Lead)
-        if (in_array('project-manager', $userRoles)) {
-            $canApproveRoles = [
-                'entry-level-engineer',
-                'junior-engineer',
-                'mid-level-engineer',
-                'senior-engineer',
-                'lead-engineer',
-            ];
-        }
-        // Lead Engineer - sees Entry → Senior
-        elseif (in_array('lead-engineer', $userRoles)) {
-            $canApproveRoles = [
-                'entry-level-engineer',
-                'junior-engineer',
-                'mid-level-engineer',
-                'senior-engineer',
-            ];
-        }
-        // Senior Engineer - sees Entry → Mid
-        elseif (in_array('senior-engineer', $userRoles)) {
-            $canApproveRoles = [
-                'entry-level-engineer',
-                'junior-engineer',
-                'mid-level-engineer',
-            ];
-        }
         // HR/Admin - redirect to main leaves page with HR filter
-        elseif (in_array('hr-manager', $userRoles) || in_array('admin', $userRoles) || in_array('super-admin', $userRoles)) {
+        if (in_array('hr-manager', $userRoles) || in_array('admin', $userRoles) || in_array('super-admin', $userRoles)) {
             return redirect()->route('leaves.index', ['status' => 'pending_hr']);
-        } else {
-            abort(403, 'You do not have permission to approve leave requests.');
         }
 
-        // Query leaves from users with roles they can approve
+        // ✅ Query leaves with PRIORITY for custom approvers
         $query = LeaveRequest::with(['user.roles', 'leaveType', 'managerApprover'])
             ->where('status', 'pending_manager')
-            ->whereHas('user.roles', function ($q) use ($canApproveRoles) {
-                $q->whereIn('slug', $canApproveRoles);
+            ->where(function ($q) use ($user, $userRoles) {
+                // ✅ PRIORITY 1: Leaves where current user is the custom approver
+                $q->where('custom_approver_id', $user->id)
+                // ✅ PRIORITY 2: Leaves with no custom approver (use role-based hierarchy)
+                ->orWhere(function ($roleQuery) use ($userRoles) {
+                    $roleQuery->whereNull('custom_approver_id');
+
+                    // ✅ Cascading hierarchy - each level sees all below them
+                    $canApproveRoles = [];
+
+                    // Project Manager - sees EVERYONE below (Entry → Lead)
+                    if (in_array('project-manager', $userRoles)) {
+                        $canApproveRoles = [
+                            'entry-level-engineer',
+                            'junior-engineer',
+                            'mid-level-engineer',
+                            'senior-engineer',
+                            'lead-engineer',
+                        ];
+                    }
+                    // Lead Engineer - sees Entry → Senior
+                    elseif (in_array('lead-engineer', $userRoles)) {
+                        $canApproveRoles = [
+                            'entry-level-engineer',
+                            'junior-engineer',
+                            'mid-level-engineer',
+                            'senior-engineer',
+                        ];
+                    }
+                    // Senior Engineer - sees Entry → Mid
+                    elseif (in_array('senior-engineer', $userRoles)) {
+                        $canApproveRoles = [
+                            'entry-level-engineer',
+                            'junior-engineer',
+                            'mid-level-engineer',
+                        ];
+                    }
+
+                    if (!empty($canApproveRoles)) {
+                        $roleQuery->whereHas('user.roles', function ($q) use ($canApproveRoles) {
+                            $q->whereIn('slug', $canApproveRoles);
+                        });
+                    }
+                });
             });
 
         // Search

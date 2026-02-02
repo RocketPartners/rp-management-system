@@ -76,10 +76,24 @@ class LeaveRequestController extends Controller
             ->get()
             ->keyBy('leave_type_id');
 
+        // Get potential approvers
+        $potentialApprovers = User::where('account_status', 'active')
+            ->where('id', '!=', $user->id)
+            ->where(function ($query) {
+                $query->whereHas('roles', function ($q) {
+                    $q->whereIn('slug', ['super-admin', 'admin', 'hr-manager', 'project-manager', 'lead-engineer', 'senior-engineer']);
+                })
+                ->orWhere('can_approve_users_override', true);
+            })
+            ->select('id', 'name', 'email', 'employee_id', 'position')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Employees/Leaves/Apply', [
             'leaveTypes' => $leaveTypes,
             'leaveBalances' => $leaveBalances,
             'user' => $user,
+            'potentialApprovers' => $potentialApprovers,
         ]);
     }
 
@@ -100,6 +114,7 @@ class LeaveRequestController extends Controller
             'emergency_contact_phone' => 'nullable|string|max:20',
             'use_default_emergency_contact' => 'boolean',
             'availability' => 'nullable|in:reachable,offline,emergency_only',
+            'custom_approver_id' => 'nullable|exists:users,id',
         ]);
 
         // All leaves are full day

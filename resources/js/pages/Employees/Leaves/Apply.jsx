@@ -26,7 +26,7 @@ import {
     Info,
 } from 'lucide-react';
 
-export default function Apply({ auth, leaveTypes = [], leaveBalances = {}, user }) {
+export default function Apply({ auth, leaveTypes = [], leaveBalances = {}, user, potentialApprovers = [] }) {
     const { flash } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
@@ -38,6 +38,7 @@ export default function Apply({ auth, leaveTypes = [], leaveBalances = {}, user 
         emergency_contact_phone: user?.emergency_contact_phone || '',
         use_default_emergency_contact: true,
         availability: 'reachable',
+        custom_approver_id: '',
     });
 
     const [selectedLeaveType, setSelectedLeaveType] = useState(null);
@@ -268,6 +269,26 @@ export default function Apply({ auth, leaveTypes = [], leaveBalances = {}, user 
                                                 <SelectItem value="emergency_only">Emergency Only</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="custom_approver_id">Leave Approver (Optional)</Label>
+                                        <Select value={data.custom_approver_id} onValueChange={(value) => setData('custom_approver_id', value)}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Auto (Based on Role)" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="">Auto (Based on Role)</SelectItem>
+                                                {Array.isArray(potentialApprovers) && potentialApprovers.map((approver) => (
+                                                    <SelectItem key={approver.id} value={approver.id.toString()}>
+                                                        {approver.name} {approver.employee_id ? `(${approver.employee_id})` : ''} - {approver.position || approver.email}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-gray-500">
+                                            Select who should approve this leave request. Leave blank for automatic assignment based on role hierarchy.
+                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>
