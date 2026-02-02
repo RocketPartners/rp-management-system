@@ -47,6 +47,7 @@ export default function Review({ submission, checklist }) {
     const [showConvertDialog, setShowConvertDialog] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [showDocRejectDialog, setShowDocRejectDialog] = useState(false);
+    const [showDocApproveDialog, setShowDocApproveDialog] = useState(false);
 
     const approveForm = useForm({});
 
@@ -73,8 +74,26 @@ export default function Review({ submission, checklist }) {
     const allDocsApproved = submission.documents?.every(doc => doc.status === 'approved') && submission.documents?.length > 0;
 
     const approveDocument = (document) => {
-        router.post(route(ADMIN_ONBOARDING_ROUTES.APPROVE_DOCUMENT, document.id), {}, {
+        // If document is rejected, show confirmation dialog
+        if (document.status === 'rejected') {
+            setSelectedDocument(document);
+            setShowDocApproveDialog(true);
+        } else {
+            // Direct approval for uploaded/pending documents
+            confirmApproveDocument(document);
+        }
+    };
+
+    const confirmApproveDocument = (document) => {
+        const docId = document?.id || selectedDocument?.id;
+        if (!docId) return;
+
+        router.post(route(ADMIN_ONBOARDING_ROUTES.APPROVE_DOCUMENT, docId), {}, {
             preserveScroll: true,
+            onSuccess: () => {
+                setShowDocApproveDialog(false);
+                setSelectedDocument(null);
+            },
         });
     };
 
@@ -648,6 +667,49 @@ export default function Review({ submission, checklist }) {
                             className="bg-red-600 hover:bg-red-700"
                         >
                             Reject Document
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Approve Rejected Document Dialog */}
+            <AlertDialog open={showDocApproveDialog} onOpenChange={setShowDocApproveDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-600" />
+                            Approve Previously Rejected Document?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You are about to approve <strong>{selectedDocument?.document_type_label}</strong> which was previously rejected.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    {selectedDocument?.rejection_reason && (
+                        <div className="bg-gray-50 border border-gray-200 rounded p-3">
+                            <p className="text-sm font-medium text-gray-700 mb-1">Previous rejection reason:</p>
+                            <p className="text-sm text-gray-600 italic">"{selectedDocument.rejection_reason}"</p>
+                        </div>
+                    )}
+
+                    <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                        <p className="text-sm text-blue-800">
+                            <strong>Please confirm:</strong> Have you verified that the candidate has addressed the issues mentioned in the rejection?
+                        </p>
+                    </div>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => {
+                            setShowDocApproveDialog(false);
+                            setSelectedDocument(null);
+                        }}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => confirmApproveDocument()}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            Yes, Approve Document
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

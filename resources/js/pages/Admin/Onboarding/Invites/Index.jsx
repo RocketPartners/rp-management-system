@@ -8,10 +8,9 @@ import {
     UserPlus,
     Plus,
     Mail,
-    Calendar,
     CheckCircle2,
     Clock,
-    XCircle,
+    Eye,
 } from 'lucide-react';
 
 export default function Index({ auth, invites, stats, filters }) {
@@ -114,6 +113,9 @@ export default function Index({ auth, invites, stats, filters }) {
                                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Expires
                                             </th>
+                                            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                Actions
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
@@ -153,6 +155,18 @@ export default function Index({ auth, invites, stats, filters }) {
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {invite.expires_at ? new Date(invite.expires_at).toLocaleDateString() : 'No expiration'}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <Link href={route('onboarding.invites.show', invite.id)}>
+                                                            <Eye className="h-4 w-4 mr-1" />
+                                                            View
+                                                        </Link>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))}

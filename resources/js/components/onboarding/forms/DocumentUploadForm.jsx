@@ -40,6 +40,7 @@ import {
  * @param {Object} props.requiredDocuments - Required document types configuration
  * @param {Object} props.documentForm - Inertia form instance for document uploads
  * @param {string} props.inviteToken - Invite token for API calls
+ * @param {Object} props.submissionStatus - Submission validation status (can_submit, blocker, missing_documents)
  * @param {Function} props.onBack - Handler for going back to previous step
  * @param {Function} props.onDeleteDocument - Handler for deleting a document
  * @param {Function} props.onFinalSubmit - Handler for final submission
@@ -50,6 +51,7 @@ export const DocumentUploadForm = ({
     requiredDocuments,
     documentForm,
     inviteToken,
+    submissionStatus,
     onBack,
     onDeleteDocument,
     onFinalSubmit,
@@ -92,7 +94,11 @@ export const DocumentUploadForm = ({
 
     const uploadedRequiredCount = countUploadedRequiredTypes(requiredDocuments, submission?.documents);
     const requiredCount = countRequiredDocumentTypes(requiredDocuments);
-    const canSubmit = uploadedRequiredCount >= requiredCount;
+
+    // Use backend validation status which checks:
+    // All required documents APPROVED (not just uploaded)
+    const canSubmit = submissionStatus?.can_submit || false;
+    const blockerMessage = submissionStatus?.blocker || null;
 
     // Get accepted file types for selected document type
     const getAcceptedFileTypes = () => {
@@ -375,6 +381,16 @@ export const DocumentUploadForm = ({
                                                                     ✓ Approved by HR - cannot be deleted
                                                                 </p>
                                                             )}
+                                                            {document.status === 'rejected' && document.rejection_reason && (
+                                                                <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+                                                                    <p className="text-xs text-red-800">
+                                                                        <strong>Rejection Reason:</strong> {document.rejection_reason}
+                                                                    </p>
+                                                                    <p className="text-xs text-red-600 mt-1">
+                                                                        Please delete this file and upload a corrected version.
+                                                                    </p>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                         <StatusBadge status={document.status} variant="document" className="flex-shrink-0" />
                                                     </div>
@@ -411,31 +427,76 @@ export const DocumentUploadForm = ({
             <Card className={`border-2 ${BRAND_CLASSES.borderPrimary} bg-gradient-to-br from-blue-50 to-white`}>
                 <CardContent className="pt-6">
                     <div className="text-center mb-6">
-                        <div className={`inline-flex items-center justify-center w-16 h-16 ${BRAND_CLASSES.bgPrimary} rounded-full mb-4`}>
+                        <div className={`inline-flex items-center justify-center w-16 h-16 ${canSubmit ? 'bg-green-600' : BRAND_CLASSES.bgPrimary} rounded-full mb-4 transition-colors`}>
                             <Send className="h-8 w-8 text-white" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                            Ready to Submit?
+                            {canSubmit ? 'Ready to Submit!' : 'Submission Checklist'}
                         </h3>
                         <p className="text-gray-600 mb-4">
-                            {uploadedRequiredCount} of {requiredCount} required document types completed
+                            {uploadedRequiredCount} of {requiredCount} required document types uploaded
                         </p>
                     </div>
 
-                    {/* Missing Required Document Types Alert */}
-                    {!canSubmit && (
+                    {/* Validation Status Alerts */}
+                    {!canSubmit && blockerMessage && (
                         <Alert className="mb-4 border-orange-300 bg-orange-50">
                             <Info className="h-4 w-4 text-orange-600" />
                             <AlertDescription className="text-orange-800">
-                                <strong>Missing required documents:</strong>
-                                <ul className="list-disc list-inside mt-2">
+                                <strong>Cannot submit yet:</strong>
+                                <p className="mt-2">{blockerMessage}</p>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Show document status breakdown */}
+                    {!canSubmit && submission?.documents && submission.documents.length > 0 && (
+                        <Alert className="mb-4 border-blue-300 bg-blue-50">
+                            <Info className="h-4 w-4 text-blue-600" />
+                            <AlertDescription className="text-blue-800">
+                                <strong>Document Review Status:</strong>
+                                <ul className="list-none mt-2 space-y-1">
                                     {Object.entries(requiredDocuments || {})
-                                        .filter(([key, doc]) => doc.required && !hasDocumentType(submission?.documents, key))
-                                        .map(([key, doc]) => (
-                                            <li key={key}>{doc.label}</li>
-                                        ))
+                                        .filter(([key, doc]) => doc.required)
+                                        .map(([key, doc]) => {
+                                            const uploadedDoc = submission.documents.find(d => d.document_type === key);
+                                            const status = uploadedDoc?.status || 'not_uploaded';
+                                            const statusColors = {
+                                                'approved': 'text-green-700',
+                                                'uploaded': 'text-blue-700',
+                                                'rejected': 'text-red-700',
+                                                'not_uploaded': 'text-gray-600'
+                                            };
+                                            const statusLabels = {
+                                                'approved': 'Approved',
+                                                'uploaded': 'Pending HR Review',
+                                                'rejected': 'Rejected - Please re-upload',
+                                                'not_uploaded': 'Not uploaded'
+                                            };
+                                            return (
+                                                <li key={key} className="flex items-center gap-2">
+                                                    <span className={`font-medium ${statusColors[status]}`}>
+                                                        {status === 'approved' ? '✓' : status === 'rejected' ? '✗' : status === 'uploaded' ? '⏳' : '○'}
+                                                    </span>
+                                                    <span className="flex-1">{doc.label}</span>
+                                                    <span className={`text-sm ${statusColors[status]}`}>
+                                                        {statusLabels[status]}
+                                                    </span>
+                                                </li>
+                                            );
+                                        })
                                     }
                                 </ul>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    {canSubmit && (
+                        <Alert className="mb-4 border-green-300 bg-green-50">
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            <AlertDescription className="text-green-800">
+                                <strong>All requirements met!</strong>
+                                <p className="mt-1">Your onboarding information is complete and all documents have been approved. Click "Submit to HR" to finalize your submission.</p>
                             </AlertDescription>
                         </Alert>
                     )}
