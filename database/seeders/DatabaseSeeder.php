@@ -24,13 +24,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // ✅ Create Super Admin User
-        $admin = User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-            'account_status' => 'active',
-        ]);
-
+ $admin = User::create([                                                                                                                                                                                                                                                                                                            
+      'name' => 'Admin User',                                                                                                                                                                                                                                                                                                        
+      'email' => 'admin@example.com',                                                                                                                                                                                                                                                                                                
+      'email_verified_at' => now(),                                                                                                                                                                                                                                                                                                  
+      'password' => bcrypt('password'),                                                                                                                                                                                                                                                                                              
+      'account_status' => 'active',                                                                                                                                                                                                                                                                                                  
+  ]);        
         // ✅ Assign Super Admin role
         $superAdminRole = Role::where('slug', 'super-admin')->first();
         if ($superAdminRole) {
