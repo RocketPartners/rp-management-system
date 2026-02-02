@@ -6,6 +6,7 @@ use App\Models\OnboardingInvite;
 use App\Models\OnboardingSubmission;
 use App\Models\User;
 use App\Mail\Onboarding\GuestInviteMail;
+use App\Mail\Onboarding\AccountCreatedMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -73,10 +74,16 @@ class OnboardingInviteService
 
     /**
      * Send invitation email to candidate using Mailable
+     * In development/testing: Override recipient email if ONBOARDING_TEST_EMAIL is set
      */
     public function sendInviteEmail(OnboardingInvite $invite)
     {
-        Mail::to($invite->email)->send(new GuestInviteMail($invite));
+        // For testing: override recipient email if configured
+        $recipientEmail = config('onboarding.test_email_override')
+            ? config('onboarding.test_email_override')
+            : $invite->email;
+
+        Mail::to($recipientEmail)->send(new GuestInviteMail($invite));
     }
 
     /**
@@ -203,7 +210,16 @@ class OnboardingInviteService
                 'reviewed_by' => auth()->id(),
             ]);
 
-            // TODO: Send welcome email with credentials
+            // Send welcome email with credentials
+            $temporaryPassword = config('onboarding.default_temp_password');
+
+            // For testing: override recipient email if configured
+            $recipientEmail = config('onboarding.test_email_override')
+                ? config('onboarding.test_email_override')
+                : $invite->email; // Send to personal email from invite
+
+            Mail::to($recipientEmail)->send(new AccountCreatedMail($user, $temporaryPassword));
+
             // TODO: Initialize leave balances
 
             DB::commit();
