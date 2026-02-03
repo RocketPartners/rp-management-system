@@ -11,8 +11,8 @@ import { Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function Login({ status, canResetPassword, userCount = 0 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+        email: 'hr1@example.com',
+        password: 'password',
         remember: false,
     });
 
@@ -101,6 +101,13 @@ export default function Login({ status, canResetPassword, userCount = 0 }) {
                                     <CardDescription className="mt-2">
                                         Enter your credentials to access your account
                                     </CardDescription>
+                                    <div className="mt-4 inline-flex flex-col items-center gap-1 px-4 py-2 bg-yellow-100 border-2 border-yellow-400 rounded-lg">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-semibold text-yellow-800">TEST MODE</span>
+                                            <span className="text-xs text-yellow-700">| Pre-filled credentials</span>
+                                        </div>
+                                        <span className="text-xs text-yellow-600 font-mono">hr1@example.com</span>
+                                    </div>
                                 </div>
                             </CardHeader>
 

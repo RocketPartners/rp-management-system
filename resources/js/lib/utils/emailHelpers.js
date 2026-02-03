@@ -7,7 +7,17 @@
  * Company email domain
  * Used in Admin/Submissions/Review.jsx line 133
  */
-export const COMPANY_EMAIL_DOMAIN = 'rocketpartners.ph';
+export const COMPANY_EMAIL_DOMAIN = 'gmail.com';
+
+/**
+ * Testing email username (for local development)
+ */
+export const TESTING_EMAIL_USERNAME = 'janetubigon00';
+
+/**
+ * Check if running in development mode
+ */
+const isDevelopment = import.meta.env.DEV;
 
 /**
  * Default temporary password for new user accounts
@@ -17,19 +27,30 @@ export const DEFAULT_TEMP_PASSWORD = 'ChangeMe123!';
 
 /**
  * Generate work email from personal information
- * Format: firstname.lastname@rocketpartners.ph
+ * Format: firstnamelastname@gmail.com (no periods)
+ * In development: janetubigon00@gmail.com
  * @param {Object} personalInfo - Personal info object with first_name and last_name
  * @returns {string} Generated work email
  */
 export const generateWorkEmail = (personalInfo) => {
+    // In development, always use testing email
+    if (isDevelopment) {
+        return `${TESTING_EMAIL_USERNAME}@${COMPANY_EMAIL_DOMAIN}`;
+    }
+
     if (!personalInfo || !personalInfo.first_name || !personalInfo.last_name) {
         return '';
     }
 
-    const firstName = personalInfo.first_name.toLowerCase().trim();
-    const lastName = personalInfo.last_name.toLowerCase().trim();
+    // Extract first word only from first name (handles "John Paul" -> "john")
+    const firstNameParts = personalInfo.first_name.trim().split(' ');
+    const firstWord = firstNameParts[0] || '';
 
-    return `${firstName}.${lastName}@${COMPANY_EMAIL_DOMAIN}`;
+    // Remove non-alphabetic characters and convert to lowercase
+    const firstName = firstWord.toLowerCase().replace(/[^a-z]/gi, '');
+    const lastName = personalInfo.last_name.toLowerCase().trim().replace(/[^a-z]/gi, '');
+
+    return `${firstName}${lastName}@${COMPANY_EMAIL_DOMAIN}`;
 };
 
 /**
@@ -39,14 +60,24 @@ export const generateWorkEmail = (personalInfo) => {
  * @returns {string} Generated work email
  */
 export const generateWorkEmailFromNames = (firstName, lastName) => {
+    // In development, always use testing email
+    if (isDevelopment) {
+        return `${TESTING_EMAIL_USERNAME}@${COMPANY_EMAIL_DOMAIN}`;
+    }
+
     if (!firstName || !lastName) {
         return '';
     }
 
-    const first = firstName.toLowerCase().trim();
-    const last = lastName.toLowerCase().trim();
+    // Extract first word only from first name (handles "John Paul" -> "john")
+    const firstNameParts = firstName.trim().split(' ');
+    const firstWord = firstNameParts[0] || '';
 
-    return `${first}.${last}@${COMPANY_EMAIL_DOMAIN}`;
+    // Remove non-alphabetic characters and convert to lowercase
+    const first = firstWord.toLowerCase().replace(/[^a-z]/gi, '');
+    const last = lastName.toLowerCase().trim().replace(/[^a-z]/gi, '');
+
+    return `${first}${last}@${COMPANY_EMAIL_DOMAIN}`;
 };
 
 /**

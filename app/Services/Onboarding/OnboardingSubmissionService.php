@@ -2,8 +2,8 @@
 
 namespace App\Services\Onboarding;
 
-use App\Models\OnboardingDocument;
 use App\Models\OnboardingSubmission;
+use App\Models\OnboardingDocument;
 use Illuminate\Support\Facades\DB;
 
 class OnboardingSubmissionService
@@ -21,34 +21,43 @@ class OnboardingSubmissionService
 
     /**
      * Update personal information section
+     *
+     * @param OnboardingSubmission $submission
+     * @param array $data
+     * @return OnboardingSubmission
      */
     public function updatePersonalInfo(OnboardingSubmission $submission, array $data): OnboardingSubmission
     {
         $submission->update(['personal_info' => $data]);
         $this->markSectionComplete($submission, 'personal_info');
-
         return $submission;
     }
 
     /**
      * Update government IDs section
+     *
+     * @param OnboardingSubmission $submission
+     * @param array $data
+     * @return OnboardingSubmission
      */
     public function updateGovernmentIds(OnboardingSubmission $submission, array $data): OnboardingSubmission
     {
         $submission->update(['government_ids' => $data]);
         $this->markSectionComplete($submission, 'government_ids');
-
         return $submission;
     }
 
     /**
      * Update emergency contact section
+     *
+     * @param OnboardingSubmission $submission
+     * @param array $data
+     * @return OnboardingSubmission
      */
     public function updateEmergencyContact(OnboardingSubmission $submission, array $data): OnboardingSubmission
     {
         $submission->update(['emergency_contact' => $data]);
         $this->markSectionComplete($submission, 'emergency_contact');
-
         return $submission;
     }
 
@@ -58,6 +67,9 @@ class OnboardingSubmissionService
 
     /**
      * Calculate completion percentage for submission
+     *
+     * @param OnboardingSubmission $submission
+     * @return int
      */
     public function calculateCompletion(OnboardingSubmission $submission): int
     {
@@ -78,12 +90,16 @@ class OnboardingSubmissionService
 
     /**
      * Mark a section as complete
+     *
+     * @param OnboardingSubmission $submission
+     * @param string $sectionName
+     * @return void
      */
     private function markSectionComplete(OnboardingSubmission $submission, string $sectionName): void
     {
         $completed = $submission->completed_sections ?? [];
 
-        if (! in_array($sectionName, $completed)) {
+        if (!in_array($sectionName, $completed)) {
             $completed[] = $sectionName;
             $submission->update(['completed_sections' => $completed]);
         }
@@ -93,6 +109,9 @@ class OnboardingSubmissionService
 
     /**
      * Check if submission has all required documents approved
+     *
+     * @param OnboardingSubmission $submission
+     * @return bool
      */
     private function hasRequiredDocuments(OnboardingSubmission $submission): bool
     {
@@ -115,17 +134,26 @@ class OnboardingSubmissionService
      *
      * Note: This is different from finalizeOnboarding (HR approval)
      *
+     * @param OnboardingSubmission $submission
+     * @return OnboardingSubmission
      * @throws \Exception
      */
     public function submitOnboarding(OnboardingSubmission $submission): OnboardingSubmission
     {
-        if (! $submission->canSubmit()) {
+        if (!$submission->canSubmit()) {
             throw new \Exception($submission->getSubmitBlockerMessage());
         }
 
-        $submission->update([
-            'submitted_at' => now(),
-        ]);
+        DB::transaction(function() use ($submission) {
+            $submission->update([
+                'submitted_at' => now(),
+            ]);
+
+            // Update invite status to 'submitted'
+            $submission->invite->update([
+                'status' => 'submitted'
+            ]);
+        });
 
         // TODO: Send notification to HR for review
         // Consider using events: SubmissionCompleted::dispatch($submission)
@@ -136,15 +164,18 @@ class OnboardingSubmissionService
     /**
      * Finalize onboarding (HR approves submission)
      *
+     * @param OnboardingSubmission $submission
+     * @param string|null $hrNotes
+     * @return OnboardingSubmission
      * @throws \Exception
      */
     public function finalizeOnboarding(OnboardingSubmission $submission, ?string $hrNotes = null): OnboardingSubmission
     {
-        if (! $submission->canSubmit()) {
+        if (!$submission->canSubmit()) {
             throw new \Exception($submission->getSubmitBlockerMessage());
         }
 
-        DB::transaction(function () use ($submission, $hrNotes) {
+        DB::transaction(function() use ($submission, $hrNotes) {
             $submission->update([
                 'status' => OnboardingSubmission::STATUS_APPROVED,
                 'submitted_at' => $submission->submitted_at ?? now(),
@@ -154,7 +185,7 @@ class OnboardingSubmissionService
             ]);
 
             $submission->invite->update([
-                'status' => 'approved',
+                'status' => 'approved'
             ]);
         });
 
@@ -170,6 +201,9 @@ class OnboardingSubmissionService
 
     /**
      * Get missing required documents for submission
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     public function getMissingDocuments(OnboardingSubmission $submission): array
     {
@@ -182,7 +216,7 @@ class OnboardingSubmissionService
 
         $missing = [];
         foreach ($requiredTypes as $type => $config) {
-            if (! $approvedTypes->contains($type)) {
+            if (!$approvedTypes->contains($type)) {
                 $missing[$type] = $config['label'];
             }
         }
@@ -190,19 +224,29 @@ class OnboardingSubmissionService
         return $missing;
     }
 
+
     // ============================================
     // USER CONVERSION
     // ============================================
 
     /**
-     * Convert approved submission to user array
+     * Convert submission to user array
      *
+     * @param OnboardingSubmission $submission
+     * @return array
      * @throws \Exception
      */
     public function toUserArray(OnboardingSubmission $submission): array
     {
-        if (! $submission->isApproved()) {
-            throw new \Exception('Can only convert approved submissions.');
+        // Check if submission has been submitted by candidate
+        if (!$submission->submitted_at) {
+            throw new \Exception('Submission has not been submitted yet.');
+        }
+
+        // Check if all required documents are approved by HR
+        $submissionStatus = $submission->getSubmissionStatus();
+        if (!$submissionStatus['can_submit']) {
+            throw new \Exception('All required documents must be approved before converting to user. Missing: ' . implode(', ', $submissionStatus['missing_documents']));
         }
 
         return array_merge(
@@ -218,6 +262,9 @@ class OnboardingSubmissionService
 
     /**
      * Map personal information fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapPersonalInfo(OnboardingSubmission $submission): array
     {
@@ -237,6 +284,9 @@ class OnboardingSubmissionService
 
     /**
      * Map contact information fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapContactInfo(OnboardingSubmission $submission): array
     {
@@ -255,6 +305,9 @@ class OnboardingSubmissionService
 
     /**
      * Map address information fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapAddressInfo(OnboardingSubmission $submission): array
     {
@@ -272,6 +325,9 @@ class OnboardingSubmissionService
 
     /**
      * Map government ID fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapGovernmentIds(OnboardingSubmission $submission): array
     {
@@ -287,6 +343,9 @@ class OnboardingSubmissionService
 
     /**
      * Map emergency contact fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapEmergencyContact(OnboardingSubmission $submission): array
     {
@@ -302,6 +361,9 @@ class OnboardingSubmissionService
 
     /**
      * Map employment information fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapEmploymentInfo(OnboardingSubmission $submission): array
     {
@@ -315,6 +377,9 @@ class OnboardingSubmissionService
 
     /**
      * Map security/authentication fields
+     *
+     * @param OnboardingSubmission $submission
+     * @return array
      */
     private function mapSecurityInfo(OnboardingSubmission $submission): array
     {
@@ -326,6 +391,9 @@ class OnboardingSubmissionService
 
     /**
      * Build full name from name parts
+     *
+     * @param array $personal
+     * @return string
      */
     private function buildFullName(array $personal): string
     {
@@ -338,14 +406,30 @@ class OnboardingSubmissionService
 
     /**
      * Generate work email from name parts
+     *
+     * @param string $firstName
+     * @param string $lastName
+     * @return string
      */
     private function generateWorkEmail(string $firstName, string $lastName): string
     {
+        // Check if using testing email (local environment)
+        $useTesting = config('onboarding.work_email.use_testing_email');
+        if ($useTesting) {
+            $username = config('onboarding.work_email.username');
+            $domain = config('onboarding.work_email.domain');
+            return "{$username}@{$domain}";
+        }
+
         $format = config('onboarding.work_email.format');
         $domain = config('onboarding.work_email.domain');
 
+        // Extract first word only from first name (handles multiple names like "John Paul" -> "john")
+        $firstNameWords = explode(' ', trim($firstName));
+        $firstWord = $firstNameWords[0] ?? 'user';
+
         // Remove non-alphabetic characters and convert to lowercase
-        $first = strtolower(preg_replace('/[^a-z]/i', '', trim($firstName)));
+        $first = strtolower(preg_replace('/[^a-z]/i', '', $firstWord));
         $last = strtolower(preg_replace('/[^a-z]/i', '', trim($lastName)));
 
         // Replace placeholders

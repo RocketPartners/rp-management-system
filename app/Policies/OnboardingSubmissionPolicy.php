@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\OnboardingSubmission;
 use App\Models\User;
+use App\Models\OnboardingSubmission;
 
 class OnboardingSubmissionPolicy
 {
@@ -49,11 +49,14 @@ class OnboardingSubmissionPolicy
 
     /**
      * Check if user has HR role
+     *
+     * @param User $user
+     * @return bool
      */
     private function isHrUser(User $user): bool
     {
         // Eager load roles if not already loaded
-        if (! $user->relationLoaded('roles')) {
+        if (!$user->relationLoaded('roles')) {
             $user->load('roles');
         }
 

@@ -20,13 +20,10 @@ import {
     AlertDialogTitle,
 } from '@/Components/ui/alert-dialog';
 import {
-    FileCheck,
     ArrowLeft,
     CheckCircle2,
     XCircle,
     FileText,
-    Download,
-    Eye,
     User,
     Mail,
     Phone,
@@ -50,6 +47,7 @@ export default function Review({ submission, checklist }) {
     const [showConvertDialog, setShowConvertDialog] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState(null);
     const [showDocRejectDialog, setShowDocRejectDialog] = useState(false);
+    const [showDocApproveDialog, setShowDocApproveDialog] = useState(false);
 
     const approveForm = useForm({});
 
@@ -61,14 +59,41 @@ export default function Review({ submission, checklist }) {
         rejection_reason: '',
     });
 
+    const convertForm = useForm({});
+
+    // Check submission state
+    const isAlreadyConverted = submission.status === 'approved' || !!submission.invite.converted_user_id;
+    const hasBeenSubmitted = !!submission.submitted_at;
+
     // Check if any documents are rejected (prevents approve all)
     const hasRejectedDocuments = submission.documents?.some(doc => doc.status === 'rejected') || false;
     const rejectedCount = submission.documents?.filter(doc => doc.status === 'rejected').length || 0;
     const uploadedCount = submission.documents?.filter(doc => doc.status === 'uploaded').length || 0;
 
+    // Check if all required documents are approved (enables convert button)
+    const allDocsApproved = submission.documents?.every(doc => doc.status === 'approved') && submission.documents?.length > 0;
+
     const approveDocument = (document) => {
-        router.post(route(ADMIN_ONBOARDING_ROUTES.APPROVE_DOCUMENT, document.id), {}, {
+        // If document is rejected, show confirmation dialog
+        if (document.status === 'rejected') {
+            setSelectedDocument(document);
+            setShowDocApproveDialog(true);
+        } else {
+            // Direct approval for uploaded/pending documents
+            confirmApproveDocument(document);
+        }
+    };
+
+    const confirmApproveDocument = (document) => {
+        const docId = document?.id || selectedDocument?.id;
+        if (!docId) return;
+
+        router.post(route(ADMIN_ONBOARDING_ROUTES.APPROVE_DOCUMENT, docId), {}, {
             preserveScroll: true,
+            onSuccess: () => {
+                setShowDocApproveDialog(false);
+                setSelectedDocument(null);
+            },
         });
     };
 
@@ -111,8 +136,12 @@ export default function Review({ submission, checklist }) {
     };
 
     const handleConvertToUser = () => {
-        router.post(route(ADMIN_ONBOARDING_ROUTES.CONVERT_TO_USER, submission.invite.id), {
+        convertForm.post(route(ADMIN_ONBOARDING_ROUTES.CONVERT_TO_USER, submission.invite.id), {
+            preserveScroll: true,
             onSuccess: () => {
+                setShowConvertDialog(false);
+            },
+            onError: () => {
                 setShowConvertDialog(false);
             },
         });
@@ -151,7 +180,8 @@ export default function Review({ submission, checklist }) {
 
                     {/* Action Buttons */}
                     <div className="flex gap-3">
-                        {(submission.status === 'draft') && (
+                        {/* Show document review buttons only if not yet converted */}
+                        {!isAlreadyConverted && (
                             <>
                                 <Button
                                     variant="outline"
@@ -179,14 +209,42 @@ export default function Review({ submission, checklist }) {
                             </>
                         )}
 
-                        {submission.status === 'approved' && !submission.invite.converted_user_id && (
-                            <Button
-                                className="bg-blue-600 hover:bg-blue-700"
-                                onClick={() => setShowConvertDialog(true)}
-                            >
-                                <UserCheck className="h-4 w-4 mr-2" />
-                                Convert to User Account
-                            </Button>
+                        {/* Show "Convert to User" button when submission is ready */}
+                        {hasBeenSubmitted && !isAlreadyConverted && (
+                            <div className="flex flex-col items-end gap-3">
+                                {!allDocsApproved && (
+                                    <Alert className="border-orange-300 bg-orange-50">
+                                        <AlertTriangle className="h-4 w-4 text-orange-600" />
+                                        <AlertDescription className="text-orange-800">
+                                            <strong>Action Required:</strong> All documents must be approved before you can convert this submission to a user account.
+                                            {uploadedCount > 0 && (
+                                                <span className="block mt-1 text-sm">
+                                                    ({uploadedCount} document{uploadedCount !== 1 ? 's' : ''} pending review)
+                                                </span>
+                                            )}
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+                                <Button
+                                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => setShowConvertDialog(true)}
+                                    disabled={!allDocsApproved}
+                                    title={!allDocsApproved
+                                        ? 'All required documents must be approved before converting to user account'
+                                        : 'Create user account for this candidate'}
+                                >
+                                    <UserCheck className="h-4 w-4 mr-2" />
+                                    Convert to User Account
+                                </Button>
+                            </div>
+                        )}
+
+                        {/* Show completion badge if already converted */}
+                        {isAlreadyConverted && (
+                            <div className="flex items-center gap-2 px-4 py-2 bg-green-50 border border-green-200 rounded-md">
+                                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                <span className="text-sm font-medium text-green-700">Converted to User Account</span>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -355,8 +413,18 @@ export default function Review({ submission, checklist }) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
+                                {/* Alert when submission is already converted */}
+                                {isAlreadyConverted && (
+                                    <Alert className="border-green-200 bg-green-50">
+                                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                        <AlertDescription className="text-green-800 text-sm">
+                                            <strong>Completed:</strong> This submission has been converted to a user account. Document actions are locked.
+                                        </AlertDescription>
+                                    </Alert>
+                                )}
+
                                 {/* Alert when rejected documents block Approve All */}
-                                {hasRejectedDocuments && (
+                                {hasRejectedDocuments && !isAlreadyConverted && (
                                     <Alert className="border-red-200 bg-red-50">
                                         <AlertTriangle className="h-4 w-4 text-red-600" />
                                         <AlertDescription className="text-red-800 text-sm">
@@ -396,7 +464,7 @@ export default function Review({ submission, checklist }) {
                                                         key={doc.id}
                                                         document={doc}
                                                         showActions={true}
-                                                        showAdminActions={true}
+                                                        showAdminActions={!isAlreadyConverted}
                                                         onApprove={approveDocument}
                                                         onReject={openRejectDocDialog}
                                                     />
@@ -604,6 +672,49 @@ export default function Review({ submission, checklist }) {
                 </AlertDialogContent>
             </AlertDialog>
 
+            {/* Approve Rejected Document Dialog */}
+            <AlertDialog open={showDocApproveDialog} onOpenChange={setShowDocApproveDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-orange-600" />
+                            Approve Previously Rejected Document?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You are about to approve <strong>{selectedDocument?.document_type_label}</strong> which was previously rejected.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    {selectedDocument?.rejection_reason && (
+                        <div className="bg-gray-50 border border-gray-200 rounded p-3">
+                            <p className="text-sm font-medium text-gray-700 mb-1">Previous rejection reason:</p>
+                            <p className="text-sm text-gray-600 italic">"{selectedDocument.rejection_reason}"</p>
+                        </div>
+                    )}
+
+                    <div className="bg-blue-50 border border-blue-200 rounded p-3">
+                        <p className="text-sm text-blue-800">
+                            <strong>Please confirm:</strong> Have you verified that the candidate has addressed the issues mentioned in the rejection?
+                        </p>
+                    </div>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => {
+                            setShowDocApproveDialog(false);
+                            setSelectedDocument(null);
+                        }}>
+                            Cancel
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={() => confirmApproveDocument()}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            Yes, Approve Document
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             {/* Convert to User Dialog */}
             <AlertDialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
                 <AlertDialogContent>
@@ -649,12 +760,23 @@ export default function Review({ submission, checklist }) {
                     </div>
 
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel disabled={convertForm.processing}>Cancel</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleConvertToUser}
+                            disabled={convertForm.processing}
                             className="bg-blue-600 hover:bg-blue-700"
                         >
-                            Create User Account
+                            {convertForm.processing ? (
+                                <>
+                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Creating...
+                                </>
+                            ) : (
+                                'Create User Account'
+                            )}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

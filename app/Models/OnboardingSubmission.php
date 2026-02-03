@@ -15,7 +15,6 @@ class OnboardingSubmission extends Model
     // ============================================
 
     const STATUS_DRAFT = 'draft';
-
     const STATUS_APPROVED = 'approved';
 
     // ============================================
@@ -103,7 +102,7 @@ class OnboardingSubmission extends Model
      */
     public function isLocked(): bool
     {
-        return ! $this->canBeEdited();
+        return !$this->canBeEdited();
     }
 
     /**
@@ -141,21 +140,14 @@ class OnboardingSubmission extends Model
      * - can_submit: bool - Whether submission can be finalized
      * - blocker: string|null - Reason why submission is blocked (if blocked)
      * - missing_documents: array - List of missing required documents
+     *
+     * @return array
      */
     public function getSubmissionStatus(): array
     {
-        // Check if form sections are complete
-        if (! $this->isComplete()) {
-            return [
-                'can_submit' => false,
-                'blocker' => 'Please complete all form sections.',
-                'missing_documents' => [],
-            ];
-        }
-
         // Get required document types from config
         $requiredTypes = collect(config('onboarding.document_types'))
-            ->filter(fn ($doc) => $doc['required']);
+            ->filter(fn($doc) => $doc['required']);
 
         // Single query - get all approved document types for this submission
         $approvedTypes = $this->documents()
@@ -166,7 +158,7 @@ class OnboardingSubmission extends Model
         $missing = $requiredTypes
             ->keys()
             ->diff($approvedTypes)
-            ->map(fn ($type) => $requiredTypes[$type]['label'])
+            ->map(fn($type) => $requiredTypes[$type]['label'])
             ->values()
             ->toArray();
 
@@ -174,13 +166,15 @@ class OnboardingSubmission extends Model
             'can_submit' => empty($missing),
             'blocker' => empty($missing)
                 ? null
-                : 'Waiting for HR to approve: '.implode(', ', $missing),
+                : 'Waiting for HR to approve: ' . implode(', ', $missing),
             'missing_documents' => $missing,
         ];
     }
 
     /**
      * Check if submission can be finalized
+     *
+     * @return bool
      */
     public function canSubmit(): bool
     {
@@ -189,6 +183,8 @@ class OnboardingSubmission extends Model
 
     /**
      * Get reason why submission is blocked (if applicable)
+     *
+     * @return string|null
      */
     public function getSubmitBlockerMessage(): ?string
     {
@@ -201,7 +197,7 @@ class OnboardingSubmission extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match ($this->status) {
+        return match($this->status) {
             self::STATUS_DRAFT => 'In progress',
             self::STATUS_APPROVED => 'Completed',
             default => 'Unknown',
@@ -210,10 +206,133 @@ class OnboardingSubmission extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match ($this->status) {
+        return match($this->status) {
             self::STATUS_DRAFT => 'blue',
             self::STATUS_APPROVED => 'green',
             default => 'gray',
         };
+    }
+
+    // ============================================
+    // CONVERSION METHODS
+    // ============================================
+
+    /**
+     * Convert submission data to User array for account creation
+     *
+     * @return array
+     */
+    public function toUserArray(): array
+    {
+        $personalInfo = $this->personal_info ?? [];
+        $governmentIds = $this->government_ids ?? [];
+        $emergencyContact = $this->emergency_contact ?? [];
+        $additionalInfo = $this->additional_info ?? [];
+
+        // Generate work email
+        $workEmail = $this->generateWorkEmail(
+            $personalInfo['first_name'] ?? '',
+            $personalInfo['last_name'] ?? ''
+        );
+
+        // Build full name
+        $nameParts = array_filter([
+            $personalInfo['first_name'] ?? '',
+            $personalInfo['middle_name'] ?? '',
+            $personalInfo['last_name'] ?? '',
+        ]);
+        $fullName = implode(' ', $nameParts);
+
+        // Add suffix if not 'none'
+        if (!empty($personalInfo['suffix']) && $personalInfo['suffix'] !== 'none') {
+            $fullName .= ' ' . $personalInfo['suffix'];
+        }
+
+        return [
+            // Basic info
+            'name' => $fullName,
+            'first_name' => $personalInfo['first_name'] ?? null,
+            'middle_name' => $personalInfo['middle_name'] ?? null,
+            'last_name' => $personalInfo['last_name'] ?? null,
+            'suffix' => ($personalInfo['suffix'] ?? 'none') !== 'none' ? $personalInfo['suffix'] : null,
+
+            // Emails & contacts
+            'email' => $workEmail, // Primary email is work email
+            'work_email' => $workEmail,
+            'personal_email' => $this->invite->email, // Original invite email
+            'phone_number' => $personalInfo['contact_number'] ?? null,
+            'personal_mobile' => $personalInfo['contact_number'] ?? null,
+
+            // Personal details
+            'gender' => $personalInfo['gender'] ?? null,
+            'civil_status' => $personalInfo['civil_status'] ?? null,
+            'birthday' => $personalInfo['birthday'] ?? null,
+
+            // Address
+            'address_line_1' => $personalInfo['address_line_1'] ?? null,
+            'address_line_2' => $personalInfo['address_line_2'] ?? null,
+            'city' => $personalInfo['city'] ?? null,
+            'state' => $personalInfo['province'] ?? null,
+            'postal_code' => $personalInfo['zip_code'] ?? null,
+            'country' => 'Philippines', // Default
+
+            // Emergency contact
+            'emergency_contact_name' => $emergencyContact['name'] ?? null,
+            'emergency_contact_phone' => $emergencyContact['phone'] ?? null,
+            'emergency_contact_mobile' => $emergencyContact['mobile'] ?? null,
+            'emergency_contact_relationship' => $emergencyContact['relationship'] ?? null,
+
+            // Government IDs
+            'sss_number' => $governmentIds['sss'] ?? null,
+            'tin_number' => $governmentIds['tin'] ?? null,
+            'hdmf_number' => $governmentIds['hdmf'] ?? null,
+            'philhealth_number' => $governmentIds['philhealth'] ?? null,
+
+            // Additional info
+            'payroll_account' => $additionalInfo['payroll_account'] ?? null,
+
+            // Employment info from invite
+            'department' => $this->invite->department,
+            'position' => $this->invite->position,
+            'hire_date' => now(),
+            'employment_status' => 'active',
+            'employment_type' => 'full-time',
+            'account_status' => 'active',
+
+            // Password (temporary)
+            'password' => bcrypt(config('onboarding.default_temp_password', 'ChangeMe123!')),
+        ];
+    }
+
+    /**
+     * Generate work email from name
+     *
+     * @param string $firstName
+     * @param string $lastName
+     * @return string
+     */
+    private function generateWorkEmail(string $firstName, string $lastName): string
+    {
+        // Check if using testing email (local environment)
+        $useTesting = config('onboarding.work_email.use_testing_email');
+        if ($useTesting) {
+            $username = config('onboarding.work_email.username');
+            $domain = config('onboarding.work_email.domain');
+            return "{$username}@{$domain}";
+        }
+
+        $format = config('onboarding.work_email.format');
+        $domain = config('onboarding.work_email.domain');
+
+        // Extract first word only from first name
+        $firstNameWords = explode(' ', trim($firstName));
+        $firstWord = $firstNameWords[0] ?? 'user';
+
+        $first = strtolower(preg_replace('/[^a-z]/i', '', $firstWord));
+        $last = strtolower(preg_replace('/[^a-z]/i', '', trim($lastName)));
+
+        $email = str_replace(['{first}', '{last}'], [$first, $last], $format);
+
+        return "{$email}@{$domain}";
     }
 }

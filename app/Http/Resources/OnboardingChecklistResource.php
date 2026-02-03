@@ -28,10 +28,12 @@ class OnboardingChecklistResource extends JsonResource
 
     /**
      * Get personal information section status
+     *
+     * @return array
      */
     private function getPersonalInfoStatus(): array
     {
-        $completed = ! empty($this->personal_info);
+        $completed = !empty($this->personal_info);
 
         return [
             'label' => 'Personal Information',
@@ -46,10 +48,12 @@ class OnboardingChecklistResource extends JsonResource
 
     /**
      * Get government IDs section status
+     *
+     * @return array
      */
     private function getGovernmentIdsStatus(): array
     {
-        $completed = ! empty($this->government_ids);
+        $completed = !empty($this->government_ids);
 
         return [
             'label' => 'Government IDs',
@@ -64,10 +68,12 @@ class OnboardingChecklistResource extends JsonResource
 
     /**
      * Get emergency contact section status
+     *
+     * @return array
      */
     private function getEmergencyContactStatus(): array
     {
-        $completed = ! empty($this->emergency_contact);
+        $completed = !empty($this->emergency_contact);
 
         return [
             'label' => 'Emergency Contact',
@@ -82,6 +88,8 @@ class OnboardingChecklistResource extends JsonResource
 
     /**
      * Get documents section status
+     *
+     * @return array
      */
     private function getDocumentsStatus(): array
     {
@@ -101,6 +109,9 @@ class OnboardingChecklistResource extends JsonResource
 
     /**
      * Get message for documents section
+     *
+     * @param array $submissionStatus
+     * @return string
      */
     private function getDocumentsMessage(array $submissionStatus): string
     {
@@ -114,7 +125,6 @@ class OnboardingChecklistResource extends JsonResource
         }
 
         $missingCount = count($submissionStatus['missing_documents']);
-
         return "{$missingCount} required document types need approval";
     }
 }
