@@ -80,7 +80,8 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const { timezone, setTimezone, timezones } = useTimezone();
 
     const currentTimezone =
-        timezones.find((tz) => tz.id === timezone) || timezones[2];
+        timezones.find((tz: { id: string; name: string; flag: string; offset: string }) => tz.id === timezone) ||
+        timezones[2];
 
     return (
         <>
@@ -273,7 +274,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     Select Timezone
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                {timezones.map((tz) => (
+                                {timezones.map((tz: { id: string; name: string; flag: string; offset: string }) => (
                                     <DropdownMenuItem
                                         key={tz.id}
                                         onClick={() => setTimezone(tz.id)}
