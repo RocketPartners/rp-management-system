@@ -26,7 +26,6 @@ import {
     Layers,
     LayoutDashboard,
     LifeBuoy,
-    Lock,
     LogOut,
     Mail,
     Menu,

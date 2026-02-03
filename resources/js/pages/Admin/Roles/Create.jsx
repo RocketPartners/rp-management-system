@@ -85,7 +85,9 @@ export default function Create({ auth, permissions = {} }) {
             // Deselect all in group
             setData(
                 'permissions',
-                data.permissions.filter((id) => !groupPermissionIds.includes(id)),
+                data.permissions.filter(
+                    (id) => !groupPermissionIds.includes(id),
+                ),
             );
         } else {
             // Select all in group
@@ -179,7 +181,9 @@ export default function Create({ auth, permissions = {} }) {
                                 id="slug"
                                 type="text"
                                 value={data.slug}
-                                onChange={(e) => setData('slug', e.target.value)}
+                                onChange={(e) =>
+                                    setData('slug', e.target.value)
+                                }
                                 placeholder="e.g., devops-engineer"
                                 className={errors.slug ? 'border-red-500' : ''}
                             />
@@ -250,7 +254,9 @@ export default function Create({ auth, permissions = {} }) {
                                 }
                                 placeholder="6"
                                 className={
-                                    errors.hierarchy_level ? 'border-red-500' : ''
+                                    errors.hierarchy_level
+                                        ? 'border-red-500'
+                                        : ''
                                 }
                             />
                             {errors.hierarchy_level && (
@@ -345,7 +351,9 @@ export default function Create({ auth, permissions = {} }) {
                                                                 htmlFor={`permission-${permission.id}`}
                                                                 className="cursor-pointer font-medium"
                                                             >
-                                                                {permission.name}
+                                                                {
+                                                                    permission.name
+                                                                }
                                                             </Label>
                                                             {permission.description && (
                                                                 <p className="text-sm text-gray-500">
@@ -409,7 +417,7 @@ export default function Create({ auth, permissions = {} }) {
                                     <dt className="text-sm font-medium text-gray-500">
                                         Slug
                                     </dt>
-                                    <dd className="text-base font-mono text-gray-900">
+                                    <dd className="font-mono text-base text-gray-900">
                                         {data.slug || '(Not set)'}
                                     </dd>
                                 </div>
@@ -433,7 +441,9 @@ export default function Create({ auth, permissions = {} }) {
                                             className="bg-purple-100 text-purple-700"
                                         >
                                             {selectedCount} permission
-                                            {selectedCount !== 1 ? 's' : ''}{' '}
+                                            {selectedCount !== 1
+                                                ? 's'
+                                                : ''}{' '}
                                             selected
                                         </Badge>
                                     </dd>

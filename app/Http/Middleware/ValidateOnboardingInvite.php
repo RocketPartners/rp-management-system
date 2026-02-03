@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\OnboardingInvite;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\OnboardingInvite;
 use Symfony\Component\HttpFoundation\Response;
 
 class ValidateOnboardingInvite
@@ -21,7 +21,7 @@ class ValidateOnboardingInvite
     {
         $token = $request->route('token');
 
-        if (!$token) {
+        if (! $token) {
             abort(404, 'Invite token not found');
         }
 
@@ -31,7 +31,7 @@ class ValidateOnboardingInvite
             ->firstOrFail();
 
         // Validate invite is still active
-        if (!$invite->isValid()) {
+        if (! $invite->isValid()) {
             return redirect()
                 ->route('guest.onboarding.show', $token)
                 ->with('error', 'This invite has expired or is no longer valid.');

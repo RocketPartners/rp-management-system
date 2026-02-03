@@ -48,7 +48,10 @@ export const generateWorkEmail = (personalInfo) => {
 
     // Remove non-alphabetic characters and convert to lowercase
     const firstName = firstWord.toLowerCase().replace(/[^a-z]/gi, '');
-    const lastName = personalInfo.last_name.toLowerCase().trim().replace(/[^a-z]/gi, '');
+    const lastName = personalInfo.last_name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z]/gi, '');
 
     return `${firstName}${lastName}@${COMPANY_EMAIL_DOMAIN}`;
 };
@@ -75,7 +78,10 @@ export const generateWorkEmailFromNames = (firstName, lastName) => {
 
     // Remove non-alphabetic characters and convert to lowercase
     const first = firstWord.toLowerCase().replace(/[^a-z]/gi, '');
-    const last = lastName.toLowerCase().trim().replace(/[^a-z]/gi, '');
+    const last = lastName
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z]/gi, '');
 
     return `${first}${last}@${COMPANY_EMAIL_DOMAIN}`;
 };

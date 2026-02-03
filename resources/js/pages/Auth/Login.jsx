@@ -113,12 +113,18 @@ export default function Login({ status, canResetPassword, userCount = 0 }) {
                                         Enter your credentials to access your
                                         account
                                     </CardDescription>
-                                    <div className="mt-4 inline-flex flex-col items-center gap-1 px-4 py-2 bg-yellow-100 border-2 border-yellow-400 rounded-lg">
+                                    <div className="mt-4 inline-flex flex-col items-center gap-1 rounded-lg border-2 border-yellow-400 bg-yellow-100 px-4 py-2">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-semibold text-yellow-800">TEST MODE</span>
-                                            <span className="text-xs text-yellow-700">| Pre-filled credentials</span>
+                                            <span className="text-sm font-semibold text-yellow-800">
+                                                TEST MODE
+                                            </span>
+                                            <span className="text-xs text-yellow-700">
+                                                | Pre-filled credentials
+                                            </span>
                                         </div>
-                                        <span className="text-xs text-yellow-600 font-mono">hr1@example.com</span>
+                                        <span className="font-mono text-xs text-yellow-600">
+                                            hr1@example.com
+                                        </span>
                                     </div>
                                 </div>
                             </CardHeader>

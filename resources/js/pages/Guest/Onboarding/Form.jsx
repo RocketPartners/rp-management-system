@@ -22,7 +22,12 @@ import { Briefcase, Building2, Clock, Rocket } from 'lucide-react';
  * @param {Object} props.submissionStatus - Validation status (can_submit, blocker, missing_documents)
  * @returns {JSX.Element}
  */
-export default function Form({ invite, submission, requiredDocuments, submissionStatus }) {
+export default function Form({
+    invite,
+    submission,
+    requiredDocuments,
+    submissionStatus,
+}) {
     // Consolidated form state management
     const {
         currentStep,

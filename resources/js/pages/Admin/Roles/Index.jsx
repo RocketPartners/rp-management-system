@@ -413,7 +413,7 @@ export default function Index({ auth, roles, filters }) {
                     </Card>
                 ) : (
                     /* Card View */
-                    <div className="grid animate-fade-in animation-delay-200 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <div className="animate-fade-in animation-delay-200 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {roles.data.length > 0 ? (
                             roles.data.map((role, index) => (
                                 <Card

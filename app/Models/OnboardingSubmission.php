@@ -15,6 +15,7 @@ class OnboardingSubmission extends Model
     // ============================================
 
     const STATUS_DRAFT = 'draft';
+
     const STATUS_APPROVED = 'approved';
 
     // ============================================
@@ -102,7 +103,7 @@ class OnboardingSubmission extends Model
      */
     public function isLocked(): bool
     {
-        return !$this->canBeEdited();
+        return ! $this->canBeEdited();
     }
 
     /**
@@ -140,14 +141,12 @@ class OnboardingSubmission extends Model
      * - can_submit: bool - Whether submission can be finalized
      * - blocker: string|null - Reason why submission is blocked (if blocked)
      * - missing_documents: array - List of missing required documents
-     *
-     * @return array
      */
     public function getSubmissionStatus(): array
     {
         // Get required document types from config
         $requiredTypes = collect(config('onboarding.document_types'))
-            ->filter(fn($doc) => $doc['required']);
+            ->filter(fn ($doc) => $doc['required']);
 
         // Single query - get all approved document types for this submission
         $approvedTypes = $this->documents()
@@ -158,7 +157,7 @@ class OnboardingSubmission extends Model
         $missing = $requiredTypes
             ->keys()
             ->diff($approvedTypes)
-            ->map(fn($type) => $requiredTypes[$type]['label'])
+            ->map(fn ($type) => $requiredTypes[$type]['label'])
             ->values()
             ->toArray();
 
@@ -166,15 +165,13 @@ class OnboardingSubmission extends Model
             'can_submit' => empty($missing),
             'blocker' => empty($missing)
                 ? null
-                : 'Waiting for HR to approve: ' . implode(', ', $missing),
+                : 'Waiting for HR to approve: '.implode(', ', $missing),
             'missing_documents' => $missing,
         ];
     }
 
     /**
      * Check if submission can be finalized
-     *
-     * @return bool
      */
     public function canSubmit(): bool
     {
@@ -183,8 +180,6 @@ class OnboardingSubmission extends Model
 
     /**
      * Get reason why submission is blocked (if applicable)
-     *
-     * @return string|null
      */
     public function getSubmitBlockerMessage(): ?string
     {
@@ -197,7 +192,7 @@ class OnboardingSubmission extends Model
 
     public function getStatusLabelAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_DRAFT => 'In progress',
             self::STATUS_APPROVED => 'Completed',
             default => 'Unknown',
@@ -206,7 +201,7 @@ class OnboardingSubmission extends Model
 
     public function getStatusColorAttribute(): string
     {
-        return match($this->status) {
+        return match ($this->status) {
             self::STATUS_DRAFT => 'blue',
             self::STATUS_APPROVED => 'green',
             default => 'gray',
@@ -219,8 +214,6 @@ class OnboardingSubmission extends Model
 
     /**
      * Convert submission data to User array for account creation
-     *
-     * @return array
      */
     public function toUserArray(): array
     {
@@ -244,8 +237,8 @@ class OnboardingSubmission extends Model
         $fullName = implode(' ', $nameParts);
 
         // Add suffix if not 'none'
-        if (!empty($personalInfo['suffix']) && $personalInfo['suffix'] !== 'none') {
-            $fullName .= ' ' . $personalInfo['suffix'];
+        if (! empty($personalInfo['suffix']) && $personalInfo['suffix'] !== 'none') {
+            $fullName .= ' '.$personalInfo['suffix'];
         }
 
         return [
@@ -306,10 +299,6 @@ class OnboardingSubmission extends Model
 
     /**
      * Generate work email from name
-     *
-     * @param string $firstName
-     * @param string $lastName
-     * @return string
      */
     private function generateWorkEmail(string $firstName, string $lastName): string
     {
@@ -318,6 +307,7 @@ class OnboardingSubmission extends Model
         if ($useTesting) {
             $username = config('onboarding.work_email.username');
             $domain = config('onboarding.work_email.domain');
+
             return "{$username}@{$domain}";
         }
 

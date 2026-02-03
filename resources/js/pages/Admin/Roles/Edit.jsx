@@ -13,7 +13,7 @@ import { Input } from '@/Components/ui/input';
 import { Label } from '@/Components/ui/label';
 import { Textarea } from '@/Components/ui/textarea';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import {
     AlertCircle,
     AlertTriangle,
@@ -83,7 +83,9 @@ export default function Edit({ auth, role, permissions = {} }) {
             // Deselect all in group
             setData(
                 'permissions',
-                data.permissions.filter((id) => !groupPermissionIds.includes(id)),
+                data.permissions.filter(
+                    (id) => !groupPermissionIds.includes(id),
+                ),
             );
         } else {
             // Select all in group
@@ -147,8 +149,8 @@ export default function Edit({ auth, role, permissions = {} }) {
                         <AlertTriangle className="h-4 w-4 text-yellow-600" />
                         <AlertDescription className="text-yellow-800">
                             <strong>Warning:</strong> This is a protected system
-                            role. Be careful when modifying its permissions as it
-                            may affect system functionality.
+                            role. Be careful when modifying its permissions as
+                            it may affect system functionality.
                         </AlertDescription>
                     </Alert>
                 )}
@@ -200,7 +202,9 @@ export default function Edit({ auth, role, permissions = {} }) {
                                 id="slug"
                                 type="text"
                                 value={data.slug}
-                                onChange={(e) => setData('slug', e.target.value)}
+                                onChange={(e) =>
+                                    setData('slug', e.target.value)
+                                }
                                 placeholder="e.g., devops-engineer"
                                 className={errors.slug ? 'border-red-500' : ''}
                                 disabled={isProtectedRole}
@@ -214,8 +218,8 @@ export default function Edit({ auth, role, permissions = {} }) {
                                 <Alert className="border-blue-200 bg-blue-50">
                                     <Info className="h-4 w-4 text-blue-600" />
                                     <AlertDescription className="text-sm text-blue-800">
-                                        The slug cannot be modified for protected
-                                        system roles.
+                                        The slug cannot be modified for
+                                        protected system roles.
                                     </AlertDescription>
                                 </Alert>
                             )}
@@ -274,7 +278,9 @@ export default function Edit({ auth, role, permissions = {} }) {
                                 }
                                 placeholder="6"
                                 className={
-                                    errors.hierarchy_level ? 'border-red-500' : ''
+                                    errors.hierarchy_level
+                                        ? 'border-red-500'
+                                        : ''
                                 }
                                 disabled={isProtectedRole}
                             />
@@ -315,7 +321,8 @@ export default function Edit({ auth, role, permissions = {} }) {
                                     Manage Permissions
                                 </CardTitle>
                                 <CardDescription>
-                                    Update which permissions this role should have
+                                    Update which permissions this role should
+                                    have
                                 </CardDescription>
                             </div>
                             <Badge
@@ -378,7 +385,9 @@ export default function Edit({ auth, role, permissions = {} }) {
                                                                 htmlFor={`permission-${permission.id}`}
                                                                 className="cursor-pointer font-medium"
                                                             >
-                                                                {permission.name}
+                                                                {
+                                                                    permission.name
+                                                                }
                                                             </Label>
                                                             {permission.description && (
                                                                 <p className="text-sm text-gray-500">
@@ -442,7 +451,7 @@ export default function Edit({ auth, role, permissions = {} }) {
                                     <dt className="text-sm font-medium text-gray-500">
                                         Slug
                                     </dt>
-                                    <dd className="text-base font-mono text-gray-900">
+                                    <dd className="font-mono text-base text-gray-900">
                                         {data.slug || '(Not set)'}
                                     </dd>
                                 </div>
@@ -466,7 +475,9 @@ export default function Edit({ auth, role, permissions = {} }) {
                                             className="bg-purple-100 text-purple-700"
                                         >
                                             {selectedCount} permission
-                                            {selectedCount !== 1 ? 's' : ''}{' '}
+                                            {selectedCount !== 1
+                                                ? 's'
+                                                : ''}{' '}
                                             selected
                                         </Badge>
                                     </dd>

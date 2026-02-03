@@ -164,7 +164,11 @@ export default function Show({ auth, role, groupedPermissions }) {
                         </div>
 
                         <div className="flex gap-2 border-t pt-4">
-                            <Button variant="outline" asChild className="flex-1">
+                            <Button
+                                variant="outline"
+                                asChild
+                                className="flex-1"
+                            >
                                 <Link
                                     href={route(
                                         'roles.permissions.edit',
