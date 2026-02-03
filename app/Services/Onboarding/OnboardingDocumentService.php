@@ -6,18 +6,11 @@ use App\Models\OnboardingDocument;
 use App\Models\OnboardingSubmission;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class OnboardingDocumentService
 {
     /**
      * Upload a new document for submission
-     *
-     * @param OnboardingSubmission $submission
-     * @param UploadedFile $file
-     * @param string $documentType
-     * @param string|null $description
-     * @return OnboardingDocument
      */
     public function uploadDocument(
         OnboardingSubmission $submission,
@@ -50,10 +43,6 @@ class OnboardingDocumentService
 
     /**
      * Replace an existing document with a new file
-     *
-     * @param OnboardingDocument $document
-     * @param UploadedFile $newFile
-     * @return OnboardingDocument
      */
     public function replaceDocument(OnboardingDocument $document, UploadedFile $newFile): OnboardingDocument
     {
@@ -80,9 +69,6 @@ class OnboardingDocumentService
 
     /**
      * Delete a document and its file
-     *
-     * @param OnboardingDocument $document
-     * @return bool
      */
     public function deleteDocument(OnboardingDocument $document): bool
     {
@@ -102,9 +88,6 @@ class OnboardingDocumentService
 
     /**
      * Approve a document
-     *
-     * @param OnboardingDocument $document
-     * @return OnboardingDocument
      */
     public function approveDocument(OnboardingDocument $document): OnboardingDocument
     {
@@ -123,10 +106,6 @@ class OnboardingDocumentService
 
     /**
      * Reject a document with reason
-     *
-     * @param OnboardingDocument $document
-     * @param string $reason
-     * @return OnboardingDocument
      */
     public function rejectDocument(OnboardingDocument $document, string $reason): OnboardingDocument
     {
@@ -149,13 +128,13 @@ class OnboardingDocumentService
      * Note: This method is kept for backward compatibility but bulk update
      * should be done directly in controller for better performance.
      *
-     * @param OnboardingSubmission $submission
      * @return int Number of documents approved
+     *
      * @throws \Exception
      */
     public function bulkApproveDocuments(OnboardingSubmission $submission): int
     {
-        return DB::transaction(function() use ($submission) {
+        return DB::transaction(function () use ($submission) {
             $count = $submission->documents()
                 ->where('status', OnboardingDocument::STATUS_UPLOADED)
                 ->count();
@@ -183,8 +162,6 @@ class OnboardingDocumentService
 
     /**
      * Get all document types from config
-     *
-     * @return array
      */
     public function getRequiredDocumentTypes(): array
     {
@@ -199,7 +176,7 @@ class OnboardingDocumentService
     public function getRequiredOnly()
     {
         return collect(config('onboarding.document_types'))
-            ->filter(fn($doc) => $doc['required']);
+            ->filter(fn ($doc) => $doc['required']);
     }
 
     /**
@@ -210,14 +187,11 @@ class OnboardingDocumentService
     public function getOptionalOnly()
     {
         return collect(config('onboarding.document_types'))
-            ->filter(fn($doc) => !$doc['required']);
+            ->filter(fn ($doc) => ! $doc['required']);
     }
 
     /**
      * Get configuration for specific document type
-     *
-     * @param string $type
-     * @return array|null
      */
     public function getDocumentConfig(string $type): ?array
     {
@@ -226,9 +200,6 @@ class OnboardingDocumentService
 
     /**
      * Check if document type is required
-     *
-     * @param string $type
-     * @return bool
      */
     public function isRequired(string $type): bool
     {
@@ -240,9 +211,6 @@ class OnboardingDocumentService
      *
      * This method is extracted to avoid circular dependency.
      * Alternative: Use events (DocumentUploaded, DocumentDeleted)
-     *
-     * @param OnboardingSubmission $submission
-     * @return void
      */
     protected function updateSubmissionCompletion(OnboardingSubmission $submission): void
     {
@@ -261,9 +229,6 @@ class OnboardingDocumentService
 
     /**
      * Check if submission has all required documents approved
-     *
-     * @param OnboardingSubmission $submission
-     * @return bool
      */
     protected function hasRequiredDocuments(OnboardingSubmission $submission): bool
     {

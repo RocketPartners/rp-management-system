@@ -1,18 +1,22 @@
 // resources/js/Components/ProfilePictureUpload.jsx
-import { useState } from 'react';
 import { Button } from '@/Components/ui/button';
-import { Camera, Upload, X, User } from 'lucide-react';
+import { Camera, Upload, User, X } from 'lucide-react';
+import { useState } from 'react';
 
-export default function ProfilePictureUpload({ currentImage, onImageChange, onImageRemove }) {
+export default function ProfilePictureUpload({
+    currentImage,
+    onImageChange,
+    onImageRemove,
+}) {
     const [dragActive, setDragActive] = useState(false);
     const [preview, setPreview] = useState(currentImage || null);
 
     const handleDrag = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        if (e.type === "dragenter" || e.type === "dragover") {
+        if (e.type === 'dragenter' || e.type === 'dragover') {
             setDragActive(true);
-        } else if (e.type === "dragleave") {
+        } else if (e.type === 'dragleave') {
             setDragActive(false);
         }
     };
@@ -21,7 +25,7 @@ export default function ProfilePictureUpload({ currentImage, onImageChange, onIm
         e.preventDefault();
         e.stopPropagation();
         setDragActive(false);
-        
+
         if (e.dataTransfer.files && e.dataTransfer.files[0]) {
             handleFile(e.dataTransfer.files[0]);
         }
@@ -72,22 +76,22 @@ export default function ProfilePictureUpload({ currentImage, onImageChange, onIm
                 {/* Preview */}
                 <div className="relative">
                     {preview ? (
-                        <div className="relative group">
+                        <div className="group relative">
                             <img
                                 src={preview}
                                 alt="Profile"
-                                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                                className="h-32 w-32 rounded-full border-4 border-white object-cover shadow-lg"
                             />
                             <button
                                 type="button"
                                 onClick={handleRemove}
-                                className="absolute top-0 right-0 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-lg"
+                                className="absolute right-0 top-0 rounded-full bg-red-500 p-1.5 text-white shadow-lg transition-colors hover:bg-red-600"
                             >
                                 <X className="h-4 w-4" />
                             </button>
                         </div>
                     ) : (
-                        <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center border-4 border-white shadow-lg">
+                        <div className="flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-gray-100 shadow-lg">
                             <User className="h-16 w-16 text-gray-400" />
                         </div>
                     )}
@@ -96,9 +100,9 @@ export default function ProfilePictureUpload({ currentImage, onImageChange, onIm
                 {/* Upload Area */}
                 <div className="flex-1">
                     <div
-                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                            dragActive 
-                                ? 'border-blue-500 bg-blue-50' 
+                        className={`rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+                            dragActive
+                                ? 'border-blue-500 bg-blue-50'
                                 : 'border-gray-300 hover:border-gray-400'
                         }`}
                         onDragEnter={handleDrag}
@@ -113,20 +117,34 @@ export default function ProfilePictureUpload({ currentImage, onImageChange, onIm
                             accept="image/*"
                             onChange={handleFileChange}
                         />
-                        <label htmlFor="profile-picture-upload" className="cursor-pointer">
+                        <label
+                            htmlFor="profile-picture-upload"
+                            className="cursor-pointer"
+                        >
                             <div className="flex flex-col items-center">
-                                <Camera className="h-10 w-10 text-gray-400 mb-3" />
-                                <p className="text-sm font-medium text-gray-900 mb-1">
+                                <Camera className="mb-3 h-10 w-10 text-gray-400" />
+                                <p className="mb-1 text-sm font-medium text-gray-900">
                                     Upload Profile Picture
                                 </p>
-                                <p className="text-xs text-gray-600 mb-3">
+                                <p className="mb-3 text-xs text-gray-600">
                                     Drag and drop or click to browse
                                 </p>
-                                <Button type="button" size="sm" variant="outline" onClick={() => document.getElementById('profile-picture-upload').click()}>
-                                    <Upload className="h-4 w-4 mr-2" />
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() =>
+                                        document
+                                            .getElementById(
+                                                'profile-picture-upload',
+                                            )
+                                            .click()
+                                    }
+                                >
+                                    <Upload className="mr-2 h-4 w-4" />
                                     Choose File
                                 </Button>
-                                <p className="text-xs text-gray-500 mt-3">
+                                <p className="mt-3 text-xs text-gray-500">
                                     PNG, JPG, GIF up to 5MB
                                 </p>
                             </div>

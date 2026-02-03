@@ -1,16 +1,22 @@
-import { Head } from '@inertiajs/react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
 import { Alert, AlertDescription } from '@/Components/ui/alert';
 import { Badge } from '@/Components/ui/badge';
-import { Progress } from '@/Components/ui/progress';
 import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/Components/ui/card';
+import { Progress } from '@/Components/ui/progress';
+import { Head } from '@inertiajs/react';
+import {
+    AlertCircle,
     CheckCircle2,
     Clock,
-    AlertCircle,
     FileText,
-    UserCheck,
-    Rocket,
     Mail,
+    Rocket,
+    UserCheck,
 } from 'lucide-react';
 
 export default function Checklist({ invite, submission, checklist }) {
@@ -44,14 +50,13 @@ export default function Checklist({ invite, submission, checklist }) {
         <>
             <Head title="Onboarding Submitted" />
 
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50 py-12 px-4">
-                <div className="max-w-4xl mx-auto space-y-6">
-
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-sky-50 px-4 py-12">
+                <div className="mx-auto max-w-4xl space-y-6">
                     {/* Header */}
-                    <div className="text-center animate-fade-in">
-                        <div className="flex flex-col items-center justify-center mb-6">
+                    <div className="animate-fade-in text-center">
+                        <div className="mb-6 flex flex-col items-center justify-center">
                             {/* Logo */}
-                            <div className="inline-flex items-center justify-center bg-gradient-to-br from-[#2596be] to-[#1e7a9e] px-4 py-2 rounded-xl shadow-md mb-4 hover:shadow-lg transition-shadow">
+                            <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-gradient-to-br from-[#2596be] to-[#1e7a9e] px-4 py-2 shadow-md transition-shadow hover:shadow-lg">
                                 <img
                                     src="/images/logo.png"
                                     alt="Rocket Partners"
@@ -60,11 +65,11 @@ export default function Checklist({ invite, submission, checklist }) {
                             </div>
 
                             {/* Success Icon */}
-                            <div className="p-4 bg-green-100 rounded-full mb-4">
+                            <div className="mb-4 rounded-full bg-green-100 p-4">
                                 <CheckCircle2 className="h-16 w-16 text-green-600" />
                             </div>
 
-                            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                            <h1 className="mb-2 text-4xl font-bold text-gray-900">
                                 Submission Complete! 🎉
                             </h1>
                             <p className="text-lg text-gray-600">
@@ -77,8 +82,9 @@ export default function Checklist({ invite, submission, checklist }) {
                     <Alert className="border-blue-300 bg-blue-50">
                         <Mail className="h-4 w-4 text-blue-600" />
                         <AlertDescription className="text-blue-800">
-                            <strong>What's Next?</strong> Our HR team will review your submission.
-                            You'll receive an email notification once your onboarding has been approved.
+                            <strong>What's Next?</strong> Our HR team will
+                            review your submission. You'll receive an email
+                            notification once your onboarding has been approved.
                         </AlertDescription>
                     </Alert>
 
@@ -88,7 +94,8 @@ export default function Checklist({ invite, submission, checklist }) {
                             <CardTitle className="flex items-center justify-between">
                                 <span>Your Submission Status</span>
                                 <Badge className="bg-[#2596be] text-white">
-                                    {submission?.completion_percentage || 0}% Complete
+                                    {submission?.completion_percentage || 0}%
+                                    Complete
                                 </Badge>
                             </CardTitle>
                             <CardDescription>
@@ -98,91 +105,119 @@ export default function Checklist({ invite, submission, checklist }) {
                         <CardContent>
                             <Progress
                                 value={submission?.completion_percentage || 0}
-                                className="h-3 mb-6 [&>*]:bg-[#2596be]"
+                                className="mb-6 h-3 [&>*]:bg-[#2596be]"
                             />
 
                             {/* Checklist Items */}
                             <div className="space-y-4">
-                                {checklist && Object.entries(checklist).map(([section, data], index) => (
-                                    <div
-                                        key={section}
-                                        className="p-4 bg-gray-50 rounded-lg border"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-2 flex-1">
-                                                {/* Number badge */}
-                                                <div className="flex-shrink-0 w-6 h-6 bg-[#2596be] text-white rounded-full flex items-center justify-center font-bold text-xs">
-                                                    {index + 1}
-                                                </div>
-                                                {/* Status icon - compact inline */}
-                                                <div className={`flex-shrink-0 ${
-                                                    data.status === 'complete' ? 'text-green-600' :
-                                                        data.status === 'pending' ? 'text-yellow-600' :
-                                                            'text-red-600'
-                                                }`}>
-                                                    {getStatusIcon(data.status)}
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <h3 className="font-semibold text-gray-900">
-                                                        {data.label || section}
-                                                    </h3>
-                                                    {data.message && (
-                                                        <p className="text-sm text-gray-600 mt-1">
-                                                            {data.message}
-                                                        </p>
-                                                    )}
+                                {checklist &&
+                                    Object.entries(checklist).map(
+                                        ([section, data], index) => (
+                                            <div
+                                                key={section}
+                                                className="rounded-lg border bg-gray-50 p-4"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex flex-1 items-center gap-2">
+                                                        {/* Number badge */}
+                                                        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2596be] text-xs font-bold text-white">
+                                                            {index + 1}
+                                                        </div>
+                                                        {/* Status icon - compact inline */}
+                                                        <div
+                                                            className={`flex-shrink-0 ${
+                                                                data.status ===
+                                                                'complete'
+                                                                    ? 'text-green-600'
+                                                                    : data.status ===
+                                                                        'pending'
+                                                                      ? 'text-yellow-600'
+                                                                      : 'text-red-600'
+                                                            }`}
+                                                        >
+                                                            {getStatusIcon(
+                                                                data.status,
+                                                            )}
+                                                        </div>
+                                                        <div className="min-w-0 flex-1">
+                                                            <h3 className="font-semibold text-gray-900">
+                                                                {data.label ||
+                                                                    section}
+                                                            </h3>
+                                                            {data.message && (
+                                                                <p className="mt-1 text-sm text-gray-600">
+                                                                    {
+                                                                        data.message
+                                                                    }
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <Badge
+                                                        className={getStatusColor(
+                                                            data.status,
+                                                        )}
+                                                    >
+                                                        {data.status}
+                                                    </Badge>
                                                 </div>
                                             </div>
-                                            <Badge className={getStatusColor(data.status)}>
-                                                {data.status}
-                                            </Badge>
-                                        </div>
-                                    </div>
-                                ))}
+                                        ),
+                                    )}
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* Documents Summary */}
-                    {submission?.documents && submission.documents.length > 0 && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <FileText className="h-5 w-5 text-[#2596be]" />
-                                    Uploaded Documents ({submission.documents.length})
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
-                                    {submission.documents.map((doc) => (
-                                        <div
-                                            key={doc.id}
-                                            className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border"
-                                        >
-                                            <div className="flex items-start gap-2">
-                                                <FileText className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="font-medium text-sm">
-                                                        {doc.document_type_label}
-                                                    </p>
-                                                    <p className="text-xs text-gray-500 truncate">
-                                                        {doc.filename}
-                                                    </p>
+                    {submission?.documents &&
+                        submission.documents.length > 0 && (
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2">
+                                        <FileText className="h-5 w-5 text-[#2596be]" />
+                                        Uploaded Documents (
+                                        {submission.documents.length})
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2">
+                                        {submission.documents.map((doc) => (
+                                            <div
+                                                key={doc.id}
+                                                className="flex items-center justify-between rounded-lg border bg-gray-50 p-3"
+                                            >
+                                                <div className="flex items-start gap-2">
+                                                    <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-500" />
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="text-sm font-medium">
+                                                            {
+                                                                doc.document_type_label
+                                                            }
+                                                        </p>
+                                                        <p className="truncate text-xs text-gray-500">
+                                                            {doc.filename}
+                                                        </p>
+                                                    </div>
                                                 </div>
+                                                <Badge
+                                                    className={`flex-shrink-0 ${
+                                                        doc.status ===
+                                                        'approved'
+                                                            ? 'border-green-200 bg-green-100 text-green-700'
+                                                            : doc.status ===
+                                                                'pending'
+                                                              ? 'border-yellow-200 bg-yellow-100 text-yellow-700'
+                                                              : 'border-red-200 bg-red-100 text-red-700'
+                                                    }`}
+                                                >
+                                                    {doc.status}
+                                                </Badge>
                                             </div>
-                                            <Badge className={`flex-shrink-0 ${
-                                                doc.status === 'approved' ? 'bg-green-100 text-green-700 border-green-200' :
-                                                    doc.status === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                                                        'bg-red-100 text-red-700 border-red-200'
-                                            }`}>
-                                                {doc.status}
-                                            </Badge>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
+                                        ))}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                     {/* Next Steps */}
                     <Card className="border-2 border-[#2596be]">
@@ -194,37 +229,48 @@ export default function Checklist({ invite, submission, checklist }) {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div className="flex gap-3">
-                                <div className="flex-shrink-0 w-6 h-6 bg-[#2596be] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2596be] text-sm font-bold text-white">
                                     1
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900 leading-6">HR Review</h4>
+                                    <h4 className="font-semibold leading-6 text-gray-900">
+                                        HR Review
+                                    </h4>
                                     <p className="text-sm text-gray-600">
-                                        Our HR team will review your documents and information within 2-3 business days.
+                                        Our HR team will review your documents
+                                        and information within 2-3 business
+                                        days.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex gap-3">
-                                <div className="flex-shrink-0 w-6 h-6 bg-[#2596be] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2596be] text-sm font-bold text-white">
                                     2
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900 leading-6">Email Notification</h4>
+                                    <h4 className="font-semibold leading-6 text-gray-900">
+                                        Email Notification
+                                    </h4>
                                     <p className="text-sm text-gray-600">
-                                        You'll receive an email at <strong>{invite.email}</strong> with the review results.
+                                        You'll receive an email at{' '}
+                                        <strong>{invite.email}</strong> with the
+                                        review results.
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex gap-3">
-                                <div className="flex-shrink-0 w-6 h-6 bg-[#2596be] text-white rounded-full flex items-center justify-center font-bold text-sm">
+                                <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-[#2596be] text-sm font-bold text-white">
                                     3
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900 leading-6">Account Activation</h4>
+                                    <h4 className="font-semibold leading-6 text-gray-900">
+                                        Account Activation
+                                    </h4>
                                     <p className="text-sm text-gray-600">
-                                        Once approved, you'll receive your login credentials and can start working!
+                                        Once approved, you'll receive your login
+                                        credentials and can start working!
                                     </p>
                                 </div>
                             </div>
@@ -232,8 +278,12 @@ export default function Checklist({ invite, submission, checklist }) {
                             <Alert className="mt-4 flex items-center justify-center space-x-2">
                                 <UserCheck className="h-4 w-4" />
                                 <AlertDescription className="text-center">
-                                    If you have any questions, please contact HR at&nbsp;
-                                    <a href="mailto:hr@rocketpartners.com" className="font-semibold whitespace-nowrap">
+                                    If you have any questions, please contact HR
+                                    at&nbsp;
+                                    <a
+                                        href="mailto:hr@rocketpartners.com"
+                                        className="whitespace-nowrap font-semibold"
+                                    >
                                         hr@rocketpartners.com
                                     </a>
                                 </AlertDescription>

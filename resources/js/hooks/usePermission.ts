@@ -1,5 +1,5 @@
-import { usePage } from '@inertiajs/react';
 import type { SharedData } from '@/types';
+import { usePage } from '@inertiajs/react';
 
 /**
  * Hook for checking user permissions in React components

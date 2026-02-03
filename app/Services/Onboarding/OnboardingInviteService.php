@@ -2,11 +2,11 @@
 
 namespace App\Services\Onboarding;
 
+use App\Mail\Onboarding\AccountCreatedMail;
+use App\Mail\Onboarding\GuestInviteMail;
 use App\Models\OnboardingInvite;
 use App\Models\OnboardingSubmission;
 use App\Models\User;
-use App\Mail\Onboarding\GuestInviteMail;
-use App\Mail\Onboarding\AccountCreatedMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -91,7 +91,7 @@ class OnboardingInviteService
      */
     public function resendInvite(OnboardingInvite $invite)
     {
-        if (!$invite->isValid()) {
+        if (! $invite->isValid()) {
             throw new \Exception('Cannot resend expired or cancelled invite.');
         }
 
@@ -155,7 +155,7 @@ class OnboardingInviteService
         \Log::info('Converting invite to user', [
             'invite_id' => $invite->id,
             'invite_status' => $invite->status,
-            'has_submission' => !!$invite->submission,
+            'has_submission' => (bool) $invite->submission,
             'submission_submitted_at' => $invite->submission?->submitted_at,
         ]);
 
@@ -166,7 +166,7 @@ class OnboardingInviteService
             throw new \Exception("Cannot convert: Invite status is '{$invite->status}', must be 'submitted'.");
         }
 
-        if (!$invite->submission) {
+        if (! $invite->submission) {
             throw new \Exception('No submission found for this invite.');
         }
 
@@ -183,7 +183,7 @@ class OnboardingInviteService
 
             \Log::info('User created, now assigning role', [
                 'user_id' => $user->id,
-                'role_slug' => $invite->position
+                'role_slug' => $invite->position,
             ]);
 
             // Assign role based on position from invite

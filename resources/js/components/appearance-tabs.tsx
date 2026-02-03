@@ -30,7 +30,7 @@ export default function AppearanceToggleTab({
                     className={cn(
                         'flex items-center rounded-md px-3.5 py-1.5 transition-colors',
                         appearance === value
-                            ? 'bg-white shadow-xs'
+                            ? 'shadow-xs bg-white'
                             : 'text-neutral-500 hover:bg-neutral-200/60 hover:text-black',
                     )}
                 >
