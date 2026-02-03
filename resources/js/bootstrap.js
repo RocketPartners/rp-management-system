@@ -47,4 +47,34 @@ window.apiAxios.interceptors.request.use((config) => {
     return config;
 });
 
+// Handle 419 CSRF Token Expiration for both axios instances
+const handle419Error = (error) => {
+    if (error.response && error.response.status === 419) {
+        // Show a friendly notification
+        if (confirm(
+            '⚠️ Your session has expired.\n\n' +
+            'This happens when:\n' +
+            '• You left the page open for too long\n' +
+            '• You logged out in another tab\n\n' +
+            'Click OK to reload the page and continue.'
+        )) {
+            window.location.reload();
+        }
+        // Reject with a custom message
+        return Promise.reject(new Error('Session expired. Please reload the page.'));
+    }
+    return Promise.reject(error);
+};
+
+window.axios.interceptors.response.use(
+    (response) => response,
+    handle419Error
+);
+
+window.apiAxios.interceptors.response.use(
+    (response) => response,
+    handle419Error
+);
+
 console.log('✅ API Axios configured with credentials');
+console.log('✅ 419 error handler configured');

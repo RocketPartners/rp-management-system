@@ -26,12 +26,14 @@ import {
     Layers,
     LayoutDashboard,
     LifeBuoy,
+    Lock,
     LogOut,
     Mail,
     Menu,
     Package,
     Search,
     Settings,
+    Shield,
     UserCheck,
     UserPlus,
     Users,
@@ -124,6 +126,26 @@ export default function AuthenticatedLayout({ header, children }) {
                         badge: 'new',
                     },
                 ],
+            });
+        }
+
+        // ============================================
+        // ROLE MANAGEMENT
+        // ============================================
+        if (can('roles.view')) {
+            const roleItems = [];
+
+            roleItems.push({
+                name: 'All Roles',
+                href: '/roles',
+                icon: Shield,
+            });
+
+            nav.push({
+                type: 'accordion',
+                name: 'Role Management',
+                icon: Shield,
+                items: roleItems,
             });
         }
 
@@ -278,6 +300,8 @@ export default function AuthenticatedLayout({ header, children }) {
         if (cleanHref === '/calendar' && cleanUrl.startsWith('/calendar'))
             return true;
         if (cleanHref === '/users' && cleanUrl.startsWith('/users/'))
+            return true;
+        if (cleanHref === '/roles' && cleanUrl.startsWith('/roles/'))
             return true;
         if (cleanHref === '/leaves' && cleanUrl.startsWith('/leaves/'))
             return true;
