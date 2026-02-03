@@ -19,9 +19,10 @@ import { Briefcase, Building2, Clock, Rocket } from 'lucide-react';
  * @param {Object} props.invite - Invitation data
  * @param {Object} props.submission - Current submission state
  * @param {Object} props.requiredDocuments - Required document types configuration
+ * @param {Object} props.submissionStatus - Validation status (can_submit, blocker, missing_documents)
  * @returns {JSX.Element}
  */
-export default function Form({ invite, submission, requiredDocuments }) {
+export default function Form({ invite, submission, requiredDocuments, submissionStatus }) {
     // Consolidated form state management
     const {
         currentStep,
@@ -149,6 +150,7 @@ export default function Form({ invite, submission, requiredDocuments }) {
                             requiredDocuments={requiredDocuments}
                             documentForm={documentForm}
                             inviteToken={invite.token}
+                            submissionStatus={submissionStatus}
                             onBack={goToPreviousStep}
                             onDeleteDocument={handleDeleteDocument}
                             onFinalSubmit={handleFinalSubmit}
