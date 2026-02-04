@@ -28,7 +28,6 @@ class OnboardingSubmission extends Model
         'government_ids',
         'emergency_contact',
         'additional_info',
-        'completion_percentage',
         'completed_sections',
         'status',
         'submitted_at',
@@ -50,7 +49,6 @@ class OnboardingSubmission extends Model
 
     protected $attributes = [
         'status' => self::STATUS_DRAFT,
-        'completion_percentage' => 0,
     ];
 
     // ============================================
@@ -206,6 +204,41 @@ class OnboardingSubmission extends Model
             self::STATUS_APPROVED => 'green',
             default => 'gray',
         };
+    }
+
+    /**
+     * Calculate completion percentage dynamically
+     * No database storage - always accurate
+     */
+    public function getCompletionPercentageAttribute(): int
+    {
+        $weights = config('onboarding.completion_weights');
+
+        $sections = [
+            'personal_info' => $this->personal_info ? $weights['personal_info'] : 0,
+            'government_ids' => $this->government_ids ? $weights['government_ids'] : 0,
+            'emergency_contact' => $this->emergency_contact ? $weights['emergency_contact'] : 0,
+            'documents' => $this->hasAllRequiredDocumentsApproved() ? $weights['documents'] : 0,
+        ];
+
+        return array_sum($sections);
+    }
+
+    /**
+     * Check if all required documents are approved
+     */
+    protected function hasAllRequiredDocumentsApproved(): bool
+    {
+        $requiredTypes = collect(config('onboarding.document_types'))
+            ->filter(fn ($doc) => $doc['required'])
+            ->keys();
+
+        $approvedTypes = $this->documents()
+            ->where('status', OnboardingDocument::STATUS_APPROVED)
+            ->pluck('document_type')
+            ->unique();
+
+        return $requiredTypes->diff($approvedTypes)->isEmpty();
     }
 
     // ============================================
