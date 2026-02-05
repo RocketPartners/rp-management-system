@@ -146,10 +146,11 @@ class OnboardingSubmission extends Model
         $requiredTypes = collect(config('onboarding.document_types'))
             ->filter(fn ($doc) => $doc['required']);
 
-        // Single query - get all approved document types for this submission
+        // Only count APPROVED documents (HR must approve before guest can submit)
         $approvedTypes = $this->documents()
             ->where('status', OnboardingDocument::STATUS_APPROVED)
-            ->pluck('document_type');
+            ->pluck('document_type')
+            ->unique();
 
         // Find missing required documents
         $missing = $requiredTypes
@@ -233,7 +234,12 @@ class OnboardingSubmission extends Model
             ->filter(fn ($doc) => $doc['required'])
             ->keys();
 
-        $approvedTypes = $this->documents()
+        // Use loaded relationship if available, otherwise query
+        $documents = $this->relationLoaded('documents')
+            ? $this->documents
+            : $this->documents()->get();
+
+        $approvedTypes = $documents
             ->where('status', OnboardingDocument::STATUS_APPROVED)
             ->pluck('document_type')
             ->unique();
