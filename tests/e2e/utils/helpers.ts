@@ -69,6 +69,44 @@ export async function getLatestInviteToken(): Promise<string> {
 }
 
 /**
+ * Get invite token by specific email address
+ */
+export async function getInviteTokenByEmail(email: string): Promise<string> {
+  try {
+    // Use DB::table instead of model to avoid autoloading issues
+    const command = `php artisan tinker --execute="echo DB::table('onboarding_invites')->where('email', '${email}')->latest('created_at')->value('token');"`;
+
+    console.log('Executing:', command);
+
+    const { stdout, stderr } = await execAsync(command);
+
+    if (stderr) {
+      console.warn('STDERR:', stderr);
+    }
+
+    console.log('Raw output:', JSON.stringify(stdout));
+
+    // Tinker outputs extra stuff, extract just the token
+    const lines = stdout.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    // Token is usually a long alphanumeric string
+    const token = lines.find(line => line.length > 20 && /^[a-zA-Z0-9]+$/.test(line));
+
+    console.log('Extracted token:', token);
+
+    if (!token) {
+      throw new Error(`No valid token found in output for email: ${email}`);
+    }
+
+    return token;
+  } catch (error) {
+    console.error('Failed to get token for email:', email);
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
+/**
  * Reset the test database
  */
 export async function resetTestDatabase() {
