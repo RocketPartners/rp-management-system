@@ -16,61 +16,39 @@ class LeaveApprovalController extends Controller
     {
         $user = auth()->user();
 
-        $userRoles = $user->roles->pluck('slug')->toArray();
+        $userRoles = $user->roles;
 
-        // HR/Admin - redirect to main leaves page with HR filter
-        if (in_array('hr-manager', $userRoles) || in_array('admin', $userRoles) || in_array('super-admin', $userRoles)) {
+        // ✅ DYNAMIC: Use hierarchy_level instead of hardcoded lists
+        // Get the highest hierarchy level of current user's roles
+        $userMaxHierarchyLevel = $userRoles->max('hierarchy_level');
+
+        // HR/Admin (level 9+) - redirect to main leaves page with HR filter
+        if ($userMaxHierarchyLevel >= 9) {
             return redirect()->route('leaves.index', ['status' => 'pending_hr']);
         }
 
-        // ✅ Query leaves with PRIORITY for custom approvers
-        $query = LeaveRequest::with(['user.roles', 'leaveType', 'managerApprover'])
-            ->where('status', 'pending_manager')
-            ->where(function ($q) use ($user, $userRoles) {
-                // ✅ PRIORITY 1: Leaves where current user is the custom approver
-                $q->where('custom_approver_id', $user->id)
-                // ✅ PRIORITY 2: Leaves with no custom approver (use role-based hierarchy)
-                ->orWhere(function ($roleQuery) use ($userRoles) {
-                    $roleQuery->whereNull('custom_approver_id');
+        // Check if user has permission to approve leaves
+        if (! $user->hasPermission('leaves.approve')) {
+            abort(403, 'You do not have permission to approve leave requests.');
+        }
 
-                    // ✅ Cascading hierarchy - each level sees all below them
-                    $canApproveRoles = [];
+        // ✅ DYNAMIC: Get all roles BELOW current user's level
+        // Users can approve leave requests from anyone with LOWER hierarchy level
+        $canApproveRoles = \App\Models\Role::where('hierarchy_level', '<', $userMaxHierarchyLevel)
+            ->pluck('slug')
+            ->toArray();
 
-                    // Project Manager - sees EVERYONE below (Entry → Lead)
-                    if (in_array('project-manager', $userRoles)) {
-                        $canApproveRoles = [
-                            'entry-level-engineer',
-                            'junior-engineer',
-                            'mid-level-engineer',
-                            'senior-engineer',
-                            'lead-engineer',
-                        ];
-                    }
-                    // Lead Engineer - sees Entry → Senior
-                    elseif (in_array('lead-engineer', $userRoles)) {
-                        $canApproveRoles = [
-                            'entry-level-engineer',
-                            'junior-engineer',
-                            'mid-level-engineer',
-                            'senior-engineer',
-                        ];
-                    }
-                    // Senior Engineer - sees Entry → Mid
-                    elseif (in_array('senior-engineer', $userRoles)) {
-                        $canApproveRoles = [
-                            'entry-level-engineer',
-                            'junior-engineer',
-                            'mid-level-engineer',
-                        ];
-                    }
-
-                    if (!empty($canApproveRoles)) {
-                        $roleQuery->whereHas('user.roles', function ($q) use ($canApproveRoles) {
-                            $q->whereIn('slug', $canApproveRoles);
-                        });
-                    }
+        // If no roles can be approved, show empty list
+        if (empty($canApproveRoles)) {
+            $query = LeaveRequest::where('id', -1); // Returns empty result
+        } else {
+            // Query leaves from users with roles they can approve
+            $query = LeaveRequest::with(['user.roles', 'leaveType', 'managerApprover'])
+                ->where('status', 'pending_manager')
+                ->whereHas('user.roles', function ($q) use ($canApproveRoles) {
+                    $q->whereIn('slug', $canApproveRoles);
                 });
-            });
+        }
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -90,7 +68,7 @@ class LeaveApprovalController extends Controller
         return Inertia::render('Admin/Leaves/PendingApprovals', [
             'leaveRequests' => $leaveRequests,
             'filters' => $request->only(['search']),
-            'userRole' => $userRoles[0] ?? 'employee',
+            'userRole' => $userRoles[0]->slug ?? 'employee',
         ]);
     }
 
@@ -143,22 +121,23 @@ class LeaveApprovalController extends Controller
     /**
      * ✅ Manager approves a leave request
      * WITH DYNAMIC FLOW - checks if HR approval needed
+     * DYNAMIC: Uses hierarchy_level instead of hardcoded roles
      */
     public function managerApprove(Request $request, LeaveRequest $leave)
     {
         $user = auth()->user();
 
-        // ✅ Check if user has approval permissions (Senior/Lead/PM/HR)
-        $hasApprovalPermission = $user->roles->whereIn('slug', [
-            'senior-engineer',
-            'lead-engineer',
-            'project-manager',
-            'super-admin',
-            'admin',
-            'hr-manager',
-        ])->count() > 0;
+        // ✅ DYNAMIC: Check if user can approve this specific leave
+        // User must have higher hierarchy level than the leave requester
+        $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
+        $requesterMaxHierarchyLevel = $leave->user->roles->max('hierarchy_level');
 
-        if (! $hasApprovalPermission) {
+        // Check permission and hierarchy
+        if (! $user->hasPermission('leaves.approve')) {
+            return back()->with('error', 'You do not have permission to approve leave requests.');
+        }
+
+        if ($userMaxHierarchyLevel <= $requesterMaxHierarchyLevel) {
             return back()->with('error', 'You are not authorized to approve this leave request.');
         }
 
@@ -221,22 +200,23 @@ class LeaveApprovalController extends Controller
 
     /**
      * ✅ Manager rejects a leave request (FINAL - No appeals)
+     * DYNAMIC: Uses hierarchy_level instead of hardcoded roles
      */
     public function managerReject(Request $request, LeaveRequest $leave)
     {
         $user = auth()->user();
 
-        // ✅ Check if user has approval permissions
-        $hasApprovalPermission = $user->roles->whereIn('slug', [
-            'senior-engineer',
-            'lead-engineer',
-            'project-manager',
-            'super-admin',
-            'admin',
-            'hr-manager',
-        ])->count() > 0;
+        // ✅ DYNAMIC: Check if user can reject this specific leave
+        // User must have higher hierarchy level than the leave requester
+        $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
+        $requesterMaxHierarchyLevel = $leave->user->roles->max('hierarchy_level');
 
-        if (! $hasApprovalPermission) {
+        // Check permission and hierarchy
+        if (! $user->hasPermission('leaves.approve')) {
+            return back()->with('error', 'You do not have permission to reject leave requests.');
+        }
+
+        if ($userMaxHierarchyLevel <= $requesterMaxHierarchyLevel) {
             return back()->with('error', 'You are not authorized to reject this leave request.');
         }
 
@@ -270,12 +250,15 @@ class LeaveApprovalController extends Controller
 
     /**
      * ✅ HR approves employee's cancellation request
+     * DYNAMIC: Uses hierarchy_level (requires HR level 80+)
      */
     public function approveCancellation(Request $request, LeaveRequest $leave)
     {
-        // Check HR permission
+        // Check HR permission - requires hierarchy level 9+ (HR/Admin)
         $user = auth()->user();
-        if (! $user->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
+
+        if ($userMaxHierarchyLevel < 9) {
             abort(403, 'Only HR can approve cancellation requests.');
         }
 
@@ -303,12 +286,15 @@ class LeaveApprovalController extends Controller
 
     /**
      * ✅ HR rejects employee's cancellation request (leave stays approved)
+     * DYNAMIC: Uses hierarchy_level (requires HR level 80+)
      */
     public function rejectCancellation(Request $request, LeaveRequest $leave)
     {
-        // Check HR permission
+        // Check HR permission - requires hierarchy level 9+ (HR/Admin)
         $user = auth()->user();
-        if (! $user->roles->whereIn('slug', ['super-admin', 'admin', 'hr-manager'])->count()) {
+        $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
+
+        if ($userMaxHierarchyLevel < 9) {
             abort(403, 'Only HR can reject cancellation requests.');
         }
 

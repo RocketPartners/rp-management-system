@@ -39,10 +39,22 @@ class GuestOnboardingController extends Controller
 
         $submission = $invite->submission;
 
+        // If form is already submitted, redirect to checklist
+        if ($submission && $submission->submitted_at) {
+            return redirect()->route('guest.onboarding.checklist', $token);
+        }
+
         // Transform documents for frontend
         if ($submission && $submission->documents) {
             $this->transformDocumentsForFrontend($submission);
         }
+
+        // Get submission validation status
+        $submissionStatus = $submission ? $submission->getSubmissionStatus() : [
+            'can_submit' => false,
+            'blocker' => 'Please complete all form sections.',
+            'missing_documents' => [],
+        ];
 
         return Inertia::render('Guest/Onboarding/Form', [
             'invite' => $invite,
@@ -51,6 +63,7 @@ class GuestOnboardingController extends Controller
             'canEdit' => $submission ? $submission->canBeEdited() : true,
             'isLocked' => $submission ? $submission->isLocked() : false,
             'revisionNotes' => $submission->revision_notes ?? null,
+            'submissionStatus' => $submissionStatus,
         ]);
     }
 
@@ -65,7 +78,8 @@ class GuestOnboardingController extends Controller
             $this->transformDocumentsForFrontend($invite->submission);
         }
 
-        $checklist = new OnboardingChecklistResource($invite->submission);
+        // Unwrap the resource to get the actual array data
+        $checklist = (new OnboardingChecklistResource($invite->submission))->resolve();
 
         return Inertia::render('Guest/Onboarding/Checklist', [
             'invite' => $invite,

@@ -13,6 +13,7 @@ class Role extends Model
         'name',
         'slug',
         'description',
+        'hierarchy_level',
     ];
 
     // ============================================
