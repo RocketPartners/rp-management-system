@@ -1,7 +1,7 @@
 // resources/js/Pages/Admin/Onboarding/Submissions/Review.jsx
 import { DocumentCard } from '@/components/onboarding/shared/DocumentCard';
 import { StatusBadge } from '@/components/onboarding/shared/StatusBadge';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -11,20 +11,20 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '@/Components/ui/alert-dialog';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Label } from '@/Components/ui/label';
-import { Progress } from '@/Components/ui/progress';
-import { Textarea } from '@/Components/ui/textarea';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Textarea } from '@/components/ui/textarea';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { ADMIN_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
 import { groupDocumentsByType } from '@/lib/utils/documentHelpers';
 import {

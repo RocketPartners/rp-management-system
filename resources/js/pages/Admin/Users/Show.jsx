@@ -1,17 +1,17 @@
 // resources/js/Pages/Users/Show.jsx
-import DeleteConfirmationModal from '@/Components/DeleteConfirmationModal';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
+} from '@/components/ui/card';
 import { usePermission } from '@/hooks/usePermission';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     AlertCircle,

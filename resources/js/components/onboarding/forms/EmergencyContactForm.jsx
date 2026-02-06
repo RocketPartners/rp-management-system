@@ -3,23 +3,23 @@
  * Collects emergency contact information
  */
 
-import { Button } from '@/Components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/Components/ui/select';
+} from '@/components/ui/select';
 import { RELATIONSHIP_OPTIONS } from '@/lib/constants/onboarding/selectOptions';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
 import { ChevronLeft, ChevronRight, Loader2, Phone } from 'lucide-react';

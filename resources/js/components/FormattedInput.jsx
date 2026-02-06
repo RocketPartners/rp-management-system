@@ -1,5 +1,5 @@
 // resources/js/Components/FormattedInput.jsx
-import { Input } from '@/Components/ui/input';
+import { Input } from '@/components/ui/input';
 
 // SSS Number: XX-XXXXXXX-X
 export function SSSInput({ value, onChange, ...props }) {

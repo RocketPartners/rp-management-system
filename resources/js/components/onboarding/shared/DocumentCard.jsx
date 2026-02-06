@@ -4,7 +4,7 @@
  * Eliminates duplicate document display logic across Form.jsx and Review.jsx
  */
 
-import { Button } from '@/Components/ui/button';
+import { Button } from '@/components/ui/button';
 import { getDocumentStatusConfig } from '@/lib/constants/onboarding/statuses';
 import { Download, Eye, FileText, Lock, Trash2, Unlock } from 'lucide-react';
 import React from 'react';

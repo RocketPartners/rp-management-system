@@ -4,8 +4,8 @@ import { EmergencyContactForm } from '@/components/onboarding/forms/EmergencyCon
 import { GovernmentIdForm } from '@/components/onboarding/forms/GovernmentIdForm';
 import { PersonalInfoForm } from '@/components/onboarding/forms/PersonalInfoForm';
 import { ProgressIndicator } from '@/components/onboarding/shared/ProgressIndicator';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useOnboardingForm } from '@/hooks/onboarding/useOnboardingForm';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
 import { Head } from '@inertiajs/react';

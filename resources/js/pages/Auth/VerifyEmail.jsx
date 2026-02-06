@@ -1,13 +1,13 @@
 // resources/js/Pages/Auth/VerifyEmail.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Button } from '@/Components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
+} from '@/components/ui/card';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { CheckCircle2, Inbox, LogOut, Mail, Send } from 'lucide-react';
 
