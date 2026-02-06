@@ -1,5 +1,5 @@
 // resources/js/Layouts/AuthenticatedLayout.jsx
-import { Badge } from '@/Components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -7,7 +7,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import { useTimezone } from '@/hooks/use-timezone.jsx';
 import { usePermission } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';

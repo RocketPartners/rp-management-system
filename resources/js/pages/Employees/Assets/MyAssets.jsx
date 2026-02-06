@@ -1,7 +1,7 @@
 // resources/js/Pages/Employees/Assets/MyAssets.jsx
-import { Badge } from '@/Components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import {
     AlertCircle,

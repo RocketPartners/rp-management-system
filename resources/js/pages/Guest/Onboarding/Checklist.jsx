@@ -1,13 +1,13 @@
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Progress } from '@/Components/ui/progress';
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import { Head } from '@inertiajs/react';
 import {
     AlertCircle,

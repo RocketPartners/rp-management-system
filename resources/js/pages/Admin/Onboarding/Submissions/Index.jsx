@@ -1,15 +1,15 @@
 // resources/js/Pages/Admin/Onboarding/Submissions/Index.jsx
 import { StatusBadge } from '@/components/onboarding/shared/StatusBadge';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
-import { Input } from '@/Components/ui/input';
-import { Progress } from '@/Components/ui/progress';
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import {
     Table,
     TableBody,
@@ -17,8 +17,8 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/Components/ui/table';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/table';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { ADMIN_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
 import { Head, Link, router } from '@inertiajs/react';
 import {

@@ -1,8 +1,8 @@
 // resources/js/Pages/Admin/Onboarding/Invites/Index.jsx
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent } from '@/Components/ui/card';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 import { CheckCircle2, Clock, Eye, Mail, Plus, UserPlus } from 'lucide-react';
 

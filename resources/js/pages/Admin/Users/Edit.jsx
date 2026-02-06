@@ -5,28 +5,28 @@ import {
     PhilHealthInput,
     SSSInput,
     TINInput,
-} from '@/Components/FormattedInput';
-import ProfilePictureUpload from '@/Components/ProfilePictureUpload';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+} from '@/components/FormattedInput';
+import ProfilePictureUpload from '@/components/ProfilePictureUpload';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/Components/ui/select';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/select';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     ArrowLeft,

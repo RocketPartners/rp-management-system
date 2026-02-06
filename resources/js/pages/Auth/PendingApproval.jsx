@@ -1,12 +1,12 @@
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Button } from '@/Components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
+} from '@/components/ui/card';
 import { Head, Link } from '@inertiajs/react';
 import { CheckCircle2, Clock, LogOut, Mail } from 'lucide-react';
 

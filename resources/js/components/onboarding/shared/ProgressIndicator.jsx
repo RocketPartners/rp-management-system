@@ -3,8 +3,8 @@
  * Shows current step, completed steps, and overall progress
  */
 
-import { Card, CardContent } from '@/Components/ui/card';
-import { Progress } from '@/Components/ui/progress';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import {
     CheckCircle2,
     CreditCard,

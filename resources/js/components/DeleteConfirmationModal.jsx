@@ -1,5 +1,5 @@
 // resources/js/Components/DeleteConfirmationModal.jsx
-import { Button } from '@/Components/ui/button';
+import { Button } from '@/components/ui/button';
 import { AlertTriangle, X } from 'lucide-react';
 
 export default function DeleteConfirmationModal({
