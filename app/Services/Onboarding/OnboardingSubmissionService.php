@@ -123,9 +123,16 @@ class OnboardingSubmissionService
             throw new \Exception($submission->getSubmitBlockerMessage());
         }
 
-        $submission->update([
-            'submitted_at' => now(),
-        ]);
+        DB::transaction(function () use ($submission) {
+            $submission->update([
+                'submitted_at' => now(),
+            ]);
+
+            // Update invite status to 'submitted'
+            $submission->invite->update([
+                'status' => 'submitted',
+            ]);
+        });
 
         // TODO: Send notification to HR for review
         // Consider using events: SubmissionCompleted::dispatch($submission)
@@ -195,14 +202,21 @@ class OnboardingSubmissionService
     // ============================================
 
     /**
-     * Convert approved submission to user array
+     * Convert submission to user array
      *
      * @throws \Exception
      */
     public function toUserArray(OnboardingSubmission $submission): array
     {
-        if (! $submission->isApproved()) {
-            throw new \Exception('Can only convert approved submissions.');
+        // Check if submission has been submitted by candidate
+        if (! $submission->submitted_at) {
+            throw new \Exception('Submission has not been submitted yet.');
+        }
+
+        // Check if all required documents are approved by HR
+        $submissionStatus = $submission->getSubmissionStatus();
+        if (! $submissionStatus['can_submit']) {
+            throw new \Exception('All required documents must be approved before converting to user. Missing: '.implode(', ', $submissionStatus['missing_documents']));
         }
 
         return array_merge(
@@ -341,11 +355,24 @@ class OnboardingSubmissionService
      */
     private function generateWorkEmail(string $firstName, string $lastName): string
     {
+        // Check if using testing email (local environment)
+        $useTesting = config('onboarding.work_email.use_testing_email');
+        if ($useTesting) {
+            $username = config('onboarding.work_email.username');
+            $domain = config('onboarding.work_email.domain');
+
+            return "{$username}@{$domain}";
+        }
+
         $format = config('onboarding.work_email.format');
         $domain = config('onboarding.work_email.domain');
 
+        // Extract first word only from first name (handles multiple names like "John Paul" -> "john")
+        $firstNameWords = explode(' ', trim($firstName));
+        $firstWord = $firstNameWords[0] ?? 'user';
+
         // Remove non-alphabetic characters and convert to lowercase
-        $first = strtolower(preg_replace('/[^a-z]/i', '', trim($firstName)));
+        $first = strtolower(preg_replace('/[^a-z]/i', '', $firstWord));
         $last = strtolower(preg_replace('/[^a-z]/i', '', trim($lastName)));
 
         // Replace placeholders

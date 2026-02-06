@@ -17,12 +17,12 @@ use App\Http\Controllers\Onboarding\OnboardingInviteController;
 use App\Http\Controllers\Onboarding\OnboardingSubmissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserImportController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -153,6 +153,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
     Route::resource('users', UserController::class);
+
+    // ============================================
+    // 🛡️ ROLE MANAGEMENT (Admin/HR only)
+    // ============================================
+    Route::resource('roles', RoleController::class);
 
     // ============================================
     // 📦 INVENTORY MANAGEMENT

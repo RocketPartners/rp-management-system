@@ -35,6 +35,9 @@ class OnboardingInvite extends Model
 
     protected $appends = [
         'full_name',
+        'guest_url',
+        'status_color',
+        'days_until_expiration',
     ];
 
     // ============================================
@@ -126,7 +129,7 @@ class OnboardingInvite extends Model
 
     /**
      * Get the guest onboarding URL
-     * ✅ FIXED: Use /guest/onboarding/ prefix to match routes
+     * FIXED: Use /guest/onboarding/ prefix to match routes
      */
     public function getGuestUrlAttribute()
     {

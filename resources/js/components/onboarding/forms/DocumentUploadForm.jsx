@@ -3,34 +3,38 @@
  * Handles document upload with multi-file support per document type
  */
 
-import React, { useState } from 'react';
-import { router } from '@inertiajs/react';
-import { Button } from '@/Components/ui/button';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
-import { Textarea } from '@/Components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
+import { StatusBadge } from '@/components/onboarding/shared/StatusBadge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-    Upload,
-    FileText,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { GUEST_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
+import { BRAND_CLASSES } from '@/lib/constants/theme';
+import {
+    countRequiredDocumentTypes,
+    countUploadedRequiredTypes,
+    getDocumentsByType,
+} from '@/lib/utils/documentHelpers';
+import {
     CheckCircle2,
     ChevronLeft,
-    Send,
-    Loader2,
+    FileText,
     Info,
+    Loader2,
+    Send,
     Trash2,
+    Upload,
 } from 'lucide-react';
-import { StatusBadge } from '@/components/onboarding/shared/StatusBadge';
-import { BRAND_CLASSES } from '@/lib/constants/theme';
-import { GUEST_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
-import {
-    getDocumentsByType,
-    countUploadedRequiredTypes,
-    countRequiredDocumentTypes,
-    hasDocumentType,
-} from '@/lib/utils/documentHelpers';
+import { useState } from 'react';
 
 /**
  * DocumentUploadForm component
@@ -40,6 +44,7 @@ import {
  * @param {Object} props.requiredDocuments - Required document types configuration
  * @param {Object} props.documentForm - Inertia form instance for document uploads
  * @param {string} props.inviteToken - Invite token for API calls
+ * @param {Object} props.submissionStatus - Submission validation status (can_submit, blocker, missing_documents)
  * @param {Function} props.onBack - Handler for going back to previous step
  * @param {Function} props.onDeleteDocument - Handler for deleting a document
  * @param {Function} props.onFinalSubmit - Handler for final submission
@@ -50,6 +55,7 @@ export const DocumentUploadForm = ({
     requiredDocuments,
     documentForm,
     inviteToken,
+    submissionStatus,
     onBack,
     onDeleteDocument,
     onFinalSubmit,
@@ -71,36 +77,52 @@ export const DocumentUploadForm = ({
         formData.append('file', documentForm.data.file);
         formData.append('description', documentForm.data.description || '');
 
-        documentForm.post(route(GUEST_ONBOARDING_ROUTES.UPLOAD_DOCUMENT, inviteToken), {
-            preserveScroll: true,
-            data: formData,
-            forceFormData: true,
-            onSuccess: () => {
-                // Clear only file and description, keep document_type
-                documentForm.setData('file', null);
-                documentForm.setData('description', '');
-                // Reset file input
-                const fileInput = document.getElementById('file-upload');
-                if (fileInput) fileInput.value = '';
+        documentForm.post(
+            route(GUEST_ONBOARDING_ROUTES.UPLOAD_DOCUMENT, inviteToken),
+            {
+                preserveScroll: true,
+                data: formData,
+                forceFormData: true,
+                onSuccess: () => {
+                    // Clear only file and description, keep document_type
+                    documentForm.setData('file', null);
+                    documentForm.setData('description', '');
+                    // Reset file input
+                    const fileInput = document.getElementById('file-upload');
+                    if (fileInput) fileInput.value = '';
+                },
+                onError: (errors) => {
+                    console.error('Upload failed:', errors);
+                    alert(
+                        'Upload failed: ' +
+                            (errors.file ||
+                                errors.document_type ||
+                                'Unknown error'),
+                    );
+                },
             },
-            onError: (errors) => {
-                console.error('Upload failed:', errors);
-                alert('Upload failed: ' + (errors.file || errors.document_type || 'Unknown error'));
-            },
-        });
+        );
     };
 
-    const uploadedRequiredCount = countUploadedRequiredTypes(requiredDocuments, submission?.documents);
+    const uploadedRequiredCount = countUploadedRequiredTypes(
+        requiredDocuments,
+        submission?.documents,
+    );
     const requiredCount = countRequiredDocumentTypes(requiredDocuments);
-    const canSubmit = uploadedRequiredCount >= requiredCount;
+
+    // Use backend validation status which checks:
+    // All required documents APPROVED (not just uploaded)
+    const canSubmit = submissionStatus?.can_submit || false;
+    const blockerMessage = submissionStatus?.blocker || null;
 
     // Get accepted file types for selected document type
     const getAcceptedFileTypes = () => {
         if (!selectedDocType || !requiredDocuments[selectedDocType]) {
             return '.pdf,.jpg,.jpeg,.png,.doc,.docx';
         }
-        const formats = requiredDocuments[selectedDocType].accepted_formats || [];
-        return formats.map(ext => `.${ext}`).join(',');
+        const formats =
+            requiredDocuments[selectedDocType].accepted_formats || [];
+        return formats.map((ext) => `.${ext}`).join(',');
     };
 
     // Get formatted file type display text
@@ -109,120 +131,188 @@ export const DocumentUploadForm = ({
             return 'PDF, JPG, JPEG, PNG, DOC, DOCX (Max 10MB)';
         }
         const config = requiredDocuments[selectedDocType];
-        const formats = (config.accepted_formats || []).map(ext => ext.toUpperCase()).join(', ');
+        const formats = (config.accepted_formats || [])
+            .map((ext) => ext.toUpperCase())
+            .join(', ');
         const maxSizeMB = Math.round((config.max_size || 10240) / 1024);
         return `${formats} (Max ${maxSizeMB}MB)`;
     };
 
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="animate-fade-in space-y-6">
             {/* Document Type Selector Grid */}
             <Card>
                 <CardHeader>
-                    <CardTitle className={`flex items-center gap-2 ${BRAND_CLASSES.textPrimary}`}>
+                    <CardTitle
+                        className={`flex items-center gap-2 ${BRAND_CLASSES.textPrimary}`}
+                    >
                         <Upload className="h-5 w-5" />
                         Upload Required Documents
                     </CardTitle>
                     <CardDescription>
-                        Select a document type below. You can upload multiple files for each type.
+                        Select a document type below. You can upload multiple
+                        files for each type.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     {/* Document Type Grid with Status Indicators */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                        {Object.entries(requiredDocuments || {}).map(([key, doc]) => {
-                            const documentsForType = getDocumentsByType(submission?.documents, key);
-                            const isSelected = selectedDocType === key;
+                    <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-2">
+                        {Object.entries(requiredDocuments || {}).map(
+                            ([key, doc]) => {
+                                const documentsForType = getDocumentsByType(
+                                    submission?.documents,
+                                    key,
+                                );
+                                const isSelected = selectedDocType === key;
 
-                            return (
-                                <button
-                                    key={key}
-                                    type="button"
-                                    onClick={() => {
-                                        setSelectedDocType(key);
-                                        documentForm.setData('document_type', key);
-                                        documentForm.setData('file', null);
-                                        documentForm.setData('description', '');
-                                    }}
-                                    className={`p-4 rounded-lg border-2 text-left transition-all ${
-                                        isSelected
-                                            ? `border-[#2596be] bg-blue-50`
-                                            : documentsForType.length > 0
-                                                ? 'border-green-200 bg-green-50 hover:border-green-300'
-                                                : 'border-gray-200 hover:border-gray-300'
-                                    }`}
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-2">
-                                                <FileText className={`h-4 w-4 ${
-                                                    documentsForType.length > 0 ? 'text-green-600' : 'text-gray-400'
-                                                }`} />
-                                                <span className="font-medium text-sm">
-                                                    {doc.label}
-                                                    {doc.required && <span className="text-red-600 ml-1">*</span>}
-                                                </span>
-                                            </div>
-                                            {doc.accepted_formats && doc.max_size && (
-                                                <p className="text-xs text-gray-500 mt-1 ml-6">
-                                                    {doc.accepted_formats.map(f => f.toUpperCase()).join(', ')} • Max {doc.max_size >= 1024 ? `${doc.max_size / 1024}MB` : `${doc.max_size}KB`}
-                                                </p>
-                                            )}
-                                            {documentsForType.length > 0 && (
-                                                <div className="mt-2 ml-6">
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        {documentsForType.length} file{documentsForType.length !== 1 ? 's' : ''}
-                                                    </Badge>
+                                return (
+                                    <button
+                                        key={key}
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedDocType(key);
+                                            documentForm.setData(
+                                                'document_type',
+                                                key,
+                                            );
+                                            documentForm.setData('file', null);
+                                            documentForm.setData(
+                                                'description',
+                                                '',
+                                            );
+                                        }}
+                                        className={`rounded-lg border-2 p-4 text-left transition-all ${
+                                            isSelected
+                                                ? `border-[#2596be] bg-blue-50`
+                                                : documentsForType.length > 0
+                                                  ? 'border-green-200 bg-green-50 hover:border-green-300'
+                                                  : 'border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <div className="flex items-start justify-between">
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-2">
+                                                    <FileText
+                                                        className={`h-4 w-4 ${
+                                                            documentsForType.length >
+                                                            0
+                                                                ? 'text-green-600'
+                                                                : 'text-gray-400'
+                                                        }`}
+                                                    />
+                                                    <span className="text-sm font-medium">
+                                                        {doc.label}
+                                                        {doc.required && (
+                                                            <span className="ml-1 text-red-600">
+                                                                *
+                                                            </span>
+                                                        )}
+                                                    </span>
                                                 </div>
+                                                {doc.accepted_formats &&
+                                                    doc.max_size && (
+                                                        <p className="ml-6 mt-1 text-xs text-gray-500">
+                                                            {doc.accepted_formats
+                                                                .map((f) =>
+                                                                    f.toUpperCase(),
+                                                                )
+                                                                .join(
+                                                                    ', ',
+                                                                )}{' '}
+                                                            • Max{' '}
+                                                            {doc.max_size >=
+                                                            1024
+                                                                ? `${doc.max_size / 1024}MB`
+                                                                : `${doc.max_size}KB`}
+                                                        </p>
+                                                    )}
+                                                {documentsForType.length >
+                                                    0 && (
+                                                    <div className="ml-6 mt-2">
+                                                        <Badge
+                                                            variant="secondary"
+                                                            className="text-xs"
+                                                        >
+                                                            {
+                                                                documentsForType.length
+                                                            }{' '}
+                                                            file
+                                                            {documentsForType.length !==
+                                                            1
+                                                                ? 's'
+                                                                : ''}
+                                                        </Badge>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {documentsForType.length > 0 && (
+                                                <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-green-600" />
                                             )}
                                         </div>
-                                        {documentsForType.length > 0 && (
-                                            <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-                                        )}
-                                    </div>
-                                </button>
-                            );
-                        })}
+                                    </button>
+                                );
+                            },
+                        )}
                     </div>
 
                     {/* Upload Form for Selected Type */}
                     {selectedDocType ? (
                         <div className="space-y-4">
                             {/* Show existing files for this document type */}
-                            {getDocumentsByType(submission?.documents, selectedDocType).length > 0 && (
+                            {getDocumentsByType(
+                                submission?.documents,
+                                selectedDocType,
+                            ).length > 0 && (
                                 <Card className="border-green-200 bg-green-50">
                                     <CardHeader className="pb-3">
-                                        <CardTitle className="text-sm flex items-center gap-2">
+                                        <CardTitle className="flex items-center gap-2 text-sm">
                                             <FileText className="h-4 w-4 text-green-600" />
-                                            Uploaded Files for {requiredDocuments[selectedDocType]?.label}
+                                            Uploaded Files for{' '}
+                                            {
+                                                requiredDocuments[
+                                                    selectedDocType
+                                                ]?.label
+                                            }
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-2">
-                                        {getDocumentsByType(submission?.documents, selectedDocType).map((doc) => (
+                                        {getDocumentsByType(
+                                            submission?.documents,
+                                            selectedDocType,
+                                        ).map((doc) => (
                                             <div
                                                 key={doc.id}
-                                                className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200"
+                                                className="flex items-center justify-between rounded-lg border border-green-200 bg-white p-3"
                                             >
-                                                <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                    <div className="p-2 bg-green-100 rounded">
+                                                <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                    <div className="rounded bg-green-100 p-2">
                                                         <FileText className="h-4 w-4 text-green-600" />
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-medium text-sm text-gray-900 truncate">
+                                                    <div className="min-w-0 flex-1">
+                                                        <p className="truncate text-sm font-medium text-gray-900">
                                                             {doc.filename}
                                                         </p>
                                                         {doc.description && (
-                                                            <p className="text-xs text-gray-500 truncate">
-                                                                {doc.description}
+                                                            <p className="truncate text-xs text-gray-500">
+                                                                {
+                                                                    doc.description
+                                                                }
                                                             </p>
                                                         )}
-                                                        {doc.status === 'approved' && (
-                                                            <p className="text-xs text-green-600 mt-1">
-                                                                ✓ Approved by HR - cannot be deleted
+                                                        {doc.status ===
+                                                            'approved' && (
+                                                            <p className="mt-1 text-xs text-green-600">
+                                                                ✓ Approved by HR
+                                                                - cannot be
+                                                                deleted
                                                             </p>
                                                         )}
                                                     </div>
-                                                    <StatusBadge status={doc.status} variant="document" className="flex-shrink-0" />
+                                                    <StatusBadge
+                                                        status={doc.status}
+                                                        variant="document"
+                                                        className="flex-shrink-0"
+                                                    />
                                                 </div>
                                                 {/* Only show delete button for non-approved documents */}
                                                 {doc.status !== 'approved' && (
@@ -230,8 +320,12 @@ export const DocumentUploadForm = ({
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
-                                                        onClick={() => onDeleteDocument(doc.id)}
-                                                        className="text-red-600 hover:bg-red-50 ml-2 flex-shrink-0"
+                                                        onClick={() =>
+                                                            onDeleteDocument(
+                                                                doc.id,
+                                                            )
+                                                        }
+                                                        className="ml-2 flex-shrink-0 text-red-600 hover:bg-red-50"
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
@@ -243,23 +337,28 @@ export const DocumentUploadForm = ({
                             )}
 
                             {/* Upload New File Form */}
-                            <Card className={`border-2 ${BRAND_CLASSES.borderPrimary}`}>
+                            <Card
+                                className={`border-2 ${BRAND_CLASSES.borderPrimary}`}
+                            >
                                 <CardHeader>
                                     <CardTitle className="text-base">
-                                        {getDocumentsByType(submission?.documents, selectedDocType).length > 0
+                                        {getDocumentsByType(
+                                            submission?.documents,
+                                            selectedDocType,
+                                        ).length > 0
                                             ? `Add Another File for ${requiredDocuments[selectedDocType]?.label}`
-                                            : `Upload ${requiredDocuments[selectedDocType]?.label}`
-                                        }
+                                            : `Upload ${requiredDocuments[selectedDocType]?.label}`}
                                     </CardTitle>
                                     <CardDescription>
-                                        You can upload multiple files for this document type
+                                        You can upload multiple files for this
+                                        document type
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <Label>Select File *</Label>
-                                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#2596be] transition-colors">
+                                            <div className="rounded-lg border-2 border-dashed border-gray-300 p-6 text-center transition-colors hover:border-[#2596be]">
                                                 <Input
                                                     type="file"
                                                     accept={getAcceptedFileTypes()}
@@ -267,17 +366,28 @@ export const DocumentUploadForm = ({
                                                     className="hidden"
                                                     id="file-upload"
                                                 />
-                                                <label htmlFor="file-upload" className="cursor-pointer">
-                                                    <Upload className="h-10 w-10 text-gray-400 mx-auto mb-2" />
+                                                <label
+                                                    htmlFor="file-upload"
+                                                    className="cursor-pointer"
+                                                >
+                                                    <Upload className="mx-auto mb-2 h-10 w-10 text-gray-400" />
                                                     <p className="text-sm font-medium text-gray-700">
-                                                        Click to upload or drag and drop
+                                                        Click to upload or drag
+                                                        and drop
                                                     </p>
-                                                    <p className="text-xs text-gray-500 mt-1">
+                                                    <p className="mt-1 text-xs text-gray-500">
                                                         {getFileTypeDisplayText()}
                                                     </p>
                                                     {documentForm.data.file && (
-                                                        <p className={`text-sm ${BRAND_CLASSES.textPrimary} font-medium mt-2`}>
-                                                            ✓ {documentForm.data.file.name}
+                                                        <p
+                                                            className={`text-sm ${BRAND_CLASSES.textPrimary} mt-2 font-medium`}
+                                                        >
+                                                            ✓{' '}
+                                                            {
+                                                                documentForm
+                                                                    .data.file
+                                                                    .name
+                                                            }
                                                         </p>
                                                     )}
                                                 </label>
@@ -285,26 +395,45 @@ export const DocumentUploadForm = ({
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label>Description (Optional)</Label>
+                                            <Label>
+                                                Description (Optional)
+                                            </Label>
                                             <Textarea
-                                                value={documentForm.data.description}
-                                                onChange={(e) => documentForm.setData('description', e.target.value)}
+                                                value={
+                                                    documentForm.data
+                                                        .description
+                                                }
+                                                onChange={(e) =>
+                                                    documentForm.setData(
+                                                        'description',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 placeholder="Additional notes about this document..."
                                                 rows={2}
-                                                className="focus:ring-[#2596be] focus:border-[#2596be]" /* Using inline value for Tailwind JIT */
+                                                className="focus:border-[#2596be] focus:ring-[#2596be]" /* Using inline value for Tailwind JIT */
                                             />
                                         </div>
 
                                         <Button
                                             type="button"
                                             onClick={handleUpload}
-                                            disabled={documentForm.processing || !documentForm.data.file}
+                                            disabled={
+                                                documentForm.processing ||
+                                                !documentForm.data.file
+                                            }
                                             className={`w-full ${BRAND_CLASSES.buttonPrimary}`}
                                         >
                                             {documentForm.processing ? (
-                                                <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Uploading...</>
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Uploading...
+                                                </>
                                             ) : (
-                                                <><Upload className="h-4 w-4 mr-2" />Upload File</>
+                                                <>
+                                                    <Upload className="mr-2 h-4 w-4" />
+                                                    Upload File
+                                                </>
                                             )}
                                         </Button>
                                     </div>
@@ -315,7 +444,8 @@ export const DocumentUploadForm = ({
                         <Alert className="border-gray-300">
                             <Info className="h-4 w-4 text-gray-600" />
                             <AlertDescription className="text-gray-700">
-                                👆 Select a document type above to start uploading
+                                👆 Select a document type above to start
+                                uploading
                             </AlertDescription>
                         </Alert>
                     )}
@@ -326,123 +456,288 @@ export const DocumentUploadForm = ({
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span>All Uploaded Documents ({submission?.documents?.length || 0})</span>
+                        <span>
+                            All Uploaded Documents (
+                            {submission?.documents?.length || 0})
+                        </span>
                         <Badge className={`${BRAND_CLASSES.badgePrimary}`}>
-                            {uploadedRequiredCount}/{requiredCount} Required Types
+                            {uploadedRequiredCount}/{requiredCount} Required
+                            Types
                         </Badge>
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {submission?.documents && submission.documents.length > 0 ? (
+                    {submission?.documents &&
+                    submission.documents.length > 0 ? (
                         <div className="space-y-4">
-                            {Object.entries(requiredDocuments || {}).map(([key, doc]) => {
-                                const docsForType = getDocumentsByType(submission?.documents, key);
-                                if (docsForType.length === 0) return null;
+                            {Object.entries(requiredDocuments || {}).map(
+                                ([key, doc]) => {
+                                    const docsForType = getDocumentsByType(
+                                        submission?.documents,
+                                        key,
+                                    );
+                                    if (docsForType.length === 0) return null;
 
-                                return (
-                                    <div key={key} className="space-y-2">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <FileText className="h-4 w-4 text-gray-500" />
-                                            <h4 className="font-semibold text-sm text-gray-700">
-                                                {doc.label}
-                                                {doc.required && <span className="text-red-600 ml-1">*</span>}
-                                            </h4>
-                                            <Badge variant="secondary" className="text-xs">
-                                                {docsForType.length} file{docsForType.length !== 1 ? 's' : ''}
-                                            </Badge>
-                                        </div>
-                                        <div className="space-y-2 pl-6">
-                                            {docsForType.map((document) => (
-                                                <div
-                                                    key={document.id}
-                                                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border hover:border-[#2596be] transition-colors"
-                                                >
-                                                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                                                        <div className={`p-2 ${BRAND_CLASSES.bgPrimary} rounded-lg flex-shrink-0`}>
-                                                            <FileText className="h-4 w-4 text-white" />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-medium text-sm text-gray-900 truncate">
-                                                                {document.filename}
-                                                            </p>
-                                                            {document.description && (
-                                                                <p className="text-xs text-gray-500 truncate">
-                                                                    {document.description}
-                                                                </p>
-                                                            )}
-                                                            {document.status === 'approved' && (
-                                                                <p className="text-xs text-green-600 mt-1">
-                                                                    ✓ Approved by HR - cannot be deleted
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <StatusBadge status={document.status} variant="document" className="flex-shrink-0" />
-                                                    </div>
-                                                    {/* Only show delete button for non-approved documents */}
-                                                    {document.status !== 'approved' && (
-                                                        <Button
-                                                            type="button"
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => onDeleteDocument(document.id)}
-                                                            className="text-red-600 hover:bg-red-50 ml-2 flex-shrink-0"
-                                                        >
-                                                            <Trash2 className="h-4 w-4" />
-                                                        </Button>
+                                    return (
+                                        <div key={key} className="space-y-2">
+                                            <div className="mb-2 flex items-center gap-2">
+                                                <FileText className="h-4 w-4 text-gray-500" />
+                                                <h4 className="text-sm font-semibold text-gray-700">
+                                                    {doc.label}
+                                                    {doc.required && (
+                                                        <span className="ml-1 text-red-600">
+                                                            *
+                                                        </span>
                                                     )}
-                                                </div>
-                                            ))}
+                                                </h4>
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="text-xs"
+                                                >
+                                                    {docsForType.length} file
+                                                    {docsForType.length !== 1
+                                                        ? 's'
+                                                        : ''}
+                                                </Badge>
+                                            </div>
+                                            <div className="space-y-2 pl-6">
+                                                {docsForType.map((document) => (
+                                                    <div
+                                                        key={document.id}
+                                                        className="flex items-center justify-between rounded-lg border bg-gray-50 p-3 transition-colors hover:border-[#2596be]"
+                                                    >
+                                                        <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                            <div
+                                                                className={`p-2 ${BRAND_CLASSES.bgPrimary} flex-shrink-0 rounded-lg`}
+                                                            >
+                                                                <FileText className="h-4 w-4 text-white" />
+                                                            </div>
+                                                            <div className="min-w-0 flex-1">
+                                                                <p className="truncate text-sm font-medium text-gray-900">
+                                                                    {
+                                                                        document.filename
+                                                                    }
+                                                                </p>
+                                                                {document.description && (
+                                                                    <p className="truncate text-xs text-gray-500">
+                                                                        {
+                                                                            document.description
+                                                                        }
+                                                                    </p>
+                                                                )}
+                                                                {document.status ===
+                                                                    'approved' && (
+                                                                    <p className="mt-1 text-xs text-green-600">
+                                                                        ✓
+                                                                        Approved
+                                                                        by HR -
+                                                                        cannot
+                                                                        be
+                                                                        deleted
+                                                                    </p>
+                                                                )}
+                                                                {document.status ===
+                                                                    'rejected' &&
+                                                                    document.rejection_reason && (
+                                                                        <div className="mt-2 rounded border border-red-200 bg-red-50 p-2">
+                                                                            <p className="text-xs text-red-800">
+                                                                                <strong>
+                                                                                    Rejection
+                                                                                    Reason:
+                                                                                </strong>{' '}
+                                                                                {
+                                                                                    document.rejection_reason
+                                                                                }
+                                                                            </p>
+                                                                            <p className="mt-1 text-xs text-red-600">
+                                                                                Please
+                                                                                delete
+                                                                                this
+                                                                                file
+                                                                                and
+                                                                                upload
+                                                                                a
+                                                                                corrected
+                                                                                version.
+                                                                            </p>
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                            <StatusBadge
+                                                                status={
+                                                                    document.status
+                                                                }
+                                                                variant="document"
+                                                                className="flex-shrink-0"
+                                                            />
+                                                        </div>
+                                                        {/* Only show delete button for non-approved documents */}
+                                                        {document.status !==
+                                                            'approved' && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() =>
+                                                                    onDeleteDocument(
+                                                                        document.id,
+                                                                    )
+                                                                }
+                                                                className="ml-2 flex-shrink-0 text-red-600 hover:bg-red-50"
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
+                                    );
+                                },
+                            )}
                         </div>
                     ) : (
-                        <div className="text-center py-12 text-gray-500">
-                            <Upload className="h-16 w-16 mx-auto mb-3 text-gray-300" />
-                            <p className="text-lg font-medium">No documents uploaded yet</p>
-                            <p className="text-sm mt-1">Select a document type above to get started</p>
+                        <div className="py-12 text-center text-gray-500">
+                            <Upload className="mx-auto mb-3 h-16 w-16 text-gray-300" />
+                            <p className="text-lg font-medium">
+                                No documents uploaded yet
+                            </p>
+                            <p className="mt-1 text-sm">
+                                Select a document type above to get started
+                            </p>
                         </div>
                     )}
                 </CardContent>
             </Card>
 
             {/* Submit Final */}
-            <Card className={`border-2 ${BRAND_CLASSES.borderPrimary} bg-gradient-to-br from-blue-50 to-white`}>
+            <Card
+                className={`border-2 ${BRAND_CLASSES.borderPrimary} bg-gradient-to-br from-blue-50 to-white`}
+            >
                 <CardContent className="pt-6">
-                    <div className="text-center mb-6">
-                        <div className={`inline-flex items-center justify-center w-16 h-16 ${BRAND_CLASSES.bgPrimary} rounded-full mb-4`}>
+                    <div className="mb-6 text-center">
+                        <div
+                            className={`inline-flex h-16 w-16 items-center justify-center ${canSubmit ? 'bg-green-600' : BRAND_CLASSES.bgPrimary} mb-4 rounded-full transition-colors`}
+                        >
                             <Send className="h-8 w-8 text-white" />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                            Ready to Submit?
+                        <h3 className="mb-2 text-xl font-bold text-gray-900">
+                            {canSubmit
+                                ? 'Ready to Submit!'
+                                : 'Submission Checklist'}
                         </h3>
-                        <p className="text-gray-600 mb-4">
-                            {uploadedRequiredCount} of {requiredCount} required document types completed
+                        <p className="mb-4 text-gray-600">
+                            {uploadedRequiredCount} of {requiredCount} required
+                            document types uploaded
                         </p>
                     </div>
 
-                    {/* Missing Required Document Types Alert */}
-                    {!canSubmit && (
+                    {/* Validation Status Alerts */}
+                    {!canSubmit && blockerMessage && (
                         <Alert className="mb-4 border-orange-300 bg-orange-50">
                             <Info className="h-4 w-4 text-orange-600" />
                             <AlertDescription className="text-orange-800">
-                                <strong>Missing required documents:</strong>
-                                <ul className="list-disc list-inside mt-2">
-                                    {Object.entries(requiredDocuments || {})
-                                        .filter(([key, doc]) => doc.required && !hasDocumentType(submission?.documents, key))
-                                        .map(([key, doc]) => (
-                                            <li key={key}>{doc.label}</li>
-                                        ))
-                                    }
-                                </ul>
+                                <strong>Cannot submit yet:</strong>
+                                <p className="mt-2">{blockerMessage}</p>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    {/* Show document status breakdown */}
+                    {!canSubmit &&
+                        submission?.documents &&
+                        submission.documents.length > 0 && (
+                            <Alert className="mb-4 border-blue-300 bg-blue-50">
+                                <Info className="h-4 w-4 text-blue-600" />
+                                <AlertDescription className="text-blue-800">
+                                    <strong>Document Review Status:</strong>
+                                    <ul className="mt-2 list-none space-y-1">
+                                        {Object.entries(requiredDocuments || {})
+                                            .filter(
+                                                ([key, doc]) => doc.required,
+                                            )
+                                            .map(([key, doc]) => {
+                                                const uploadedDoc =
+                                                    submission.documents.find(
+                                                        (d) =>
+                                                            d.document_type ===
+                                                            key,
+                                                    );
+                                                const status =
+                                                    uploadedDoc?.status ||
+                                                    'not_uploaded';
+                                                const statusColors = {
+                                                    approved: 'text-green-700',
+                                                    uploaded: 'text-blue-700',
+                                                    rejected: 'text-red-700',
+                                                    not_uploaded:
+                                                        'text-gray-600',
+                                                };
+                                                const statusLabels = {
+                                                    approved: 'Approved',
+                                                    uploaded:
+                                                        'Pending HR Review',
+                                                    rejected:
+                                                        'Rejected - Please re-upload',
+                                                    not_uploaded:
+                                                        'Not uploaded',
+                                                };
+                                                return (
+                                                    <li
+                                                        key={key}
+                                                        className="flex items-center gap-2"
+                                                    >
+                                                        <span
+                                                            className={`font-medium ${statusColors[status]}`}
+                                                        >
+                                                            {status ===
+                                                            'approved'
+                                                                ? '✓'
+                                                                : status ===
+                                                                    'rejected'
+                                                                  ? '✗'
+                                                                  : status ===
+                                                                      'uploaded'
+                                                                    ? '⏳'
+                                                                    : '○'}
+                                                        </span>
+                                                        <span className="flex-1">
+                                                            {doc.label}
+                                                        </span>
+                                                        <span
+                                                            className={`text-sm ${statusColors[status]}`}
+                                                        >
+                                                            {
+                                                                statusLabels[
+                                                                    status
+                                                                ]
+                                                            }
+                                                        </span>
+                                                    </li>
+                                                );
+                                            })}
+                                    </ul>
+                                </AlertDescription>
+                            </Alert>
+                        )}
+
+                    {canSubmit && (
+                        <Alert className="mb-4 border-green-300 bg-green-50">
+                            <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            <AlertDescription className="text-green-800">
+                                <strong>All requirements met!</strong>
+                                <p className="mt-1">
+                                    Your onboarding information is complete and
+                                    all documents have been approved. Click
+                                    "Submit to HR" to finalize your submission.
+                                </p>
                             </AlertDescription>
                         </Alert>
                     )}
 
                     <div className="flex justify-between">
                         <Button variant="outline" onClick={onBack}>
-                            <ChevronLeft className="h-4 w-4 mr-2" />
+                            <ChevronLeft className="mr-2 h-4 w-4" />
                             Back
                         </Button>
                         <Button
@@ -450,7 +745,7 @@ export const DocumentUploadForm = ({
                             disabled={!canSubmit}
                             className="bg-green-600 hover:bg-green-700"
                         >
-                            <Send className="h-4 w-4 mr-2" />
+                            <Send className="mr-2 h-4 w-4" />
                             Submit to HR
                         </Button>
                     </div>

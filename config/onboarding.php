@@ -204,4 +204,29 @@ return [
         'domain' => 'rocketpartners.io',
         'format' => '{first}.{last}',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Temporary Password
+    |--------------------------------------------------------------------------
+    |
+    | Default password for newly created user accounts from onboarding.
+    | Users will be required to change this on first login.
+    |
+    */
+
+    'default_temp_password' => env('ONBOARDING_DEFAULT_PASSWORD', 'ChangeMe123!'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Test Email Override
+    |--------------------------------------------------------------------------
+    |
+    | For development/testing: All onboarding invite emails will be sent to
+    | this address instead of the actual recipient. Leave empty to disable.
+    | This allows testing email functionality without spamming real users.
+    |
+    */
+
+    'test_email_override' => env('ONBOARDING_TEST_EMAIL', null),
 ];
