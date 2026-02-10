@@ -1,8 +1,8 @@
 // resources/js/Pages/Employees/Leaves/Show.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Dialog,
     DialogContent,
@@ -10,10 +10,10 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from '@/Components/ui/dialog';
-import { Label } from '@/Components/ui/label';
-import { Textarea } from '@/Components/ui/textarea';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -457,6 +457,21 @@ export default function Show({ auth, leaveRequest }) {
                                     </p>
                                 </div>
                             </div>
+
+                            {leaveRequest?.availability && (
+                                <div className="border-t pt-4">
+                                    <p className="mb-2 text-sm text-gray-600">
+                                        Availability During Leave
+                                    </p>
+                                    <div className="rounded-lg bg-gray-50 p-4">
+                                        <p className="font-medium text-gray-900">
+                                            {leaveRequest.availability === 'reachable' && 'Reachable - Can respond to urgent matters'}
+                                            {leaveRequest.availability === 'offline' && 'Completely Offline'}
+                                            {leaveRequest.availability === 'emergency_only' && 'Emergency Only'}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
 
                             {leaveRequest?.attachment && (
                                 <div className="border-t pt-4">
