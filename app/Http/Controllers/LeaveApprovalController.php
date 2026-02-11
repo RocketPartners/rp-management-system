@@ -38,25 +38,17 @@ class LeaveApprovalController extends Controller
             ->pluck('slug')
             ->toArray();
 
-        // ✅ STRICT FILTERING: Only show leaves that this user can approve
-        // Rule 1: If manager_id is set, ONLY show to that specific user
-        // Rule 2: If manager_id is NULL, show based on hierarchy
-        $query = LeaveRequest::with(['user.roles', 'leaveType', 'managerApprover'])
-            ->where('status', 'pending_manager')
-            ->where(function ($q) use ($user, $canApproveRoles) {
-                // Case 1: Manually assigned to this specific user
-                $q->where('manager_id', $user->id);
-
-                // Case 2: No manual assignment AND user can approve based on hierarchy
-                if (!empty($canApproveRoles)) {
-                    $q->orWhere(function ($roleQuery) use ($canApproveRoles) {
-                        $roleQuery->whereNull('manager_id')
-                            ->whereHas('user.roles', function ($q) use ($canApproveRoles) {
-                                $q->whereIn('slug', $canApproveRoles);
-                            });
-                    });
-                }
-            });
+        // If no roles can be approved, show empty list
+        if (empty($canApproveRoles)) {
+            $query = LeaveRequest::where('id', -1); // Returns empty result
+        } else {
+            // Query leaves from users with roles they can approve
+            $query = LeaveRequest::with(['user.roles', 'leaveType', 'managerApprover'])
+                ->where('status', 'pending_manager')
+                ->whereHas('user.roles', function ($q) use ($canApproveRoles) {
+                    $q->whereIn('slug', $canApproveRoles);
+                });
+        }
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -85,13 +77,6 @@ class LeaveApprovalController extends Controller
      */
     public function hrApprove(Request $request, LeaveRequest $leave)
     {
-        $user = auth()->user();
-
-        // ✅ STRICT AUTHORIZATION: If manager_id is set, ONLY that person can approve
-        if ($leave->manager_id && $leave->manager_id != $user->id) {
-            return back()->with('error', 'This leave request is assigned to a specific approver. You are not authorized to approve it.');
-        }
-
         if ($leave->status !== 'pending_hr') {
             return back()->with('error', 'This leave request is not pending HR approval.');
         }
@@ -115,13 +100,6 @@ class LeaveApprovalController extends Controller
      */
     public function hrReject(Request $request, LeaveRequest $leave)
     {
-        $user = auth()->user();
-
-        // ✅ STRICT AUTHORIZATION: If manager_id is set, ONLY that person can reject
-        if ($leave->manager_id && $leave->manager_id != $user->id) {
-            return back()->with('error', 'This leave request is assigned to a specific approver. You are not authorized to reject it.');
-        }
-
         if ($leave->status !== 'pending_hr') {
             return back()->with('error', 'This leave request is not pending HR approval.');
         }
@@ -149,29 +127,18 @@ class LeaveApprovalController extends Controller
     {
         $user = auth()->user();
 
-        // ✅ STRICT AUTHORIZATION:
-        // If manager_id is set: ONLY that person can approve
-        // If manager_id is NULL: Use hierarchy check
+        // ✅ DYNAMIC: Check if user can approve this specific leave
+        // User must have higher hierarchy level than the leave requester
+        $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
+        $requesterMaxHierarchyLevel = $leave->user->roles->max('hierarchy_level');
 
-        // Check permission first
+        // Check permission and hierarchy
         if (! $user->hasPermission('leaves.approve')) {
             return back()->with('error', 'You do not have permission to approve leave requests.');
         }
 
-        // Check if this leave has a manually assigned approver
-        if ($leave->manager_id) {
-            // Manual assignment: ONLY the assigned manager can approve
-            if ($leave->manager_id != $user->id) {
-                return back()->with('error', 'This leave request is assigned to a specific approver. You are not authorized to approve it.');
-            }
-        } else {
-            // No manual assignment: Use hierarchy check
-            $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
-            $requesterMaxHierarchyLevel = $leave->user->roles->max('hierarchy_level');
-
-            if ($userMaxHierarchyLevel <= $requesterMaxHierarchyLevel) {
-                return back()->with('error', 'You are not authorized to approve this leave request.');
-            }
+        if ($userMaxHierarchyLevel <= $requesterMaxHierarchyLevel) {
+            return back()->with('error', 'You are not authorized to approve this leave request.');
         }
 
         if ($leave->status !== 'pending_manager') {
@@ -239,29 +206,18 @@ class LeaveApprovalController extends Controller
     {
         $user = auth()->user();
 
-        // ✅ STRICT AUTHORIZATION:
-        // If manager_id is set: ONLY that person can reject
-        // If manager_id is NULL: Use hierarchy check
+        // ✅ DYNAMIC: Check if user can reject this specific leave
+        // User must have higher hierarchy level than the leave requester
+        $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
+        $requesterMaxHierarchyLevel = $leave->user->roles->max('hierarchy_level');
 
-        // Check permission first
+        // Check permission and hierarchy
         if (! $user->hasPermission('leaves.approve')) {
             return back()->with('error', 'You do not have permission to reject leave requests.');
         }
 
-        // Check if this leave has a manually assigned approver
-        if ($leave->manager_id) {
-            // Manual assignment: ONLY the assigned manager can reject
-            if ($leave->manager_id != $user->id) {
-                return back()->with('error', 'This leave request is assigned to a specific approver. You are not authorized to reject it.');
-            }
-        } else {
-            // No manual assignment: Use hierarchy check
-            $userMaxHierarchyLevel = $user->roles->max('hierarchy_level');
-            $requesterMaxHierarchyLevel = $leave->user->roles->max('hierarchy_level');
-
-            if ($userMaxHierarchyLevel <= $requesterMaxHierarchyLevel) {
-                return back()->with('error', 'You are not authorized to reject this leave request.');
-            }
+        if ($userMaxHierarchyLevel <= $requesterMaxHierarchyLevel) {
+            return back()->with('error', 'You are not authorized to reject this leave request.');
         }
 
         if ($leave->status !== 'pending_manager') {

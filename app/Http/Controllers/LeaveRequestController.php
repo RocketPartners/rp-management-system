@@ -20,7 +20,7 @@ class LeaveRequestController extends Controller
     {
         $user = auth()->user();
 
-        $query = LeaveRequest::with(['leaveType', 'managerApprover', 'hrApprover'])
+        $query = LeaveRequest::with(['leaveType', 'managerApprover'])
             ->where('user_id', $user->id);
 
         // Filter by status
@@ -76,27 +76,10 @@ class LeaveRequestController extends Controller
             ->get()
             ->keyBy('leave_type_id');
 
-        // Get users who can approve leaves
-        $potentialApprovers = User::where('employment_status', 'active')
-            ->where('id', '!=', $user->id)
-            ->whereHas('roles', function ($q) {
-                $q->whereIn('slug', ['super-admin', 'admin', 'hr-manager', 'project-manager', 'lead-engineer']);
-            })
-            ->get(['id', 'name', 'email', 'employee_id', 'position'])
-            ->map(fn($u) => [
-                'id' => $u->id,
-                'name' => $u->name,
-                'email' => $u->email,
-                'employee_id' => $u->employee_id,
-                'position' => $u->position,
-            ])
-            ->values();
-
         return Inertia::render('Employees/Leaves/Apply', [
             'leaveTypes' => $leaveTypes,
             'leaveBalances' => $leaveBalances,
             'user' => $user,
-            'potentialApprovers' => $potentialApprovers,
         ]);
     }
 
@@ -117,7 +100,6 @@ class LeaveRequestController extends Controller
             'emergency_contact_phone' => 'nullable|string|max:20',
             'use_default_emergency_contact' => 'boolean',
             'availability' => 'nullable|in:reachable,offline,emergency_only',
-            'manager_id' => 'nullable|exists:users,id',
         ]);
 
         // All leaves are full day
@@ -194,23 +176,17 @@ class LeaveRequestController extends Controller
             $successMessage = 'Leave request submitted successfully! Waiting for manager approval.';
         }
 
-        // Ensure manager_id is NULL if empty string
-        $validated['manager_id'] = !empty($validated['manager_id']) ? $validated['manager_id'] : null;
-
         // Create leave request
         $leaveRequest = LeaveRequest::create([
             ...$validated,
             'user_id' => $user->id,
             'total_days' => $totalDays,
             'status' => $initialStatus,
+            'manager_id' => null, // Open queue system
         ]);
 
         // ✅ SEND EMAIL NOTIFICATION TO HR AND ADMIN
-        try {
-            $this->notifyHRAndAdmin($leaveRequest);
-        } catch (\Exception $e) {
-            \Log::warning('Failed to send leave notification email: ' . $e->getMessage());
-        }
+        $this->notifyHRAndAdmin($leaveRequest);
 
         return redirect()->route('my-leaves.index')->with('success', $successMessage);
     }
@@ -299,7 +275,6 @@ class LeaveRequestController extends Controller
             'emergency_contact_phone' => 'nullable|string|max:20',
             'use_default_emergency_contact' => 'boolean',
             'availability' => 'nullable|in:reachable,offline,emergency_only',
-            'manager_id' => 'nullable|exists:users,id',
         ]);
 
         // All leaves are full day
@@ -331,9 +306,6 @@ class LeaveRequestController extends Controller
             $validated['emergency_contact_phone'] = $user->emergency_contact_phone;
         }
 
-        // Ensure manager_id is NULL if empty string
-        $managerIdToUpdate = !empty($validated['manager_id']) ? $validated['manager_id'] : null;
-
         $leave->update([
             'leave_type_id' => $validated['leave_type_id'],
             'start_date' => $validated['start_date'],
@@ -343,7 +315,6 @@ class LeaveRequestController extends Controller
             'emergency_contact_name' => $validated['emergency_contact_name'],
             'emergency_contact_phone' => $validated['emergency_contact_phone'],
             'availability' => $validated['availability'],
-            'manager_id' => $managerIdToUpdate,
             'total_days' => $totalDays,
         ]);
 

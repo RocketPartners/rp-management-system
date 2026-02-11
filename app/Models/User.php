@@ -52,7 +52,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'account_status',
         'approved_by',
         'approved_at',
-        'last_notification_check',
         'password',
     ];
 
@@ -61,7 +60,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'birthday' => 'date',
         'hire_date' => 'date',
         'approved_at' => 'datetime',
-        'last_notification_check' => 'datetime',
         'password' => 'hashed',
     ];
 

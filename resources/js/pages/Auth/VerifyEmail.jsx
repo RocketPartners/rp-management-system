@@ -8,7 +8,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Head, Link, useForm, router } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 import { CheckCircle2, Inbox, LogOut, Mail, Send } from 'lucide-react';
 
 export default function VerifyEmail({ status }) {
@@ -17,18 +17,6 @@ export default function VerifyEmail({ status }) {
     const submit = (e) => {
         e.preventDefault();
         post(route('verification.send'));
-    };
-
-    const handleLogout = (e) => {
-        e.preventDefault();
-        localStorage.clear();
-        sessionStorage.clear();
-        router.clearHistory();
-        router.post(route('logout'), {}, {
-            onFinish: () => {
-                window.location.href = '/login';
-            }
-        });
     };
 
     return (
@@ -195,12 +183,18 @@ export default function VerifyEmail({ status }) {
 
                                 {/* Logout Button */}
                                 <Button
-                                    onClick={handleLogout}
+                                    asChild
                                     variant="outline"
                                     className="w-full"
                                 >
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    Log Out
+                                    <Link
+                                        href={route('logout')}
+                                        method="post"
+                                        as="button"
+                                    >
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        Log Out
+                                    </Link>
                                 </Button>
 
                                 {/* Help Text */}

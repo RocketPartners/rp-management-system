@@ -49,19 +49,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        // Clear all cookies
-        $cookies = $request->cookies->all();
-        $response = redirect('login');
-
-        foreach ($cookies as $name => $value) {
-            // Clear Laravel session and remember cookies
-            if (str_starts_with($name, config('session.cookie')) ||
-                str_starts_with($name, 'remember_') ||
-                $name === 'XSRF-TOKEN') {
-                $response->withCookie(cookie()->forget($name));
-            }
-        }
-
-        return $response;
+        return redirect('login');
     }
 }

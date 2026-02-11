@@ -40,7 +40,6 @@ export default function Apply({
     leaveTypes = [],
     leaveBalances = {},
     user,
-    potentialApprovers = [],
 }) {
     const { flash } = usePage().props;
 
@@ -53,7 +52,6 @@ export default function Apply({
         emergency_contact_phone: user?.emergency_contact_phone || '',
         use_default_emergency_contact: true,
         availability: 'reachable',
-        manager_id: 'auto',
     });
 
     const [selectedLeaveType, setSelectedLeaveType] = useState(null);
@@ -421,50 +419,6 @@ export default function Apply({
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="manager_id">
-                                            Leave Approver (Optional)
-                                        </Label>
-                                        <Select
-                                            value={data.manager_id}
-                                            onValueChange={(value) =>
-                                                setData('manager_id', value === 'auto' ? '' : value)
-                                            }
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Auto (Based on Role Hierarchy)" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="auto">
-                                                    Auto (Based on Role Hierarchy)
-                                                </SelectItem>
-                                                {potentialApprovers.map(
-                                                    (approver) => (
-                                                        <SelectItem
-                                                            key={approver.id}
-                                                            value={String(
-                                                                approver.id,
-                                                            )}
-                                                        >
-                                                            {approver.name}
-                                                            {approver.employee_id
-                                                                ? ` (${approver.employee_id})`
-                                                                : ''}
-                                                            {' - '}
-                                                            {approver.position ||
-                                                                approver.email}
-                                                        </SelectItem>
-                                                    ),
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                        <p className="text-xs text-gray-500">
-                                            Select who should approve this leave
-                                            request. Leave blank for automatic
-                                            assignment based on role hierarchy.
-                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>

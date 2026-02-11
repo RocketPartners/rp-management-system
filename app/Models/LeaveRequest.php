@@ -13,7 +13,6 @@ class LeaveRequest extends Model
     protected $fillable = [
         'user_id',
         'leave_type_id',
-        'manager_id',
         'start_date',
         'end_date',
         'total_days',
@@ -61,11 +60,6 @@ class LeaveRequest extends Model
     public function leaveType()
     {
         return $this->belongsTo(LeaveType::class);
-    }
-
-    public function assignedApprover()
-    {
-        return $this->belongsTo(User::class, 'manager_id');
     }
 
     public function managerApprover()
