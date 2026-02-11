@@ -1,4 +1,4 @@
-// resources/js/Layouts/AuthenticatedLayout.jsx
+// resources/js/layouts/AuthenticatedLayout.jsx
 import { Badge } from '@/components/ui/badge';
 import {
     DropdownMenu,
