@@ -18,7 +18,8 @@ class LeaveController extends Controller
      */
     public function index(Request $request)
     {
-        $query = LeaveRequest::with(['user', 'leaveType']);
+        $user = auth()->user();
+        $query = LeaveRequest::with(['user', 'leaveType', 'assignedApprover']);
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -38,6 +39,17 @@ class LeaveController extends Controller
         // Filter by status
         if ($request->has('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
+
+            // ✅ FILTER BY manager_id for pending_hr status
+            // If a leave has manager_id set, only that specific user can see and approve it
+            if ($request->status === 'pending_hr') {
+                $query->where(function ($q) use ($user) {
+                    // Case 1: Manually assigned to this specific user
+                    $q->where('manager_id', $user->id)
+                      // Case 2: No manual assignment (open queue)
+                      ->orWhereNull('manager_id');
+                });
+            }
         }
 
         // Filter by leave type
@@ -84,6 +96,20 @@ class LeaveController extends Controller
      */
     public function show(LeaveRequest $leave)
     {
+        $user = auth()->user();
+
+        // ✅ AUTHORIZATION: If leave has manager_id set and it's in pending status, only that user can view it
+        if ($leave->manager_id) {
+            $isPendingStatus = in_array($leave->status, ['pending_manager', 'pending_hr']);
+
+            if ($isPendingStatus && $leave->manager_id != $user->id) {
+                // Check if user is the leave requester (they can always view their own requests)
+                if ($leave->user_id != $user->id) {
+                    abort(403, 'This leave request is assigned to a specific approver. You are not authorized to view it.');
+                }
+            }
+        }
+
         $leave->load([
             'user',
             'leaveType',

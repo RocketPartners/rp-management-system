@@ -7,10 +7,21 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { CheckCircle2, Clock, LogOut, Mail } from 'lucide-react';
 
 export default function PendingApproval({ auth }) {
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        router.clearHistory();
+        router.post(route('logout'), {}, {
+            onFinish: () => {
+                window.location.href = '/login';
+            }
+        });
+    };
     return (
         <>
             <Head title="Pending Approval" />
@@ -93,18 +104,12 @@ export default function PendingApproval({ auth }) {
                             </Alert>
 
                             <Button
-                                asChild
+                                onClick={handleLogout}
                                 variant="outline"
                                 className="w-full"
                             >
-                                <Link
-                                    href={route('logout')}
-                                    method="post"
-                                    as="button"
-                                >
-                                    <LogOut className="mr-2 h-4 w-4" />
-                                    Sign Out
-                                </Link>
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Sign Out
                             </Button>
                         </CardContent>
                     </Card>

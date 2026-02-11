@@ -467,35 +467,47 @@ export default function MyLeaves({
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {leave.manager_approver ? (
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-600">
-                                                                <span className="text-xs font-medium text-white">
-                                                                    {leave.manager_approver.name
-                                                                        .charAt(
-                                                                            0,
-                                                                        )
-                                                                        .toUpperCase()}
+                                                    {(() => {
+                                                        // Show the final approver based on status
+                                                        let approver = null;
+
+                                                        if (leave.status === 'approved' || leave.status === 'rejected_by_hr') {
+                                                            // Final approval/rejection by HR
+                                                            approver = leave.hr_approver;
+                                                        } else if (leave.status === 'rejected_by_manager' || leave.status === 'pending_hr') {
+                                                            // Reviewed by manager
+                                                            approver = leave.manager_approver;
+                                                        }
+
+                                                        if (approver) {
+                                                            return (
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-600">
+                                                                        <span className="text-xs font-medium text-white">
+                                                                            {approver.name
+                                                                                .charAt(0)
+                                                                                .toUpperCase()}
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-sm text-gray-900">
+                                                                        {approver.name}
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        } else if (leave.status === 'pending_manager') {
+                                                            return (
+                                                                <span className="text-sm text-gray-400">
+                                                                    Pending
                                                                 </span>
-                                                            </div>
-                                                            <span className="text-sm text-gray-900">
-                                                                {
-                                                                    leave
-                                                                        .manager_approver
-                                                                        .name
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    ) : leave.status ===
-                                                      'pending_manager' ? (
-                                                        <span className="text-sm text-gray-400">
-                                                            Pending
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-sm text-gray-400">
-                                                            —
-                                                        </span>
-                                                    )}
+                                                            );
+                                                        } else {
+                                                            return (
+                                                                <span className="text-sm text-gray-400">
+                                                                    —
+                                                                </span>
+                                                            );
+                                                        }
+                                                    })()}
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <DropdownMenu>

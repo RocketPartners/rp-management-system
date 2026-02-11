@@ -52,6 +52,29 @@ Route::prefix('guest/onboarding')->name('guest.onboarding.')
     });
 
 // ============================================
+// 💓 SESSION KEEPALIVE (Authenticated)
+// ============================================
+Route::middleware('auth')->get('/api/keepalive', function () {
+    return response()->json([
+        'status' => 'alive',
+        'timestamp' => now()->toISOString(),
+    ]);
+})->name('api.keepalive');
+
+// ============================================
+// 🔔 NOTIFICATIONS (Authenticated)
+// ============================================
+Route::middleware('auth')->post('/api/notifications/mark-read', function () {
+    $user = auth()->user();
+    $user->update(['last_notification_check' => now()]);
+
+    return response()->json([
+        'status' => 'success',
+        'timestamp' => now()->toISOString(),
+    ]);
+})->name('api.notifications.mark-read');
+
+// ============================================
 // 🔐 AUTHENTICATED ROUTES
 // ============================================
 Route::middleware(['auth', 'verified'])->group(function () {
