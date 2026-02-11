@@ -44,7 +44,6 @@ class OnboardingInviteService
             OnboardingSubmission::create([
                 'invite_id' => $invite->id,
                 'status' => 'draft',
-                'completion_percentage' => 0,
             ]);
 
             // Send invitation email using Mailable
