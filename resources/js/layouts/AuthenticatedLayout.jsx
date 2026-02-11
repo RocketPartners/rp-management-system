@@ -11,14 +11,16 @@ import {
 import { useTimezone } from '@/hooks/use-timezone.jsx';
 import { usePermission } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import {
     Bell,
     Calendar,
+    CheckCircle2,
     CheckSquare,
     ChevronDown,
     ChevronRight,
     ClipboardList,
+    Clock,
     FileCheck,
     FolderKanban,
     Globe,
@@ -45,7 +47,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarMinimized, setSidebarMinimized] = useState(false);
     const [expandedSections, setExpandedSections] = useState({});
-    const { auth } = usePage().props;
+    const { auth, pendingCounts } = usePage().props;
     const currentUrl = usePage().url;
     const { can } = usePermission();
     const { timezone, setTimezone, timezones } = useTimezone();
@@ -57,6 +59,39 @@ export default function AuthenticatedLayout({ header, children }) {
             ...prev,
             [sectionName]: !prev[sectionName],
         }));
+    };
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+
+        // Clear all local storage
+        localStorage.clear();
+        sessionStorage.clear();
+
+        // Clear Inertia page cache
+        router.clearHistory();
+
+        // Perform logout
+        router.post(route('logout'), {}, {
+            onFinish: () => {
+                // Force reload to ensure clean state
+                window.location.href = '/login';
+            }
+        });
+    };
+
+    const markNotificationsAsRead = () => {
+        fetch('/api/notifications/mark-read', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+            },
+            credentials: 'same-origin'
+        }).catch(() => {
+            // Silently fail if marking as read fails
+        });
     };
 
     const sectionHasActiveItem = (items) => {
@@ -102,7 +137,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Pending Approvals',
                     href: '/users/pending-approvals',
                     icon: UserCheck,
-                    badge: 'new',
+                    badge: pendingCounts?.users > 0 ? pendingCounts.users : null,
                 });
             }
 
@@ -122,7 +157,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         name: 'Pending Approvals',
                         href: '/users/pending-approvals',
                         icon: UserCheck,
-                        badge: 'new',
+                        badge: pendingCounts?.users > 0 ? pendingCounts.users : null,
                     },
                 ],
             });
@@ -186,7 +221,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Pending Approvals',
                     href: '/leaves/pending-approvals',
                     icon: CheckSquare,
-                    badge: 'pending',
+                    badge: pendingCounts?.manager_leaves > 0 ? pendingCounts.manager_leaves : null,
                 });
             }
 
@@ -200,7 +235,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Pending HR Approval',
                     href: '/leaves?status=pending_hr',
                     icon: CheckSquare,
-                    badge: 'pending',
+                    badge: pendingCounts?.hr_leaves > 0 ? pendingCounts.hr_leaves : null,
                 });
             }
 
@@ -382,10 +417,161 @@ export default function AuthenticatedLayout({ header, children }) {
                         </div>
 
                         <div className="flex items-center space-x-4">
-                            <button className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-                                <Bell className="h-6 w-6" />
-                                <span className="absolute right-1 top-1 block h-2 w-2 rounded-full bg-red-500"></span>
-                            </button>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
+                                        <Bell className="h-6 w-6" />
+                                        {(() => {
+                                            const totalPending = (pendingCounts?.users || 0) + (pendingCounts?.manager_leaves || 0) + (pendingCounts?.hr_leaves || 0) + (pendingCounts?.my_leave_updates || 0);
+                                            if (totalPending > 0) {
+                                                return (
+                                                    <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
+                                                        {totalPending > 99 ? '99+' : totalPending}
+                                                    </span>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-80">
+                                    <DropdownMenuLabel className="flex items-center justify-between">
+                                        <span className="text-base font-semibold">Notifications</span>
+                                        {(() => {
+                                            const totalPending = (pendingCounts?.users || 0) + (pendingCounts?.manager_leaves || 0) + (pendingCounts?.hr_leaves || 0);
+                                            if (totalPending > 0) {
+                                                return (
+                                                    <Badge className="bg-blue-100 text-blue-700">
+                                                        {totalPending}
+                                                    </Badge>
+                                                );
+                                            }
+                                            return null;
+                                        })()}
+                                    </DropdownMenuLabel>
+                                    <DropdownMenuSeparator />
+
+                                    {(() => {
+                                        const totalPending = (pendingCounts?.users || 0) + (pendingCounts?.manager_leaves || 0) + (pendingCounts?.hr_leaves || 0) + (pendingCounts?.my_leave_updates || 0);
+
+                                        if (totalPending === 0) {
+                                            return (
+                                                <div className="px-4 py-8 text-center">
+                                                    <CheckCircle2 className="mx-auto h-12 w-12 text-gray-300" />
+                                                    <p className="mt-2 text-sm font-medium text-gray-900">All caught up!</p>
+                                                    <p className="mt-1 text-xs text-gray-500">No pending approvals</p>
+                                                </div>
+                                            );
+                                        }
+
+                                        return (
+                                            <div className="max-h-96 overflow-y-auto">
+                                                {pendingCounts?.users > 0 && (
+                                                    <DropdownMenuItem asChild>
+                                                        <Link
+                                                            href="/users/pending-approvals"
+                                                            className="flex cursor-pointer items-start gap-3 px-4 py-3"
+                                                        >
+                                                            <div className="mt-0.5 rounded-full bg-green-100 p-2">
+                                                                <UserCheck className="h-4 w-4 text-green-600" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="text-sm font-medium text-gray-900">
+                                                                    User Registrations
+                                                                </p>
+                                                                <p className="text-xs text-gray-500">
+                                                                    {pendingCounts.users} {pendingCounts.users === 1 ? 'user' : 'users'} waiting for approval
+                                                                </p>
+                                                            </div>
+                                                            <Badge className="mt-1 bg-green-100 text-green-700">
+                                                                {pendingCounts.users}
+                                                            </Badge>
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                )}
+
+                                                {pendingCounts?.manager_leaves > 0 && (
+                                                    <DropdownMenuItem asChild>
+                                                        <Link
+                                                            href="/leaves/pending-approvals"
+                                                            className="flex cursor-pointer items-start gap-3 px-4 py-3"
+                                                        >
+                                                            <div className="mt-0.5 rounded-full bg-yellow-100 p-2">
+                                                                <Clock className="h-4 w-4 text-yellow-600" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="text-sm font-medium text-gray-900">
+                                                                    Leave Approvals
+                                                                </p>
+                                                                <p className="text-xs text-gray-500">
+                                                                    {pendingCounts.manager_leaves} {pendingCounts.manager_leaves === 1 ? 'request' : 'requests'} pending your review
+                                                                </p>
+                                                            </div>
+                                                            <Badge className="mt-1 bg-yellow-100 text-yellow-700">
+                                                                {pendingCounts.manager_leaves}
+                                                            </Badge>
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                )}
+
+                                                {pendingCounts?.hr_leaves > 0 && (
+                                                    <DropdownMenuItem asChild>
+                                                        <Link
+                                                            href="/leaves?status=pending_hr"
+                                                            className="flex cursor-pointer items-start gap-3 px-4 py-3"
+                                                        >
+                                                            <div className="mt-0.5 rounded-full bg-blue-100 p-2">
+                                                                <CheckSquare className="h-4 w-4 text-blue-600" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <p className="text-sm font-medium text-gray-900">
+                                                                    HR Leave Approvals
+                                                                </p>
+                                                                <p className="text-xs text-gray-500">
+                                                                    {pendingCounts.hr_leaves} {pendingCounts.hr_leaves === 1 ? 'request' : 'requests'} awaiting final approval
+                                                                </p>
+                                                            </div>
+                                                            <Badge className="mt-1 bg-blue-100 text-blue-700">
+                                                                {pendingCounts.hr_leaves}
+                                                            </Badge>
+                                                        </Link>
+                                                    </DropdownMenuItem>
+                                                )}
+
+                                                {pendingCounts?.my_leave_updates > 0 && (
+                                                    <>
+                                                        {(pendingCounts?.users > 0 || pendingCounts?.manager_leaves > 0 || pendingCounts?.hr_leaves > 0) && (
+                                                            <DropdownMenuSeparator />
+                                                        )}
+                                                        <DropdownMenuItem asChild>
+                                                            <Link
+                                                                href="/my-leaves"
+                                                                className="flex cursor-pointer items-start gap-3 px-4 py-3"
+                                                                onClick={markNotificationsAsRead}
+                                                            >
+                                                                <div className="mt-0.5 rounded-full bg-purple-100 p-2">
+                                                                    <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <p className="text-sm font-medium text-gray-900">
+                                                                        My Leave Updates
+                                                                    </p>
+                                                                    <p className="text-xs text-gray-500">
+                                                                        {pendingCounts.my_leave_updates} {pendingCounts.my_leave_updates === 1 ? 'leave' : 'leaves'} with status updates
+                                                                    </p>
+                                                                </div>
+                                                                <Badge className="mt-1 bg-purple-100 text-purple-700">
+                                                                    {pendingCounts.my_leave_updates}
+                                                                </Badge>
+                                                            </Link>
+                                                        </DropdownMenuItem>
+                                                    </>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
@@ -481,16 +667,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                         </Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
-                                        <Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                            className="w-full cursor-pointer text-red-600"
-                                        >
-                                            <LogOut className="mr-2 h-4 w-4" />
-                                            Log Out
-                                        </Link>
+                                    <DropdownMenuItem
+                                        onClick={handleLogout}
+                                        className="cursor-pointer text-red-600"
+                                    >
+                                        <LogOut className="mr-2 h-4 w-4" />
+                                        Log Out
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -551,23 +733,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                                     {item.badge &&
                                                         !sidebarMinimized && (
                                                             <Badge
-                                                                className={`ml-2 text-xs ${
-                                                                    item.badge ===
-                                                                    'new'
-                                                                        ? 'border-green-200 bg-green-100 text-green-700'
-                                                                        : item.badge ===
-                                                                            'pending'
-                                                                          ? 'border-yellow-200 bg-yellow-100 text-yellow-700'
-                                                                          : 'bg-blue-100 text-blue-700'
-                                                                } border`}
+                                                                className="ml-2 border border-blue-200 bg-blue-100 text-xs font-semibold text-blue-700"
                                                             >
-                                                                {item.badge ===
-                                                                'new'
-                                                                    ? '!'
-                                                                    : item.badge ===
-                                                                        'pending'
-                                                                      ? '•'
-                                                                      : item.badge}
+                                                                {item.badge}
                                                             </Badge>
                                                         )}
                                                     {active && (
@@ -638,23 +806,9 @@ export default function AuthenticatedLayout({ header, children }) {
                                                                     </span>
                                                                     {item.badge && (
                                                                         <Badge
-                                                                            className={`ml-2 text-xs ${
-                                                                                item.badge ===
-                                                                                'new'
-                                                                                    ? 'border-green-200 bg-green-100 text-green-700'
-                                                                                    : item.badge ===
-                                                                                        'pending'
-                                                                                      ? 'border-yellow-200 bg-yellow-100 text-yellow-700'
-                                                                                      : 'bg-blue-100 text-blue-700'
-                                                                            } border`}
+                                                                            className="ml-2 border border-blue-200 bg-blue-100 text-xs font-semibold text-blue-700"
                                                                         >
-                                                                            {item.badge ===
-                                                                            'new'
-                                                                                ? '!'
-                                                                                : item.badge ===
-                                                                                    'pending'
-                                                                                  ? '•'
-                                                                                  : item.badge}
+                                                                            {item.badge}
                                                                         </Badge>
                                                                     )}
                                                                 </Link>
