@@ -5,6 +5,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeAssetController;
 use App\Http\Controllers\EmployeeDashboardController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\LeaveBalanceController;
@@ -17,12 +18,12 @@ use App\Http\Controllers\Onboarding\OnboardingInviteController;
 use App\Http\Controllers\Onboarding\OnboardingSubmissionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserImportController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -50,6 +51,29 @@ Route::prefix('guest/onboarding')->name('guest.onboarding.')
         Route::delete('/{token}/documents/{document}', [GuestOnboardingController::class, 'deleteDocument'])->name('delete-document');
         Route::post('/{token}/submit', [GuestOnboardingController::class, 'submit'])->name('submit');
     });
+
+// ============================================
+// 💓 SESSION KEEPALIVE (Authenticated)
+// ============================================
+Route::middleware('auth')->get('/api/keepalive', function () {
+    return response()->json([
+        'status' => 'alive',
+        'timestamp' => now()->toISOString(),
+    ]);
+})->name('api.keepalive');
+
+// ============================================
+// 🔔 NOTIFICATIONS (Authenticated)
+// ============================================
+Route::middleware('auth')->post('/api/notifications/mark-read', function () {
+    $user = auth()->user();
+    $user->update(['last_notification_check' => now()]);
+
+    return response()->json([
+        'status' => 'success',
+        'timestamp' => now()->toISOString(),
+    ]);
+})->name('api.notifications.mark-read');
 
 // ============================================
 // 🔐 AUTHENTICATED ROUTES
@@ -155,6 +179,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('users', UserController::class);
 
     // ============================================
+    // 🛡️ ROLE MANAGEMENT (Admin/HR only)
+    // ============================================
+    Route::resource('roles', RoleController::class);
+
+    // ============================================
     // 📦 INVENTORY MANAGEMENT
     // ============================================
     Route::post('/inventory/delete-assets', [InventoryController::class, 'deleteSelectedAssets'])->name('inventory.delete-assets');
@@ -217,6 +246,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [LeaveBalanceController::class, 'index'])->name('index');
         Route::post('/reset', [LeaveBalanceController::class, 'reset'])->name('reset');
         Route::get('/preview', [LeaveBalanceController::class, 'preview'])->name('preview');
+    });
+
+    // ============================================
+    // 🎉 HOLIDAY MANAGEMENT (HR/Admin only)
+    // ============================================
+    Route::prefix('holidays')->name('holidays.')->group(function () {
+        Route::get('/', [HolidayController::class, 'index'])->name('index');
+        Route::post('/', [HolidayController::class, 'store'])->name('store');
+        Route::put('/{holiday}', [HolidayController::class, 'update'])->name('update');
+        Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('destroy');
+        Route::post('/fetch-from-api', [HolidayController::class, 'fetchFromAPI'])->name('fetch-from-api');
+        Route::patch('/{holiday}/toggle-active', [HolidayController::class, 'toggleActive'])->name('toggle-active');
     });
 
     // ============================================

@@ -25,7 +25,6 @@ class OnboardingSubmissionService
     public function updatePersonalInfo(OnboardingSubmission $submission, array $data): OnboardingSubmission
     {
         $submission->update(['personal_info' => $data]);
-        $this->markSectionComplete($submission, 'personal_info');
 
         return $submission;
     }
@@ -36,7 +35,6 @@ class OnboardingSubmissionService
     public function updateGovernmentIds(OnboardingSubmission $submission, array $data): OnboardingSubmission
     {
         $submission->update(['government_ids' => $data]);
-        $this->markSectionComplete($submission, 'government_ids');
 
         return $submission;
     }
@@ -47,63 +45,8 @@ class OnboardingSubmissionService
     public function updateEmergencyContact(OnboardingSubmission $submission, array $data): OnboardingSubmission
     {
         $submission->update(['emergency_contact' => $data]);
-        $this->markSectionComplete($submission, 'emergency_contact');
 
         return $submission;
-    }
-
-    // ============================================
-    // COMPLETION TRACKING
-    // ============================================
-
-    /**
-     * Calculate completion percentage for submission
-     */
-    public function calculateCompletion(OnboardingSubmission $submission): int
-    {
-        $weights = config('onboarding.completion_weights');
-
-        $sections = [
-            'personal_info' => $submission->personal_info ? $weights['personal_info'] : 0,
-            'government_ids' => $submission->government_ids ? $weights['government_ids'] : 0,
-            'emergency_contact' => $submission->emergency_contact ? $weights['emergency_contact'] : 0,
-            'documents' => $this->hasRequiredDocuments($submission) ? $weights['documents'] : 0,
-        ];
-
-        $total = array_sum($sections);
-        $submission->update(['completion_percentage' => $total]);
-
-        return $total;
-    }
-
-    /**
-     * Mark a section as complete
-     */
-    private function markSectionComplete(OnboardingSubmission $submission, string $sectionName): void
-    {
-        $completed = $submission->completed_sections ?? [];
-
-        if (! in_array($sectionName, $completed)) {
-            $completed[] = $sectionName;
-            $submission->update(['completed_sections' => $completed]);
-        }
-
-        $this->calculateCompletion($submission);
-    }
-
-    /**
-     * Check if submission has all required documents approved
-     */
-    private function hasRequiredDocuments(OnboardingSubmission $submission): bool
-    {
-        $requiredTypes = $this->documentService->getRequiredOnly()->keys();
-
-        $approvedTypes = $submission->documents()
-            ->where('status', OnboardingDocument::STATUS_APPROVED)
-            ->pluck('document_type')
-            ->unique();
-
-        return $requiredTypes->diff($approvedTypes)->isEmpty();
     }
 
     // ============================================
@@ -123,9 +66,16 @@ class OnboardingSubmissionService
             throw new \Exception($submission->getSubmitBlockerMessage());
         }
 
-        $submission->update([
-            'submitted_at' => now(),
-        ]);
+        DB::transaction(function () use ($submission) {
+            $submission->update([
+                'submitted_at' => now(),
+            ]);
+
+            // Update invite status to 'submitted'
+            $submission->invite->update([
+                'status' => 'submitted',
+            ]);
+        });
 
         // TODO: Send notification to HR for review
         // Consider using events: SubmissionCompleted::dispatch($submission)
@@ -195,14 +145,21 @@ class OnboardingSubmissionService
     // ============================================
 
     /**
-     * Convert approved submission to user array
+     * Convert submission to user array
      *
      * @throws \Exception
      */
     public function toUserArray(OnboardingSubmission $submission): array
     {
-        if (! $submission->isApproved()) {
-            throw new \Exception('Can only convert approved submissions.');
+        // Check if submission has been submitted by candidate
+        if (! $submission->submitted_at) {
+            throw new \Exception('Submission has not been submitted yet.');
+        }
+
+        // Check if all required documents are approved by HR
+        $submissionStatus = $submission->getSubmissionStatus();
+        if (! $submissionStatus['can_submit']) {
+            throw new \Exception('All required documents must be approved before converting to user. Missing: '.implode(', ', $submissionStatus['missing_documents']));
         }
 
         return array_merge(
@@ -341,11 +298,24 @@ class OnboardingSubmissionService
      */
     private function generateWorkEmail(string $firstName, string $lastName): string
     {
+        // Check if using testing email (local environment)
+        $useTesting = config('onboarding.work_email.use_testing_email');
+        if ($useTesting) {
+            $username = config('onboarding.work_email.username');
+            $domain = config('onboarding.work_email.domain');
+
+            return "{$username}@{$domain}";
+        }
+
         $format = config('onboarding.work_email.format');
         $domain = config('onboarding.work_email.domain');
 
+        // Extract first word only from first name (handles multiple names like "John Paul" -> "john")
+        $firstNameWords = explode(' ', trim($firstName));
+        $firstWord = $firstNameWords[0] ?? 'user';
+
         // Remove non-alphabetic characters and convert to lowercase
-        $first = strtolower(preg_replace('/[^a-z]/i', '', trim($firstName)));
+        $first = strtolower(preg_replace('/[^a-z]/i', '', $firstWord));
         $last = strtolower(preg_replace('/[^a-z]/i', '', trim($lastName)));
 
         // Replace placeholders

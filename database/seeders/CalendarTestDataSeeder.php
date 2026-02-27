@@ -33,20 +33,93 @@ class CalendarTestDataSeeder extends Seeder
 
         $this->command->info('Creating test leave requests for calendar...');
 
+        // Test date for overflow scenario - 10 days from now
+        $overflowTestDate = Carbon::now()->addDays(10);
+
+        // Create a specific date with 5+ users for overflow testing
+        $this->command->info("Creating overflow test scenario on {$overflowTestDate->format('M d, Y')}...");
+
         $testLeaves = [
+            // OVERFLOW TEST: 6 users on the same day (to test +3 more functionality)
+            [
+                'user' => $users->skip(0)->first(),
+                'leave_type' => $leaveTypes->where('code', 'VL')->first() ?? $leaveTypes->first(),
+                'start_date' => $overflowTestDate,
+                'end_date' => $overflowTestDate,
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(1)->first(),
+                'leave_type' => $leaveTypes->where('code', 'SL')->first() ?? $leaveTypes->first(),
+                'start_date' => $overflowTestDate,
+                'end_date' => $overflowTestDate,
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(2)->first(),
+                'leave_type' => $leaveTypes->where('code', 'EL')->first() ?? $leaveTypes->first(),
+                'start_date' => $overflowTestDate,
+                'end_date' => $overflowTestDate,
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(3)->first(),
+                'leave_type' => $leaveTypes->where('code', 'VL')->first() ?? $leaveTypes->first(),
+                'start_date' => $overflowTestDate,
+                'end_date' => $overflowTestDate,
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(4)->first(),
+                'leave_type' => $leaveTypes->where('code', 'SL')->first() ?? $leaveTypes->first(),
+                'start_date' => $overflowTestDate,
+                'end_date' => $overflowTestDate,
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(5)->first(),
+                'leave_type' => $leaveTypes->where('code', 'ML')->first() ?? $leaveTypes->first(),
+                'start_date' => $overflowTestDate,
+                'end_date' => $overflowTestDate,
+                'status' => 'approved',
+            ],
+
+            // MODERATE TEST: 4 users on another day
+            [
+                'user' => $users->skip(6)->first(),
+                'leave_type' => $leaveTypes->random(),
+                'start_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'end_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(7)->first(),
+                'leave_type' => $leaveTypes->random(),
+                'start_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'end_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(8)->first(),
+                'leave_type' => $leaveTypes->random(),
+                'start_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'end_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(9)->first(),
+                'leave_type' => $leaveTypes->random(),
+                'start_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'end_date' => Carbon::now()->startOfMonth()->addDays(5),
+                'status' => 'approved',
+            ],
+
             // Current month - varied dates
             [
                 'user' => $users->random(),
                 'leave_type' => $leaveTypes->random(),
-                'start_date' => Carbon::now()->startOfMonth()->addDays(5),
-                'end_date' => Carbon::now()->startOfMonth()->addDays(7),
-                'status' => 'approved',
-            ],
-            [
-                'user' => $users->random(),
-                'leave_type' => $leaveTypes->random(),
-                'start_date' => Carbon::now()->startOfMonth()->addDays(10),
-                'end_date' => Carbon::now()->startOfMonth()->addDays(12),
+                'start_date' => Carbon::now()->startOfMonth()->addDays(12),
+                'end_date' => Carbon::now()->startOfMonth()->addDays(14),
                 'status' => 'approved',
             ],
             [
@@ -78,9 +151,23 @@ class CalendarTestDataSeeder extends Seeder
                 'end_date' => Carbon::now()->startOfWeek()->addDays(4),
                 'status' => 'approved',
             ],
-            // Today
+            // Today - 3 users to test exact limit
             [
-                'user' => $users->random(),
+                'user' => $users->skip(10)->first(),
+                'leave_type' => $leaveTypes->random(),
+                'start_date' => Carbon::today(),
+                'end_date' => Carbon::today(),
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(11)->first(),
+                'leave_type' => $leaveTypes->random(),
+                'start_date' => Carbon::today(),
+                'end_date' => Carbon::today(),
+                'status' => 'approved',
+            ],
+            [
+                'user' => $users->skip(12)->first(),
                 'leave_type' => $leaveTypes->random(),
                 'start_date' => Carbon::today(),
                 'end_date' => Carbon::today(),
@@ -147,5 +234,12 @@ class CalendarTestDataSeeder extends Seeder
 
         $this->command->info('✓ Calendar test data created successfully!');
         $this->command->info('Total approved leaves: '.LeaveRequest::where('status', 'approved')->count());
+        $this->command->info('');
+        $this->command->info('📊 Test Scenarios Created:');
+        $this->command->info("   • {$overflowTestDate->format('M d, Y')}: 6 users (tests +3 more overflow)");
+        $this->command->info('   • '.Carbon::now()->startOfMonth()->addDays(5)->format('M d, Y').': 4 users (tests +1 more)');
+        $this->command->info('   • Today: 3 users (tests exact limit, no overflow)');
+        $this->command->info('');
+        $this->command->info('🎯 Navigate to the calendar to see the overflow behavior!');
     }
 }

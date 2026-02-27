@@ -31,10 +31,6 @@ class OnboardingDocumentService
             'status' => OnboardingDocument::STATUS_UPLOADED,
         ]);
 
-        // Update submission completion percentage
-        // Use event or direct call to avoid circular dependency
-        $this->updateSubmissionCompletion($submission);
-
         // Mark invite as in progress
         $submission->invite->markAsInProgress();
 
@@ -72,16 +68,11 @@ class OnboardingDocumentService
      */
     public function deleteDocument(OnboardingDocument $document): bool
     {
-        $submission = $document->submission;
-
         // Delete physical file
         $document->deleteFile();
 
         // Delete database record
         $document->delete();
-
-        // Update submission completion
-        $this->updateSubmissionCompletion($submission);
 
         return true;
     }
@@ -206,39 +197,4 @@ class OnboardingDocumentService
         return config("onboarding.document_types.{$type}.required", false);
     }
 
-    /**
-     * Update submission completion percentage
-     *
-     * This method is extracted to avoid circular dependency.
-     * Alternative: Use events (DocumentUploaded, DocumentDeleted)
-     */
-    protected function updateSubmissionCompletion(OnboardingSubmission $submission): void
-    {
-        $weights = config('onboarding.completion_weights');
-
-        $sections = [
-            'personal_info' => $submission->personal_info ? $weights['personal_info'] : 0,
-            'government_ids' => $submission->government_ids ? $weights['government_ids'] : 0,
-            'emergency_contact' => $submission->emergency_contact ? $weights['emergency_contact'] : 0,
-            'documents' => $this->hasRequiredDocuments($submission) ? $weights['documents'] : 0,
-        ];
-
-        $total = array_sum($sections);
-        $submission->update(['completion_percentage' => $total]);
-    }
-
-    /**
-     * Check if submission has all required documents approved
-     */
-    protected function hasRequiredDocuments(OnboardingSubmission $submission): bool
-    {
-        $requiredTypes = $this->getRequiredOnly()->keys();
-
-        $approvedTypes = $submission->documents()
-            ->where('status', OnboardingDocument::STATUS_APPROVED)
-            ->pluck('document_type')
-            ->unique();
-
-        return $requiredTypes->diff($approvedTypes)->isEmpty();
-    }
 }

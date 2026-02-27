@@ -1,26 +1,26 @@
 // resources/js/Pages/Admin/Leaves/Apply.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Button } from '@/Components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
-import { Progress } from '@/Components/ui/progress';
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/Components/ui/select';
-import { Textarea } from '@/Components/ui/textarea';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -40,6 +40,7 @@ export default function Apply({
     leaveTypes = [],
     leaveBalances = {},
     user,
+    potentialApprovers = [],
 }) {
     const { flash } = usePage().props;
 
@@ -52,6 +53,7 @@ export default function Apply({
         emergency_contact_phone: user?.emergency_contact_phone || '',
         use_default_emergency_contact: true,
         availability: 'reachable',
+        manager_id: 'auto',
     });
 
     const [selectedLeaveType, setSelectedLeaveType] = useState(null);
@@ -419,6 +421,50 @@ export default function Apply({
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="manager_id">
+                                            Leave Approver (Optional)
+                                        </Label>
+                                        <Select
+                                            value={data.manager_id}
+                                            onValueChange={(value) =>
+                                                setData('manager_id', value === 'auto' ? '' : value)
+                                            }
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Auto (Based on Role Hierarchy)" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="auto">
+                                                    Auto (Based on Role Hierarchy)
+                                                </SelectItem>
+                                                {potentialApprovers.map(
+                                                    (approver) => (
+                                                        <SelectItem
+                                                            key={approver.id}
+                                                            value={String(
+                                                                approver.id,
+                                                            )}
+                                                        >
+                                                            {approver.name}
+                                                            {approver.employee_id
+                                                                ? ` (${approver.employee_id})`
+                                                                : ''}
+                                                            {' - '}
+                                                            {approver.position ||
+                                                                approver.email}
+                                                        </SelectItem>
+                                                    ),
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-gray-500">
+                                            Select who should approve this leave
+                                            request. Leave blank for automatic
+                                            assignment based on role hierarchy.
+                                        </p>
                                     </div>
                                 </CardContent>
                             </Card>

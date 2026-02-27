@@ -3,23 +3,23 @@
  * Collects personal information including name, birthday, gender, contact details, and address
  */
 
-import { Button } from '@/Components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/Components/ui/select';
+} from '@/components/ui/select';
 import {
     CIVIL_STATUS_OPTIONS,
     GENDER_OPTIONS,

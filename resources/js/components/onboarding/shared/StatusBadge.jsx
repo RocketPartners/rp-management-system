@@ -4,7 +4,7 @@
  * Eliminates duplicate badge logic across Form.jsx, Index.jsx, and Review.jsx
  */
 
-import { Badge } from '@/Components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import {
     getDocumentStatusConfig,
     getSubmissionStatusConfig,

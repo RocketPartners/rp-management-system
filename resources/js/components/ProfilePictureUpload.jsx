@@ -1,5 +1,5 @@
 // resources/js/Components/ProfilePictureUpload.jsx
-import { Button } from '@/Components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Camera, Upload, User, X } from 'lucide-react';
 import { useState } from 'react';
 

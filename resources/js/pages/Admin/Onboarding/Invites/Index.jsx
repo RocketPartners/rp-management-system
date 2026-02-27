@@ -1,10 +1,10 @@
 // resources/js/Pages/Admin/Onboarding/Invites/Index.jsx
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent } from '@/Components/ui/card';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
-import { CheckCircle2, Clock, Mail, Plus, UserPlus } from 'lucide-react';
+import { CheckCircle2, Clock, Eye, Mail, Plus, UserPlus } from 'lucide-react';
 
 export default function Index({ auth, invites, stats, filters }) {
     return (
@@ -126,6 +126,9 @@ export default function Index({ auth, invites, stats, filters }) {
                                             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
                                                 Expires
                                             </th>
+                                            <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">
+                                                Actions
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-200 bg-white">
@@ -201,6 +204,23 @@ export default function Index({ auth, invites, stats, filters }) {
                                                               invite.expires_at,
                                                           ).toLocaleDateString()
                                                         : 'No expiration'}
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={route(
+                                                                'onboarding.invites.show',
+                                                                invite.id,
+                                                            )}
+                                                        >
+                                                            <Eye className="mr-1 h-4 w-4" />
+                                                            View
+                                                        </Link>
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         ))}

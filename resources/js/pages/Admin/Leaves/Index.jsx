@@ -1,23 +1,23 @@
 // resources/js/Pages/Admin/Leaves/Index.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import { Card, CardContent } from '@/Components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/Components/ui/dropdown-menu';
-import { Input } from '@/Components/ui/input';
+} from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/Components/ui/select';
+} from '@/components/ui/select';
 import {
     Table,
     TableBody,
@@ -25,8 +25,8 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from '@/Components/ui/table';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/table';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -452,6 +452,11 @@ export default function Index({
                                         );
                                         const StatusIcon = statusStyle.icon;
 
+                                        // Check if current user can take action on this leave
+                                        const canTakeAction =
+                                            !leave.manager_id ||
+                                            leave.manager_id === auth.user.id;
+
                                         return (
                                             <TableRow
                                                 key={leave.id}
@@ -578,11 +583,11 @@ export default function Index({
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell>
-                                                    {leave.manager ? (
+                                                    {leave.assigned_approver ? (
                                                         <div className="flex items-center gap-2">
-                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-600">
+                                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-600">
                                                                 <span className="text-xs font-medium text-white">
-                                                                    {leave.manager.name
+                                                                    {leave.assigned_approver.name
                                                                         .charAt(
                                                                             0,
                                                                         )
@@ -592,66 +597,73 @@ export default function Index({
                                                             <span className="text-sm text-gray-900">
                                                                 {
                                                                     leave
-                                                                        .manager
+                                                                        .assigned_approver
                                                                         .name
                                                                 }
                                                             </span>
                                                         </div>
                                                     ) : (
                                                         <span className="text-sm text-gray-400">
-                                                            No manager
+                                                            Auto-assigned
                                                         </span>
                                                     )}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                            asChild
-                                                        >
-                                                            <button className="inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-gray-100">
-                                                                <MoreVertical className="h-4 w-4" />
-                                                            </button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent
-                                                            align="end"
-                                                            className="w-48"
-                                                        >
-                                                            <DropdownMenuItem
+                                                    {canTakeAction ? (
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger
                                                                 asChild
                                                             >
-                                                                <Link
-                                                                    href={route(
-                                                                        'leaves.show',
-                                                                        leave.id,
-                                                                    )}
-                                                                    className="cursor-pointer"
+                                                                <button className="inline-flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-gray-100">
+                                                                    <MoreVertical className="h-4 w-4" />
+                                                                </button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent
+                                                                align="end"
+                                                                className="w-48"
+                                                            >
+                                                                <DropdownMenuItem
+                                                                    asChild
                                                                 >
-                                                                    <Eye className="mr-2 h-4 w-4" />
-                                                                    View Details
-                                                                </Link>
-                                                            </DropdownMenuItem>
-
-                                                            {leave.attachment && (
-                                                                <>
-                                                                    <DropdownMenuSeparator />
-                                                                    <DropdownMenuItem
-                                                                        asChild
+                                                                    <Link
+                                                                        href={route(
+                                                                            'leaves.show',
+                                                                            leave.id,
+                                                                        )}
+                                                                        className="cursor-pointer"
                                                                     >
-                                                                        <a
-                                                                            href={`/storage/${leave.attachment}`}
-                                                                            download
-                                                                            target="_blank"
-                                                                            className="cursor-pointer"
+                                                                        <Eye className="mr-2 h-4 w-4" />
+                                                                        View
+                                                                        Details
+                                                                    </Link>
+                                                                </DropdownMenuItem>
+
+                                                                {leave.attachment && (
+                                                                    <>
+                                                                        <DropdownMenuSeparator />
+                                                                        <DropdownMenuItem
+                                                                            asChild
                                                                         >
-                                                                            <Download className="mr-2 h-4 w-4" />
-                                                                            Download
-                                                                            Attachment
-                                                                        </a>
-                                                                    </DropdownMenuItem>
-                                                                </>
-                                                            )}
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+                                                                            <a
+                                                                                href={`/storage/${leave.attachment}`}
+                                                                                download
+                                                                                target="_blank"
+                                                                                className="cursor-pointer"
+                                                                            >
+                                                                                <Download className="mr-2 h-4 w-4" />
+                                                                                Download
+                                                                                Attachment
+                                                                            </a>
+                                                                        </DropdownMenuItem>
+                                                                    </>
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    ) : (
+                                                        <span className="text-xs text-gray-400">
+                                                            Not assigned
+                                                        </span>
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         );

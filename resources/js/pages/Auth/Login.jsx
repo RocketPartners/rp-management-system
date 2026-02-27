@@ -1,24 +1,24 @@
 // resources/js/Pages/Auth/Login.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Button } from '@/Components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { AlertCircle, Lock, Mail } from 'lucide-react';
 import { useEffect } from 'react';
 
 export default function Login({ status, canResetPassword, userCount = 0 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
-        email: '',
-        password: '',
+        email: 'hr1@example.com',
+        password: 'password',
         remember: false,
     });
 
@@ -113,6 +113,19 @@ export default function Login({ status, canResetPassword, userCount = 0 }) {
                                         Enter your credentials to access your
                                         account
                                     </CardDescription>
+                                    <div className="mt-4 inline-flex flex-col items-center gap-1 rounded-lg border-2 border-yellow-400 bg-yellow-100 px-4 py-2">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-sm font-semibold text-yellow-800">
+                                                TEST MODE
+                                            </span>
+                                            <span className="text-xs text-yellow-700">
+                                                | Pre-filled credentials
+                                            </span>
+                                        </div>
+                                        <span className="font-mono text-xs text-yellow-600">
+                                            hr1@example.com
+                                        </span>
+                                    </div>
                                 </div>
                             </CardHeader>
 

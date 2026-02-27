@@ -93,7 +93,8 @@ class OnboardingSubmissionController extends Controller
             $doc->view_url = route('onboarding.submissions.view-document', $doc->id);
         });
 
-        $checklist = new OnboardingChecklistResource($submission);
+        // Unwrap the resource to get the actual array data
+        $checklist = (new OnboardingChecklistResource($submission))->resolve();
 
         return Inertia::render('Admin/Onboarding/Submissions/Review', [
             'submission' => $submission,

@@ -4,8 +4,8 @@ import { EmergencyContactForm } from '@/components/onboarding/forms/EmergencyCon
 import { GovernmentIdForm } from '@/components/onboarding/forms/GovernmentIdForm';
 import { PersonalInfoForm } from '@/components/onboarding/forms/PersonalInfoForm';
 import { ProgressIndicator } from '@/components/onboarding/shared/ProgressIndicator';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useOnboardingForm } from '@/hooks/onboarding/useOnboardingForm';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
 import { Head } from '@inertiajs/react';
@@ -19,9 +19,15 @@ import { Briefcase, Building2, Clock, Rocket } from 'lucide-react';
  * @param {Object} props.invite - Invitation data
  * @param {Object} props.submission - Current submission state
  * @param {Object} props.requiredDocuments - Required document types configuration
+ * @param {Object} props.submissionStatus - Validation status (can_submit, blocker, missing_documents)
  * @returns {JSX.Element}
  */
-export default function Form({ invite, submission, requiredDocuments }) {
+export default function Form({
+    invite,
+    submission,
+    requiredDocuments,
+    submissionStatus,
+}) {
     // Consolidated form state management
     const {
         currentStep,
@@ -149,6 +155,7 @@ export default function Form({ invite, submission, requiredDocuments }) {
                             requiredDocuments={requiredDocuments}
                             documentForm={documentForm}
                             inviteToken={invite.token}
+                            submissionStatus={submissionStatus}
                             onBack={goToPreviousStep}
                             onDeleteDocument={handleDeleteDocument}
                             onFinalSubmit={handleFinalSubmit}
@@ -157,7 +164,7 @@ export default function Form({ invite, submission, requiredDocuments }) {
                 </div>
             </div>
 
-            <style>{`
+            <style jsx>{`
                 @keyframes fade-in {
                     from {
                         opacity: 0;

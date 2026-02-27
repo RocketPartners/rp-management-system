@@ -1,16 +1,16 @@
 // resources/js/Pages/Projects/Show.jsx
-import DeleteConfirmationModal from '@/Components/DeleteConfirmationModal';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Progress } from '@/Components/ui/progress';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowLeft,

@@ -1,18 +1,18 @@
 // resources/js/Pages/Inventory/Show.jsx
-import DeleteConfirmationModal from '@/Components/DeleteConfirmationModal';
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
+import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Checkbox } from '@/Components/ui/checkbox';
-import { Label } from '@/Components/ui/label';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, router } from '@inertiajs/react';
 import { useState } from 'react';
 

@@ -1,23 +1,23 @@
 // resources/js/Pages/Inventory/Create.jsx
-import { Button } from '@/Components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Input } from '@/Components/ui/input';
-import { Label } from '@/Components/ui/label';
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from '@/Components/ui/select';
-import { Textarea } from '@/Components/ui/textarea';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import {
     AlertCircle,

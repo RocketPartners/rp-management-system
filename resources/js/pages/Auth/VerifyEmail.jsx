@@ -1,14 +1,14 @@
 // resources/js/Pages/Auth/VerifyEmail.jsx
-import { Alert, AlertDescription } from '@/Components/ui/alert';
-import { Button } from '@/Components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from '@/Components/ui/card';
-import { Head, Link, useForm } from '@inertiajs/react';
+} from '@/components/ui/card';
+import { Head, Link, useForm, router } from '@inertiajs/react';
 import { CheckCircle2, Inbox, LogOut, Mail, Send } from 'lucide-react';
 
 export default function VerifyEmail({ status }) {
@@ -17,6 +17,18 @@ export default function VerifyEmail({ status }) {
     const submit = (e) => {
         e.preventDefault();
         post(route('verification.send'));
+    };
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        router.clearHistory();
+        router.post(route('logout'), {}, {
+            onFinish: () => {
+                window.location.href = '/login';
+            }
+        });
     };
 
     return (
@@ -183,18 +195,12 @@ export default function VerifyEmail({ status }) {
 
                                 {/* Logout Button */}
                                 <Button
-                                    asChild
+                                    onClick={handleLogout}
                                     variant="outline"
                                     className="w-full"
                                 >
-                                    <Link
-                                        href={route('logout')}
-                                        method="post"
-                                        as="button"
-                                    >
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        Log Out
-                                    </Link>
+                                    <LogOut className="mr-2 h-4 w-4" />
+                                    Log Out
                                 </Button>
 
                                 {/* Help Text */}
