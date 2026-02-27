@@ -32,6 +32,7 @@ import {
     Mail,
     Menu,
     Package,
+    PartyPopper,
     Search,
     Settings,
     Shield,
@@ -249,6 +250,11 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Balance Management',
                     href: '/leave-balances',
                     icon: Wallet,
+                });
+                leaveItems.push({
+                    name: 'Holidays',
+                    href: '/holidays',
+                    icon: PartyPopper,
                 });
             }
 

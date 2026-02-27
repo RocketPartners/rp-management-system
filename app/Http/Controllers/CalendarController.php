@@ -37,11 +37,20 @@ class CalendarController extends Controller
         // Get leave types for filtering
         $leaveTypes = $this->calendarService->getAvailableLeaveTypes();
 
+        // Get available US states
+        $usStates = \App\Models\Holiday::where('country_code', 'US')
+            ->whereNotNull('state')
+            ->distinct()
+            ->pluck('state')
+            ->sort()
+            ->values();
+
         return Inertia::render('Calendar/Index', [
             'settings' => $settings,
             'eventTypes' => $eventTypes,
             'departments' => $departments,
             'leaveTypes' => $leaveTypes,
+            'usStates' => $usStates,
         ]);
     }
 
@@ -61,16 +70,25 @@ class CalendarController extends Controller
             'leave_type_ids' => ['nullable', 'array'],
             'leave_type_ids.*' => ['integer', 'exists:leave_types,id'],
             'search' => ['nullable', 'string', 'max:100'],
+            'country_codes' => ['nullable', 'array'],
+            'country_codes.*' => ['string', 'size:2'],
+            'us_states' => ['nullable', 'array'],
+            'us_states.*' => ['string', 'max:50'],
+            'holiday_types' => ['nullable', 'array'],
+            'holiday_types.*' => ['string', 'in:public,federal,government,state,regional,observance'],
         ]);
 
         $startDate = Carbon::parse($validated['start']);
         $endDate = Carbon::parse($validated['end']);
         $filters = [
-            'event_types' => $validated['event_types'] ?? ['leave'],
+            'event_types' => $validated['event_types'] ?? ['leave', 'holiday', 'wfh'],
             'user_ids' => $validated['user_ids'] ?? null,
             'department' => $validated['department'] ?? null,
             'leave_type_ids' => $validated['leave_type_ids'] ?? null,
             'search' => $validated['search'] ?? null,
+            'country_codes' => $validated['country_codes'] ?? ['PH', 'US', 'ES'],
+            'us_states' => $validated['us_states'] ?? null,
+            'holiday_types' => $validated['holiday_types'] ?? null,
         ];
 
         $events = $this->calendarService->getEvents(
