@@ -4,13 +4,13 @@
  */
 
 import {
-    CheckCircle2,
-    ClipboardIcon,
-    Clock,
-    Edit3,
     FileText,
-    Upload,
+    Clock,
+    CheckCircle2,
     XCircle,
+    ClipboardIcon,
+    Edit3,
+    Upload,
 } from 'lucide-react';
 
 /**
@@ -118,10 +118,7 @@ export const DOCUMENT_STATUS_CONFIG = {
  * @returns {Object} Status configuration object
  */
 export const getSubmissionStatusConfig = (status) => {
-    return (
-        SUBMISSION_STATUS_CONFIG[status] ||
-        SUBMISSION_STATUS_CONFIG[SUBMISSION_STATUSES.DRAFT]
-    );
+    return SUBMISSION_STATUS_CONFIG[status] || SUBMISSION_STATUS_CONFIG[SUBMISSION_STATUSES.DRAFT];
 };
 
 /**
@@ -130,8 +127,5 @@ export const getSubmissionStatusConfig = (status) => {
  * @returns {Object} Status configuration object
  */
 export const getDocumentStatusConfig = (status) => {
-    return (
-        DOCUMENT_STATUS_CONFIG[status] ||
-        DOCUMENT_STATUS_CONFIG[DOCUMENT_STATUSES.UPLOADED]
-    );
+    return DOCUMENT_STATUS_CONFIG[status] || DOCUMENT_STATUS_CONFIG[DOCUMENT_STATUSES.UPLOADED];
 };
