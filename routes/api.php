@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CalendarController;
+use App\Http\Controllers\WorkFromHomeController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
@@ -73,5 +74,26 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Get event types (with optional counts)
         Route::get('/event-types', [CalendarController::class, 'eventTypes'])->name('event-types');
+    });
+
+    // ============================================
+    // 🏠 WORK FROM HOME API ROUTES
+    // ============================================
+    Route::prefix('wfh')->name('api.wfh.')->group(function () {
+        // Schedule WFH
+        Route::post('/', [WorkFromHomeController::class, 'store'])->name('store');
+
+        // Get WFH schedules for current user
+        Route::get('/', [WorkFromHomeController::class, 'index'])->name('index');
+
+        // Get weekly WFH usage
+        Route::get('/weekly-usage', [WorkFromHomeController::class, 'weeklyUsage'])->name('weekly-usage');
+
+        // Cancel WFH
+        Route::delete('/{wfh}', [WorkFromHomeController::class, 'destroy'])->name('destroy');
+
+        // WFH Settings
+        Route::get('/settings', [WorkFromHomeController::class, 'getSettings'])->name('settings');
+        Route::put('/settings', [WorkFromHomeController::class, 'updateSettings'])->name('settings.update');
     });
 });

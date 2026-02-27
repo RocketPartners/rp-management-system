@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\CalendarEventType;
+use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Models\User;
+use App\Models\WorkFromHomeSchedule;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -32,11 +34,19 @@ class CalendarService
             $events = $events->merge($leaveEvents);
         }
 
-        // Future: Add other event types (holidays, announcements, etc.)
-        // if (in_array('holiday', $eventTypes)) {
-        //     $holidayEvents = $this->getHolidayEvents($startDate, $endDate);
-        //     $events = $events->merge($holidayEvents);
-        // }
+        // Fetch holiday events if requested
+        if (in_array('holiday', $eventTypes)) {
+            $holidayEvents = $this->getHolidayEvents($startDate, $endDate, $filters);
+            $events = $events->merge($holidayEvents);
+        }
+
+        // Fetch WFH events if requested
+        if (in_array('wfh', $eventTypes)) {
+            $wfhEvents = $this->getWFHEvents($startDate, $endDate, $filters, $viewer);
+            $events = $events->merge($wfhEvents);
+        }
+
+        // Future: Add other event types (announcements, etc.)
 
         return $events;
     }
@@ -86,6 +96,126 @@ class CalendarService
         // Transform to calendar event format
         return $leaves->map(function ($leave) {
             return $leave->toCalendarEvent();
+        });
+    }
+
+    /**
+     * Get holiday events for date range
+     */
+    public function getHolidayEvents(
+        Carbon $startDate,
+        Carbon $endDate,
+        array $filters
+    ): Collection {
+        $countryCodes = $filters['country_codes'] ?? ['PH', 'US', 'ES'];
+        $usStates = $filters['us_states'] ?? null;
+        $holidayTypes = $filters['holiday_types'] ?? null;
+
+        $query = Holiday::where('is_active', true)
+            ->whereIn('country_code', $countryCodes)
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+
+        // Filter by US states if specified
+        if ($usStates && in_array('US', $countryCodes)) {
+            $query->where(function ($q) use ($usStates) {
+                $q->whereIn('state', $usStates)
+                  ->orWhere(function ($q2) {
+                      $q2->where('country_code', 'US')->whereNull('state');
+                  })
+                  ->orWhere('country_code', '!=', 'US');
+            });
+        }
+
+        // Filter by holiday types if specified
+        if ($holidayTypes && !empty($holidayTypes)) {
+            $query->whereIn('type', $holidayTypes);
+        }
+
+        $holidays = $query->orderBy('date')->get();
+
+        // Transform to calendar event format
+        return $holidays->map(function ($holiday) {
+            // Get country flag emoji
+            $flag = match($holiday->country_code) {
+                'PH' => '🇵🇭',
+                'US' => '🇺🇸',
+                'ES' => '🇪🇸',
+                default => '🎉'
+            };
+
+            // Get holiday type display name
+            $holidayTypeLabel = match($holiday->type) {
+                'federal' => 'Federal Holiday',
+                'government' => 'Government Holiday',
+                'state' => 'State Holiday',
+                'regional' => 'Regional Holiday',
+                'observance' => 'Not A Public Holiday',
+                'public' => 'Public Holiday',
+                default => ucfirst($holiday->type),
+            };
+
+            return [
+                'id' => 'holiday-'.$holiday->id,
+                'title' => $flag.' '.$holiday->name,
+                'start' => $holiday->date->format('Y-m-d'),
+                'end' => $holiday->date->format('Y-m-d'),
+                'allDay' => true,
+                'type' => 'holiday',
+                'backgroundColor' => '#FEE2E2', // Light red background
+                'borderColor' => '#FCA5A5',
+                'textColor' => '#991B1B',
+                'display' => 'block', // Display as regular event
+                'extendedProps' => [
+                    'holiday_id' => $holiday->id,
+                    'holiday_name' => $holiday->name,
+                    'country_code' => $holiday->country_code,
+                    'country_name' => $holiday->country_name,
+                    'holiday_type' => $holiday->type,
+                    'holiday_type_label' => $holidayTypeLabel,
+                    'event_type' => 'holiday',
+                ],
+                'classNames' => ['calendar-holiday-event'],
+            ];
+        });
+    }
+
+    /**
+     * Get WFH events for date range
+     */
+    public function getWFHEvents(
+        Carbon $startDate,
+        Carbon $endDate,
+        array $filters,
+        User $viewer
+    ): Collection {
+        $query = WorkFromHomeSchedule::query()
+            ->with(['user'])
+            ->approved()
+            ->inDateRange($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
+
+        // Apply filters if provided
+        if (! empty($filters['user_ids'])) {
+            $query->whereIn('user_id', $filters['user_ids']);
+        }
+
+        if (! empty($filters['department'])) {
+            $query->whereHas('user', function ($q) use ($filters) {
+                $q->where('department', $filters['department']);
+            });
+        }
+
+        if (! empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $wfhSchedules = $query->get();
+
+        // Transform to calendar event format
+        return $wfhSchedules->map(function ($wfh) {
+            return $wfh->toCalendarEvent();
         });
     }
 
@@ -204,6 +334,13 @@ class CalendarService
 
                 $query = $this->applyLeaveVisibilityRules($query, $viewer);
                 $count = $query->count();
+            }
+
+            // Count holidays
+            if ($eventType->slug === 'holiday') {
+                $count = Holiday::where('is_active', true)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->count();
             }
 
             // Future: Add counts for other event types
