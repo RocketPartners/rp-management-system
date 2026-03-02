@@ -5,6 +5,7 @@ use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeAssetController;
 use App\Http\Controllers\EmployeeDashboardController;
+use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\LeaveBalanceController;
@@ -252,6 +253,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [LeaveBalanceController::class, 'index'])->name('index');
         Route::post('/reset', [LeaveBalanceController::class, 'reset'])->name('reset');
         Route::get('/preview', [LeaveBalanceController::class, 'preview'])->name('preview');
+    });
+
+    // ============================================
+    // 🎉 HOLIDAY MANAGEMENT (HR/Admin only)
+    // ============================================
+    Route::prefix('holidays')->name('holidays.')->group(function () {
+        Route::get('/', [HolidayController::class, 'index'])->name('index');
+        Route::post('/', [HolidayController::class, 'store'])->name('store');
+        Route::put('/{holiday}', [HolidayController::class, 'update'])->name('update');
+        Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('destroy');
+        Route::post('/fetch-from-api', [HolidayController::class, 'fetchFromAPI'])->name('fetch-from-api');
+        Route::patch('/{holiday}/toggle-active', [HolidayController::class, 'toggleActive'])->name('toggle-active');
     });
 
     // ============================================
