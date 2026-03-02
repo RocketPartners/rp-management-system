@@ -5,6 +5,8 @@ import HeroSection from '@/components/demo/sections/HeroSection';
 import ProblemSection from '@/components/demo/sections/ProblemSection';
 import SolutionSection from '@/components/demo/sections/SolutionSection';
 import LeaveManagementSection from '@/components/demo/sections/LeaveManagementSection';
+import WFHSchedulerSection from '@/components/demo/sections/WFHSchedulerSection';
+import CalendarSection from '@/components/demo/sections/CalendarSection';
 import DocumentSecuritySection from '@/components/demo/sections/DocumentSecuritySection';
 import CompetitiveSection from '@/components/demo/sections/CompetitiveSection';
 import BusinessValueSection from '@/components/demo/sections/BusinessValueSection';
@@ -21,10 +23,11 @@ export default function Demo() {
         { id: 'leave-manager', title: 'Leave: Manager View' },
         { id: 'leave-hr', title: 'Leave: HR Dashboard' },
         { id: 'leave-features', title: 'Leave: Smart Features' },
+        { id: 'wfh-overview', title: 'WFH: Flexible Scheduling' },
+        { id: 'wfh-features', title: 'WFH: Smart Features' },
+        { id: 'calendar-overview', title: 'Calendar: Team View' },
+        { id: 'calendar-features', title: 'Calendar: Planning Tools' },
         { id: 'security-overview', title: 'Security: Overview' },
-        { id: 'security-portal', title: 'Security: Employee Portal' },
-        { id: 'security-sensitivity', title: 'Security: Classification' },
-        { id: 'security-audit', title: 'Security: Audit Trail' },
         { id: 'security-compliance', title: 'Security: Compliance' },
         { id: 'competitive', title: 'Competitive Advantage' },
         { id: 'business-value', title: 'Business Value' },
@@ -49,6 +52,8 @@ export default function Demo() {
                 <ProblemSection />
                 <SolutionSection />
                 <LeaveManagementSection />
+                <WFHSchedulerSection />
+                <CalendarSection />
                 <DocumentSecuritySection />
                 <CompetitiveSection />
                 <BusinessValueSection />
