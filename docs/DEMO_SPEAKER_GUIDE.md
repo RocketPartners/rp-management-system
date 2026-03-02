@@ -11,187 +11,155 @@
 | Section | Focus | Time |
 |---------|-------|------|
 | 1-3 | Foundation (Problem → Solution) | 1-2 min |
-| 4 | Leave Management (MOST DETAILED) | 5-7 min |
-| 5 | Document Security (SECOND MOST DETAILED) | 5-7 min |
-| 6-7 | Value Proposition | 2-3 min |
-| 8 | Interactive Demo/Video | 3-5 min |
-| 9 | Closing & CTAs | 1-2 min |
+| 4 | Leave Management | 5-6 min |
+| 5 | Work From Home Scheduler (NEW FEATURE!) | 2-3 min |
+| 6 | Team Calendar & Visibility | 2-3 min |
+| 7 | Document Security | 3-4 min |
+| 8-9 | Value Proposition | 2-3 min |
+| 10 | Interactive Demo/Video | 3-5 min |
+| 11 | Closing & CTAs | 1-2 min |
+
+**Note**: This demo showcases a **comprehensive HR management system**, not just leave management and documents. We cover hybrid work, calendar coordination, and more.
 
 ---
 
 ## Section 1: Hero (Overview)
 
 ### Key Message
-"This system transforms complex HR processes into simple, secure workflows that save time and ensure compliance."
+"This is a comprehensive HR management system that modernizes leave management, hybrid work scheduling, team coordination, and secure document handling."
 
 ### Talking Points
 
-1. **Dual Focus Architecture**
-   - We address two critical HR functions: leave management and document security
-   - These aren't separate systems—they're integrated into a unified employee experience
-   - Both leverage the same security infrastructure and user authentication
+1. **Complete HR Suite**
+   - Not just leave management—we handle the entire employee lifecycle
+   - Hybrid work scheduling, team calendar, document security, onboarding, asset tracking
+   - Integrated platform vs. juggling multiple tools
 
 2. **The 90% Time Savings**
-   - This comes from eliminating email chains and manual spreadsheet tracking
+   - Automated workflows eliminate email chains and spreadsheet tracking
    - Example: A leave request that took 3-5 days now completes in 15 minutes
-   - Automated workflows route approvals to the right people instantly
+   - WFH scheduling that used to require coordination emails now takes 30 seconds
 
-3. **Bank-Grade Security**
-   - We use AES-256-CBC encryption, the same standard as financial institutions
-   - All sensitive documents are encrypted at rest—even if storage is compromised, files are unreadable
-   - Multi-layer security approach: encryption + access control + audit logs + 2FA
+3. **Modern Hybrid Work Support**
+   - Built for the modern workplace: office, remote, and hybrid workers
+   - Team visibility across all work arrangements
+   - Flexible patterns for recurring WFH, one-time dates, or month-specific schedules
 
-4. **Compliance-First Design**
-   - Every action is logged with immutable audit trails
-   - Built-in GDPR compliance (right to data export, right to be forgotten)
-   - Legal hold system prevents accidental deletion during litigation
+4. **Enterprise Security**
+   - Bank-grade AES-256 encryption for sensitive documents
+   - Role-based access control, 2FA for highly sensitive data
+   - Full audit trails for compliance (GDPR, SOC 2, ISO 27001 ready)
 
 ### Anticipated Questions
 
 **Q: "Is this cloud-based or on-premise?"**
-A: Currently deployed on-premise with a Laravel backend. The architecture supports cloud deployment with minimal changes. We can discuss your infrastructure preferences.
-
-**Q: "How long does implementation take?"**
-A: Typical deployment is 4-6 weeks including data migration, configuration, and training. We provide dedicated support throughout.
+A: Currently deployed on-premise with Laravel backend. Architecture supports cloud deployment. We can discuss your infrastructure preferences.
 
 **Q: "Can this integrate with our existing systems?"**
-A: Yes. We have APIs for calendar integration, single sign-on (SSO), and can integrate with payroll systems. We'll assess your specific integration needs.
+A: Yes. APIs for calendar sync (Google/Outlook), SSO, payroll integration, and more. We'll assess your specific needs.
 
 ### Time Estimate
-**30-45 seconds** - This is the hook. Keep it punchy and move on.
+**30-45 seconds** - This is the hook. Emphasize "comprehensive system" not just documents.
 
 ---
 
 ## Section 2: The Problem
 
 ### Key Message
-"Traditional HR systems create more problems than they solve—we've built a better way."
+"Traditional HR systems are fragmented, manual, and insecure—we've built a unified, automated, secure platform."
 
 ### Talking Points
 
 1. **Spreadsheet Chaos**
-   - Many organizations still track leave in Excel spreadsheets shared on network drives
-   - No version control, no real-time updates, prone to human error
-   - Managers have no visibility into team availability when planning projects
+   - Leave tracking in Excel, WFH schedules in shared calendars, documents on network drives
+   - No version control, no real-time updates, prone to errors
+   - Managers have no unified view of team availability
 
-2. **Security Nightmares**
-   - Employee documents (IDs, medical records, contracts) often stored on shared drives
-   - No encryption, no access control, no audit trail of who accessed what
-   - Massive compliance risk—one breach could expose hundreds of employees
+2. **Coordination Nightmare**
+   - Email chains for leave approvals, Slack messages for WFH coordination
+   - No clear status tracking—employees left wondering about approval status
+   - Managers can't see who's working where when planning meetings
 
-3. **Email Approval Hell**
-   - Leave requests forwarded through email chains: Employee → Manager → HR → Calendar person
-   - No clear status tracking—employees left wondering "Was my leave approved?"
-   - Approvals get lost in inboxes, especially during busy periods
+3. **Security Risks**
+   - Employee documents stored unencrypted on shared drives
+   - No access control, no audit trail
+   - Compliance risk—one breach exposes hundreds of employees
 
 4. **Compliance Blindness**
-   - No audit trail means you can't prove compliance during audits
-   - Labor law violations happen because there's no automated tracking
-   - GDPR fines (up to 4% of global revenue) for data handling failures
-
-5. **The Hidden Costs**
-   - HR spends 40-60% of their time on manual administrative tasks
-   - Employee frustration leads to lower satisfaction scores
-   - Managers make bad decisions due to lack of visibility
+   - No audit trail for labor law compliance
+   - Manual holiday tracking leads to calculation errors
+   - GDPR fines (up to 4% of global revenue) for data mishandling
 
 ### Anticipated Questions
 
 **Q: "Isn't this just for large companies?"**
-A: Not at all. Companies with 20+ employees benefit significantly. The pain points we solve exist at every scale—even small teams waste time on email approvals.
-
-**Q: "What if we're already using [competitor system]?"**
-A: We can discuss migration. Many clients switched because existing systems lack encryption, modern UX, or granular permission controls. We'll show you specific differentiators.
+A: No—companies with 20+ employees benefit. Even small teams waste hours on coordination emails.
 
 ### Time Estimate
-**45-60 seconds** - Establish pain, but don't dwell. They already know they have problems.
+**45-60 seconds** - Establish pain, then move to solution.
 
 ---
 
 ## Section 3: Our Solution (Three Pillars)
 
 ### Key Message
-"We solve these problems with three core pillars: intelligent automation, enterprise security, and complete visibility."
+"We solve these problems with intelligent automation, enterprise security, and complete visibility."
 
 ### Talking Points
 
 1. **Pillar 1: Intelligent Automation** (Blue)
-   - Dynamic workflows: System routes approvals based on leave type configuration
+   - Dynamic workflows: System routes approvals based on leave type, WFH patterns recur automatically
    - Real-time validation: Can't apply for more days than available balance
-   - Auto-notifications: Email alerts keep everyone informed without manual follow-up
-   - Calendar sync: Approved leaves automatically appear on team calendars
+   - Smart conflict detection: Prevents double-booking, holiday conflicts
 
 2. **Pillar 2: Enterprise Security** (Green)
-   - AES-256 encryption: Every document encrypted before storage
-   - RBAC (Role-Based Access Control): Employees see only their own documents, HR sees everything
-   - 2FA for sensitive documents: Medical records, financial data require two-factor authentication
-   - Immutable audit logs: Every access recorded, logs cannot be modified or deleted
+   - AES-256 encryption for documents
+   - RBAC (Role-Based Access Control): Employees see only their data
+   - 2FA for sensitive documents, immutable audit logs
 
 3. **Pillar 3: Complete Visibility** (Yellow)
-   - Real-time dashboards for HR show all leaves across departments
-   - Team calendar views help managers plan around absences
-   - Compliance reports ready for audits (labor law, GDPR)
-   - Historical analytics identify trends (e.g., burnout patterns, peak leave periods)
+   - Unified calendar: Leaves, WFH, holidays in one view
+   - Team availability dashboard for managers
+   - Real-time updates, export to Google/Outlook
 
 ### Anticipated Questions
 
 **Q: "How customizable are the workflows?"**
-A: Highly customizable. HR admins can configure leave types, approval chains, and routing rules without developer involvement. We have a visual workflow builder.
+A: Highly customizable. HR admins configure leave types, WFH quotas, approval chains without developer involvement.
 
 **Q: "What about mobile access?"**
-A: Fully responsive design works on any device. Employees can apply for leave from their phones, managers can approve on the go.
-
-**Q: "Can we do approvals offline?"**
-A: The system requires internet connectivity. However, all actions are asynchronous—you don't need to wait for responses. Email notifications ensure nothing is missed.
+A: Fully responsive. Employees apply for leave, schedule WFH, view calendar from phones. Managers approve on the go.
 
 ### Time Estimate
-**60-90 seconds** - This sets up the detailed sections to come.
+**60-90 seconds** - Set up the detailed sections to come.
 
 ---
 
-## Section 4: Leave Management (MOST DETAILED - 4 Subsections)
+## Section 4: Leave Management (4 Subsections)
 
 ### Overall Key Message
 "Leave management should be transparent for employees, fast for managers, and controllable for HR."
-
----
 
 ### 4A: Employee View - "Simple & Transparent"
 
 #### Talking Points
 
 1. **Visual Balance Cards**
-   - Real-time display of all leave types (vacation, sick, personal, etc.)
-   - Shows: total allocation, used days, pending requests, remaining balance
-   - Updates instantly when a request is approved or rejected
+   - Real-time display of all leave types with remaining balances
    - Color-coded warnings when balance is low
+   - Updates instantly when approved/rejected
 
 2. **One-Click Application**
-   - Intuitive form: select dates, choose leave type, add optional notes
-   - Instant validation: System checks if balance is sufficient before submission
-   - No need to calculate working days—system excludes weekends/holidays automatically
+   - Intuitive form: select dates, choose type, add notes
+   - Instant validation checks balance and excludes weekends/holidays
    - File attachment support for sick leave documentation
 
 3. **Status Tracking**
-   - Clear status indicators: Pending → Manager Approval → HR Approval → Confirmed
-   - Visual timeline shows progress through approval chain
-   - Email notifications at each stage transition
-   - Can track multiple pending requests simultaneously
+   - Clear progress: Pending → Manager → HR → Confirmed
+   - Email notifications at each stage
+   - Can track multiple pending requests
 
-4. **Mobile-Friendly**
-   - Responsive design works on phones, tablets, desktops
-   - Quick actions: "Apply for Leave" button always accessible
-   - Notification badges show pending approvals or new messages
-
-#### Anticipated Questions
-
-**Q: "What if an employee needs to cancel approved leave?"**
-A: Two scenarios: (1) If still pending, instant cancellation with balance restoration. (2) If approved, they submit a cancellation request that goes to HR for approval.
-
-**Q: "Can employees see their teammates' leaves?"**
-A: Only if they have "View Team Calendar" permission (typically managers and above). Regular employees see only their own leave history.
-
-#### Time Estimate
-**60-90 seconds**
+#### Time Estimate: **60-90 seconds**
 
 ---
 
@@ -200,37 +168,20 @@ A: Only if they have "View Team Calendar" permission (typically managers and abo
 #### Talking Points
 
 1. **Smart Approval Queue**
-   - Shows only leaves requiring their approval (not the entire company)
-   - Prioritized by submission date (oldest first to avoid delays)
-   - At-a-glance info: Employee name, leave type, dates, duration, current balance
-   - One-click actions: Approve, Reject, Request More Info
+   - Shows only leaves requiring their approval
+   - At-a-glance: Employee name, dates, duration, current balance
+   - One-click: Approve, Reject, Request More Info
 
-2. **Context-Rich Decision Making**
-   - Inline display of employee's current leave balance
-   - Team calendar preview shows who else is out during requested dates
-   - Historical view: Has this employee taken excessive leaves recently?
-   - Optional comment field to add notes (e.g., "Approved but please handover X project")
+2. **Context-Rich**
+   - Inline employee balance display
+   - Team calendar preview: See who else is out
+   - Historical view: Identify patterns
 
-3. **Conditional Routing**
-   - For some leave types (e.g., extended vacation >5 days), approval auto-routes to HR after manager approval
-   - System handles this automatically—managers just click "Approve"
-   - No need to remember routing rules
+3. **Mobile Approvals**
+   - Approve while traveling or in meetings
+   - Reduces approval bottlenecks
 
-4. **Mobile Approvals**
-   - Managers can approve while traveling, attending meetings, or working remotely
-   - Push notifications ensure timely responses
-   - Reduces approval bottlenecks during manager absences
-
-#### Anticipated Questions
-
-**Q: "What if a manager is on leave when a request comes in?"**
-A: Configurable fallback: Either route to their manager (escalation) or to a designated backup approver. HR can also manually reassign.
-
-**Q: "Can managers bulk-approve requests?"**
-A: Currently one-by-one to ensure proper review. Bulk actions can be added if needed—let's discuss your workflow.
-
-#### Time Estimate
-**60-90 seconds**
+#### Time Estimate: **60-90 seconds**
 
 ---
 
@@ -239,347 +190,265 @@ A: Currently one-by-one to ensure proper review. Bulk actions can be added if ne
 #### Talking Points
 
 1. **Enterprise-Wide Visibility**
-   - See all leaves across all departments in one view
-   - Filters: by department, date range, leave type, status
-   - Identify patterns: Which teams have the most leaves? When are peak vacation periods?
-   - Export to Excel for reporting to leadership
+   - All leaves across departments
+   - Filters: by department, date range, type, status
 
 2. **Balance Management**
-   - Manually adjust balances (e.g., for new hires, carry-over from previous year)
-   - Every adjustment logged with reason and timestamp
-   - Audit trail: who changed what, when, and why
-   - Bulk balance updates for annual reset (e.g., January 1st refresh)
+   - Manually adjust balances (logged in audit trail)
+   - Bulk updates for annual reset
+   - Automated carry-over with configurable limits
 
-3. **Configuration Control**
-   - Create custom leave types (e.g., "Study Leave", "Bereavement", "Parental Leave")
-   - Set approval workflows: auto-approve, manager-only, manager→HR
-   - Define accrual rules: monthly accrual, upfront allocation, pro-rated for new hires
-   - Holiday calendar management: exclude public holidays from leave calculations
+3. **Holiday Management** ⭐ **NEW**
+   - Auto-fetch holidays from API (140+ countries supported)
+   - Federal, state, regional holidays
+   - Automatic exclusion from leave calculations
 
-4. **Annual Automation**
-   - Automated carry-over: Unused vacation days roll to next year (with configurable limits)
-   - Reset balances on anniversary dates or fiscal year start
-   - Generate compliance reports for labor department audits
-
-#### Anticipated Questions
-
-**Q: "Can we have different leave policies for different departments?"**
-A: Yes. Policies can be assigned per department, role, or even individual employees. Common use case: executives get more vacation days.
-
-**Q: "How do we handle probationary periods?"**
-A: You can set restrictions: e.g., "No leave allowed in first 90 days" or "Half leave balance during probation." Fully configurable.
-
-**Q: "What about unlimited PTO policies?"**
-A: Supported. Set balance to "unlimited" and approvals still go through normal workflow. Tracking and analytics still work.
-
-#### Time Estimate
-**90-120 seconds** - This is critical for HR stakeholders.
+#### Time Estimate: **90 seconds**
 
 ---
 
-### 4D: Smart Features - "Intelligent Automation"
+### 4D: Smart Features
 
 #### Talking Points
 
-1. **Dynamic Workflows (Card 1)**
-   - Leave types configured with approval rules: "Sick Leave" (auto-approve), "Vacation" (manager-only), "Extended Leave" (manager→HR)
-   - System enforces rules automatically—no manual routing needed
-   - Reduces HR workload by 70%—most leaves never reach HR inbox
+1. **Dynamic Workflows**
+   - Leave types with approval rules: Auto-approve sick, manager-only vacation, manager→HR for extended
+   - System enforces rules—no manual routing
 
-2. **Calendar Integration (Card 2)**
-   - Visual team calendar: See who's out at a glance
-   - Conflict detection: Warns if too many team members are out simultaneously
-   - Export: Employees can add approved leaves to Google Calendar, Outlook, etc.
-   - Public holidays automatically excluded from leave calculations
+2. **Calendar Integration**
+   - Visual team calendar, conflict detection
+   - Export to Google/Outlook
 
-3. **Flexible Cancellation (Card 3)**
-   - Pending requests: Cancel anytime, balance immediately restored
-   - Approved requests: Submit cancellation request, HR reviews and approves
-   - System prevents gaming: Can't cancel and reapply repeatedly (configurable cool-down period)
-   - Audit trail: All cancellations logged for compliance
+3. **Flexible Cancellation**
+   - Instant cancel pending, request cancel approved
 
-4. **Real-Time Updates (Card 4)**
-   - WebSocket-based notifications: See approvals in real-time without page refresh
-   - Email fallback: If not logged in, notifications sent to email
-   - Mobile push notifications: Optional (if mobile app deployed)
-   - History preserved: All notifications archived for 90 days
-
-#### Anticipated Questions
-
-**Q: "What if someone abuses the system—constant leave applications?"**
-A: HR has full visibility into patterns. You can flag users, set mandatory approval for specific employees, or adjust their policies. System generates alerts for anomalies.
-
-**Q: "Can we set maximum team absence limits?"**
-A: Not currently automated. Managers see team calendar when approving, so they can reject if too many are out. Automated limits can be added—let's discuss your requirements.
-
-**Q: "What about part-time employees or contractors?"**
-A: Leave balances can be pro-rated based on FTE (full-time equivalent). Contractors can be excluded from leave system entirely or given custom policies.
-
-#### Time Estimate
-**90-120 seconds** - Show the workflow diagram here.
+#### Time Estimate: **60 seconds**
 
 ---
 
-## Section 5: Document Security (SECOND MOST DETAILED - 5 Subsections)
+## Section 5: Work From Home Scheduler ⭐ **NEW FEATURE!**
 
 ### Overall Key Message
-"Employee documents are among the most sensitive data you manage—our multi-layer approach ensures they're protected, auditable, and compliant."
+"Modern hybrid work requires smart scheduling—our WFH system makes it effortless and transparent."
 
 ---
 
-### 5A: Security Overview - "Multi-Layer Protection"
+### 5A: WFH Overview
 
 #### Talking Points
 
-1. **Layer 1: Access Control**
-   - Only two roles can access documents: (1) The document owner (employee) and (2) HR with "View Documents" permission
-   - Managers cannot see their team members' documents—privacy by default
-   - Admin access logged and auditable
+1. **Flexible Scheduling Patterns**
+   - **Month-specific recurring**: Different days each month (e.g., Mon/Wed in Feb, Tue/Thu in Mar)
+   - **Standard recurring**: Same days every week
+   - **One-time dates**: Ad-hoc flexibility for special circumstances
 
-2. **Layer 2: Encryption (AES-256)**
-   - Files encrypted at rest using AES-256-CBC (same as banks)
-   - Even if someone gains physical access to the server, files are unreadable
-   - Encryption keys stored separately from data (key rotation supported)
-   - Encryption happens automatically on upload—zero manual steps
+2. **Weekly Quota Tracking**
+   - Default 2 days/week (configurable by HR)
+   - System prevents over-scheduling
+   - Visual quota display shows remaining capacity
 
-3. **Layer 3: Audit Trail**
-   - Every access logged: who viewed, when, from what IP, what device
-   - Logs are immutable: cannot be deleted or modified, even by admins
-   - Logs stored for 7 years (configurable) to meet compliance requirements
-   - Exportable for audits or forensics
+3. **Real-Time Pattern Preview**
+   - Before scheduling, see all dates that will be created
+   - Example: Select "Mon/Wed for February" → Preview shows 8 dates
+   - Prevents surprises, ensures clarity
 
-4. **Layer 4: Two-Factor Authentication (2FA)**
-   - Required for viewing "Highly Sensitive" documents (medical records, financial data)
-   - Adds time-based OTP (Google Authenticator, Authy)
-   - Session expires after 15 minutes of inactivity for sensitive docs
-   - Prevents unauthorized access even if password is compromised
-
-5. **Layer 5: Legal Hold**
-   - HR can place documents under "legal hold" to prevent deletion
-   - Used during litigation, investigations, or audits
-   - Survives all retention policies and employee offboarding
-   - Clear audit trail of who activated hold and when
+4. **Smart Validation**
+   - Weekend blocking (Sat/Sun)
+   - Holiday exclusion automatically
+   - Conflict detection with existing WFH or leaves
 
 #### Anticipated Questions
 
-**Q: "What if an employee leaves the company—can they still access their documents?"**
-A: No. When offboarded, their access is revoked. Documents remain encrypted in the system for retention period (typically 7 years for tax/legal reasons). They can request export before leaving (GDPR right).
+**Q: "What if employees abuse WFH quotas?"**
+A: System enforces quotas automatically. HR can set per-employee exceptions. Managers can require approval workflows.
 
-**Q: "Can HR delegate document access to managers temporarily?"**
-A: Not by default (privacy risk). If needed, you can create a custom role with time-limited access. All access is logged.
+**Q: "Can we see who else is WFH on specific dates?"**
+A: Yes—calendar view shows all team members' WFH schedules. Helps managers plan in-office meetings.
 
-**Q: "What happens if the encryption key is lost?"**
-A: Keys are backed up securely (we recommend a hardware security module or cloud key management service). If catastrophically lost, documents are unrecoverable—this is a feature, not a bug (ensures true encryption).
-
-#### Time Estimate
-**90-120 seconds** - Show the security layers diagram.
+#### Time Estimate: **90-120 seconds** - This is our LATEST feature, emphasize it!
 
 ---
 
-### 5B: Employee Portal - "Your Data, Protected"
+### 5B: Smart Features
 
 #### Talking Points
 
-1. **Drag-and-Drop Upload**
-   - Modern upload interface: drag files directly from desktop
-   - Multi-file upload supported
-   - File type validation (only PDFs, images for documents)
-   - Files encrypted immediately upon upload—never stored in plaintext
+1. **Calendar Integration**
+   - Blue-themed WFH events appear on team calendar
+   - Alongside leaves (green), holidays (red)
+   - Export to personal calendars
 
-2. **Status Tracking**
-   - Documents go through workflow: Pending → HR Approved → Archived
-   - Clear indicators: "Awaiting HR Review", "Approved", "Rejected"
-   - If rejected, HR provides reason (e.g., "Image blurry, please reupload")
-   - Employees can replace rejected documents
+2. **Team Coordination**
+   - See who else is WFH before scheduling
+   - Manager visibility for planning
+   - Optional approval workflows
 
-3. **2FA for Sensitive Documents**
-   - When uploading/viewing highly sensitive documents, system prompts for 2FA
-   - One-time setup (scan QR code with authenticator app)
-   - Subsequent access: Enter 6-digit code
-   - Session timeout: 15 minutes for sensitive, 2 hours for normal
+3. **Flexible Adjustment**
+   - Cancel future WFH dates anytime
+   - Edit recurring patterns mid-cycle
+   - No email coordination needed
 
-4. **GDPR Data Export**
-   - Employees can request export of all their data (GDPR Article 20: Right to Data Portability)
-   - System generates a ZIP file with all documents + metadata JSON
-   - HR notified of export request (compliance tracking)
-   - Export available for 7 days, then auto-deleted
+#### Time Estimate: **60-90 seconds**
+
+---
+
+## Section 6: Team Calendar & Visibility
+
+### Overall Key Message
+"A unified calendar is the command center for team planning—see everything in one place."
+
+---
+
+### 6A: Calendar Overview
+
+#### Talking Points
+
+1. **Unified View**
+   - Leaves (green), holidays (red), WFH (blue) in one calendar
+   - Multiple views: Month, Week, Day, List
+   - Color-coded legend with interactive toggles
+
+2. **FullCalendar Integration**
+   - Industry-standard calendar library
+   - Drag-and-drop (if editing enabled)
+   - Responsive on all devices
+
+3. **Real-Time Updates**
+   - WebSocket notifications
+   - See approvals appear instantly
+   - No page refresh needed
+
+#### Time Estimate: **60 seconds**
+
+---
+
+### 6B: Manager Tools
+
+#### Talking Points
+
+1. **Smart Filters**
+   - Filter by department, user, event type, date range
+   - Hide/show specific event types
+   - Saved filter preferences
+
+2. **Team Availability**
+   - See who's available for meetings at a glance
+   - Conflict detection: "3 people out on this date"
+   - Team capacity planning
+
+3. **Holiday Management** ⭐
+   - HR auto-fetches holidays from officeholidays.com
+   - Supports 140+ countries (Philippines, US, Spain, etc.)
+   - State-specific holidays (for US)
+   - Active/inactive toggle for holiday visibility
+
+4. **Export & Sync**
+   - Export to Google Calendar, Outlook
+   - PDF reports for leadership
+   - iCal feed support
 
 #### Anticipated Questions
 
-**Q: "What if an employee forgets to set up 2FA before uploading a sensitive document?"**
-A: System prompts for 2FA setup during upload process. They must complete setup to proceed. Can't bypass.
+**Q: "Can employees see other people's medical leaves?"**
+A: No. Sensitive leave types (sick, medical) show as "Out" without details. Only HR sees full info.
+
+**Q: "What if we have multiple office locations with different holidays?"**
+A: System supports state/regional holidays. Configure per location or department.
+
+#### Time Estimate: **90-120 seconds** - Highlight holiday auto-fetch, it's unique!
+
+---
+
+## Section 7: Document Security (Consolidated)
+
+### Overall Key Message
+"Employee documents are sensitive—our multi-layer approach ensures they're protected, auditable, and compliant."
+
+---
+
+### 7A: Security Overview
+
+#### Talking Points
+
+1. **Encryption & Access**
+   - AES-256 encryption at rest (bank-grade)
+   - Role-Based Access Control: Only HR and document owner can view
+   - 2FA for highly sensitive documents (medical, financial)
+
+2. **Audit & Compliance**
+   - Immutable audit trail: Every access logged (who, when, IP, device)
+   - 7-year retention for compliance
+   - GDPR-ready: Data export, right to be forgotten, anonymization
+
+3. **Three-Tier Classification**
+   - 🟢 Normal: Resume, certificates (standard auth)
+   - 🟡 Sensitive: IDs, contracts (RBAC enforced)
+   - 🔴 Highly Sensitive: Medical, financial (2FA required, 15-min timeout)
+
+4. **Legal Hold**
+   - Prevent deletion during litigation
+   - Survives retention policies
+   - HR-controlled activation
+
+#### Time Estimate: **90-120 seconds**
+
+---
+
+### 7B: Employee Portal
+
+#### Talking Points
+
+1. **Simple Upload**
+   - Drag-and-drop interface
+   - Instant encryption on upload
+   - Status tracking: Pending → Approved
+
+2. **Use Cases**
+   - **Onboarding**: New hires upload resumes, IDs, certificates
+   - **Medical Records**: 2FA required, highly sensitive classification
+   - **Legal Hold**: Documents preserved during litigation
+
+3. **GDPR Compliance**
+   - Employees can export all their data (Article 20)
+   - Right to be forgotten (Article 17)
+   - Transparent audit logs
+
+#### Anticipated Questions
 
 **Q: "Can employees delete their own documents?"**
-A: No (prevents accidental deletion). They can request deletion via HR. HR decides based on retention policies.
+A: No—prevents accidental deletion. They request deletion via HR, who decides based on retention policies.
 
-**Q: "What document types are considered 'highly sensitive'?"**
-A: Configurable by HR. Default: medical records, financial documents, legal contracts. You can add custom categories.
+**Q: "What if we need documents for an audit after employee leaves?"**
+A: Documents retained for 7 years (configurable). Legal hold prevents deletion if needed.
 
-#### Time Estimate
-**60-90 seconds**
-
----
-
-### 5C: Sensitivity Levels - "Three-Tier Classification"
-
-#### Talking Points
-
-1. **🟢 Normal (Green)**
-   - Examples: Resume, educational certificates, reference letters
-   - Standard authentication required (username + password)
-   - No 2FA needed
-   - Standard session timeout: 2 hours
-   - Most documents fall into this category
-
-2. **🟡 Sensitive (Yellow)**
-   - Examples: Government IDs (passport, driver's license), employment contracts, offer letters
-   - Role-based access control enforced strictly
-   - Audit trail enabled (but standard logging, not enhanced)
-   - Cannot be downloaded by managers (employee + HR only)
-   - Encrypted at rest like all docs
-
-3. **🔴 Highly Sensitive (Red)**
-   - Examples: Medical records, financial statements, background check reports
-   - Mandatory 2FA for access
-   - Session timeout: 15 minutes (vs 2 hours for normal)
-   - Enhanced audit logging: screenshots of who viewed what, when
-   - Legal hold eligible
-   - Cannot be shared or exported without HR approval
-
-#### Anticipated Questions
-
-**Q: "Who decides the sensitivity level?"**
-A: HR configures default levels per document type during system setup. Can be changed later. Example: All medical records auto-tagged as "Highly Sensitive."
-
-**Q: "Can we add custom sensitivity levels?"**
-A: Currently three levels cover most use cases. Custom levels can be added if needed—requires configuration.
-
-**Q: "What if an employee uploads a sensitive document to the wrong category?"**
-A: HR reviews all uploads during approval. They can reclassify before approving. System warns if document name suggests higher sensitivity (e.g., filename contains "medical").
-
-#### Time Estimate
-**60 seconds**
+#### Time Estimate: **60-90 seconds** - Keep it concise, this is one feature among many!
 
 ---
 
-### 5D: Audit Trail - "Complete Transparency"
-
-#### Talking Points
-
-1. **What Gets Logged**
-   - Document uploads, views, downloads, approvals, rejections
-   - User login/logout events for document portal
-   - Permission changes (e.g., HR grants access to a specific document)
-   - Legal hold activation/deactivation
-   - Document deletion requests (logged even if denied)
-
-2. **Log Metadata**
-   - Timestamp (to the second)
-   - User ID + name
-   - IP address (for geolocation tracking)
-   - Device type (desktop, mobile, browser info)
-   - Action taken (viewed, downloaded, approved, etc.)
-
-3. **Immutability**
-   - Logs stored in append-only database
-   - Cannot be modified or deleted by anyone (including admins)
-   - Cryptographic hashing ensures tamper detection
-   - If an audit log is corrupted, system alerts immediately
-
-4. **Retention & Compliance**
-   - 7-year retention by default (meets most legal requirements)
-   - Logs archived after 1 year for performance (still queryable)
-   - Exportable for audits: Generate PDF or Excel report
-   - Searchable: Filter by user, date range, document, action
-
-#### Anticipated Questions
-
-**Q: "Can we reduce log retention to save storage?"**
-A: Technically yes, but not recommended. 7 years is industry standard for compliance (tax audits, labor disputes). Logs are compressed and don't take much space.
-
-**Q: "What if we need to investigate a specific incident?"**
-A: Audit log search is powerful: Enter employee name or document ID, system shows all related actions. Can export to Excel for detailed forensics.
-
-**Q: "Do logs show what was in the document?"**
-A: No. Logs show who accessed what document and when, but not document content (privacy protection).
-
-#### Time Estimate
-**60 seconds** - Show the access log table screenshot here.
-
----
-
-### 5E: Compliance - "Legal & Regulatory"
-
-#### Talking Points
-
-1. **Legal Hold System (Left Column)**
-   - Purpose: Preserve documents during litigation, investigations, or audits
-   - HR activates hold on specific documents or employee accounts
-   - Documents under hold cannot be deleted (even by automated retention policies)
-   - Holds remain active until HR manually releases them
-   - Full audit trail: Who placed hold, when, reason (free-text field)
-
-2. **GDPR Compliance (Right Column)**
-   - **Article 20 (Data Portability)**: Employees can export all their data in machine-readable format (JSON + files)
-   - **Article 17 (Right to be Forgotten)**: Employees can request account deletion. HR reviews, then system anonymizes all personal data (documents deleted, metadata anonymized)
-   - **Anonymization Process**: Employee name → "Deleted User #12345", email scrambled, documents deleted or anonymized based on retention policy
-   - **Retention Justification**: 7-year retention meets tax law and labor law requirements. Documents deleted automatically after retention period unless under legal hold
-
-3. **Other Compliance**
-   - SOC 2 Type II compatible (external audit available)
-   - ISO 27001 security practices followed
-   - HIPAA-ready for medical records (if needed)
-   - Compliance dashboard for HR shows: document status, legal holds, retention expirations
-
-#### Anticipated Questions
-
-**Q: "What if we're in California—do we need to comply with CCPA?"**
-A: Yes, and the system supports it. CCPA is similar to GDPR (right to access, right to deletion). We've built these into the core design.
-
-**Q: "Can we customize retention periods?"**
-A: Absolutely. Default is 7 years, but you can set per-document-type. Example: Tax documents (7 years), contracts (10 years), resumes (3 years).
-
-**Q: "What if an employee requests deletion but we need documents for an ongoing audit?"**
-A: Activate legal hold before processing deletion request. Hold overrides deletion. Inform employee their request is deferred due to legal obligation.
-
-#### Time Estimate
-**90 seconds** - This is critical for legal/compliance stakeholders.
-
----
-
-## Section 6: Competitive Advantage
+## Section 8: Competitive Advantage
 
 ### Key Message
-"Unlike traditional systems, we've built security, automation, and transparency into the core—not as afterthoughts."
+"Unlike traditional systems, we've integrated hybrid work, team coordination, and security into one platform—not bolted on as afterthoughts."
 
 ### Talking Points
 
-1. **Comparison Table Walkthrough**
-   - **Email Approvals → Automated Workflows**: No more lost requests in inboxes. Approval routing is automatic and visible.
-   - **Unencrypted Files → AES-256 Encryption**: Industry-leading security. Many competitors store files in plaintext on servers.
-   - **Manual Logs → Immutable Audit Trail**: Our logs cannot be tampered with. Competitors often use spreadsheets or basic logs that can be edited.
-   - **No 2FA → 2FA for Sensitive Docs**: Extra security layer that most HR systems don't offer.
-   - **Spreadsheet Tracking → Real-Time Dashboards**: No more Excel version hell. Everyone sees the same live data.
+1. **Comparison Table**
+   - **Email approvals → Automated workflows**
+   - **No WFH tracking → Month-specific recurring patterns**
+   - **Separate calendars → Unified leaves/WFH/holidays view**
+   - **Unencrypted files → AES-256 encryption**
+   - **Manual logs → Immutable audit trail**
 
 2. **What This Means**
-   - Competitors treat HR systems as "nice-to-have tools." We treat them as mission-critical security infrastructure.
-   - If you care about compliance, security, and employee experience—this system is built for you.
-   - Many clients switch from [competitors] because they lack encryption, modern UX, or can't pass security audits.
+   - Competitors treat HR systems as "just leave management"
+   - We treat it as the foundation for modern, hybrid-first workplaces
+   - Integrated vs. fragmented tools
 
-### Anticipated Questions
-
-**Q: "How do you compare to [specific competitor]?"**
-A: Prepare competitor comparison sheets (BambooHR, Workday, Zenefits, etc.). Key differentiators: encryption at rest, granular RBAC, 2FA, immutable audit logs, legal hold system.
-
-**Q: "Can we see a side-by-side feature matrix?"**
-A: Yes, we have detailed comparison docs. After the demo, we'll send you a PDF with feature parity analysis.
-
-### Time Estimate
-**60 seconds** - This is reinforcement, not the main pitch.
+### Time Estimate: **60 seconds**
 
 ---
 
-## Section 7: Business Value (ROI)
+## Section 9: Business Value (ROI)
 
 ### Key Message
 "This isn't just better software—it's measurable business impact."
@@ -587,218 +456,179 @@ A: Yes, we have detailed comparison docs. After the demo, we'll send you a PDF w
 ### Talking Points
 
 1. **⏱️ 90% Faster Approvals**
-   - Before: Leave requests took 3-5 days (manager forgets, HR inbox overload)
-   - After: Average approval time is 15 minutes
-   - Impact: Employees don't plan vacations weeks in advance "just in case"—they can be spontaneous
-   - Secondary benefit: Manager workload reduced (no manual email forwarding)
+   - Before: 3-5 days (email chains)
+   - After: 15 minutes (automated)
 
 2. **🛡️ 100% Compliance**
-   - Before: Manual processes = audit failures, fines, reputational damage
-   - After: Always audit-ready. Generate compliance reports in seconds.
-   - Impact: Avoid GDPR fines (up to €20M or 4% of global revenue), labor law violations
-   - Peace of mind for leadership and legal team
+   - Always audit-ready
+   - Avoid GDPR fines (up to €20M or 4% revenue)
 
 3. **😊 Higher Employee Satisfaction**
-   - Before: Employees frustrated by opaque processes ("Is my leave approved? Who do I ask?")
-   - After: Transparency and speed. 92% employee satisfaction in post-implementation surveys (average across clients)
-   - Impact: Better retention, improved employer brand, easier recruitment
+   - 92% satisfaction vs. 60% with email approvals
+   - 85% satisfaction with WFH flexibility
 
 4. **💰 Reduced HR Workload**
-   - Before: HR spends 40-60% time on admin tasks (leave approvals, document filing, answering status questions)
-   - After: HR shifts to strategic work (talent development, culture initiatives)
-   - Impact: Same HR team can support 2x more employees. Cost savings: $30-50K/year per HR FTE redeployed.
+   - HR spends 40-60% less time on admin tasks
+   - Cost savings: $30-50K/year per HR FTE redeployed
 
-### Anticipated Questions
+### Additional Metrics (if asked)
+- **WFH Scheduling**: 80% faster than manual email coordination
+- **Holiday Management**: 95% reduction in admin time vs. manual entry
+- **Asset Tracking**: 90% reduction in lost/unaccounted equipment
 
-**Q: "Do you have ROI case studies?"**
-A: Yes. We have case studies from companies with 50, 200, and 500+ employees. Typical payback period: 6-9 months.
-
-**Q: "What's the total cost of ownership?"**
-A: Depends on deployment (cloud vs on-premise), user count, and support tier. We'll provide a detailed quote. Typical range: $5-15/user/month.
-
-**Q: "What if we don't see the ROI?"**
-A: We offer implementation success guarantees. If you're not satisfied after 90 days, we'll work with you to fix issues or provide a partial refund (terms in contract).
-
-### Time Estimate
-**60-90 seconds** - Let the numbers speak.
+### Time Estimate: **60-90 seconds**
 
 ---
 
-## Section 8: Interactive Demo
+## Section 10: Interactive Demo
 
 ### Key Message
-"Let's see it in action—watch how Sarah's leave request flows through the system in real-time."
+"Let's see it in action—watch how an employee schedules WFH and a leave request flows through the system."
 
-### Talking Points
+### Talking Points (for video or live demo)
 
-1. **Video Walkthrough** (if available)
-   - Sarah logs in, checks her balance (14 vacation days remaining)
-   - Applies for 3-day vacation next month
-   - Manager John receives instant notification, reviews team calendar, approves
-   - HR sees approval, reviews, confirms
-   - Leave appears on team calendar automatically
-   - Sarah receives confirmation email
-   - Total time: under 5 minutes
+1. **Sarah schedules WFH**
+   - Selects "Mon/Wed for February"
+   - Preview shows 8 dates
+   - Schedule → Blue events appear on calendar
 
-2. **Key Moments to Highlight**
-   - Notice how balance validation happens instantly (can't apply for more than available)
-   - Manager sees team calendar inline—no need to check external calendars
-   - HR doesn't need to manually update calendars—automation handles it
-   - Audit trail captures every step for compliance
+2. **Sarah applies for leave**
+   - Checks balance: 14 days remaining
+   - Applies for 3-day vacation
+   - Manager John reviews (sees team calendar inline)
+   - Approves → Green event appears
+   - HR confirms → Status: Confirmed
 
-3. **Interactive Option** (if live demo)
-   - Walk through the flow live
-   - Let audience suggest scenarios: "What if manager rejects?" → Show rejection flow
-   - Demonstrate mobile responsiveness: "Here's how it looks on a phone"
+3. **Total time**: Under 5 minutes from start to finish
 
-### Anticipated Questions
-
-**Q: "Can we test this ourselves?"**
-A: Yes. After the demo, we'll provide a sandbox environment with test data. You can try all workflows.
-
-**Q: "What if we want to customize the workflow?"**
-A: All workflows are configurable. We'll show you the admin panel where you set approval rules.
-
-### Time Estimate
-**3-5 minutes** - This is the proof. Let it breathe.
+### Time Estimate: **3-5 minutes**
 
 ---
 
-## Section 9: Summary & Next Steps
+## Section 11: Summary & Next Steps
 
 ### Key Message
-"You've seen how we solve your HR challenges—now let's discuss how to get you onboarded."
+"You've seen a comprehensive HR system that modernizes leave, hybrid work, calendars, and documents. Let's discuss your specific needs."
 
 ### Talking Points
 
-1. **Recap the Key Takeaways** (go through the 4 bullets on screen)
-   - Automated workflows: Save time, reduce errors
-   - Bank-grade security: Protect your most sensitive data
-   - Complete audit trail: Always compliance-ready
-   - Improved employee experience: Transparency and speed
+1. **Recap Key Takeaways**
+   - Automated workflows save time and reduce errors
+   - Hybrid work support with WFH scheduler and unified calendar
+   - Enterprise security protects sensitive data
+   - Complete audit trail ensures compliance
 
 2. **What Happens Next**
-   - **Schedule Full Demo**: Personalized walkthrough with your team, discuss specific requirements
+   - **Schedule Full Demo**: Personalized walkthrough with your team
    - **View Documentation**: Technical specs, security whitepaper, API docs
-   - **Contact Us**: Get a quote, discuss implementation timeline
+   - **Pilot Program**: Start with 10-20 users before full rollout
 
-3. **Call to Action**
-   - "I recommend scheduling a full demo with your HR and IT teams. We'll configure the sandbox with your leave policies and workflows."
-   - "If security is your priority, ask for our security whitepaper—it covers encryption, penetration test results, and compliance certifications."
-   - "Ready to move forward? Let's discuss a pilot program with 10-20 users before full rollout."
-
-### Anticipated Questions
-
-**Q: "How soon can we go live?"**
-A: Typical timeline: 2 weeks discovery/configuration, 2 weeks data migration, 2 weeks training/testing. Full go-live in 6 weeks.
-
-**Q: "What support do you offer post-launch?"**
-A: Tiered support: Basic (email, 48hr response), Standard (email + phone, 24hr response), Premium (dedicated account manager, 4hr response, on-call support).
-
-**Q: "Can we start with just leave management and add documents later?"**
-A: Yes. Phased rollout is common. Start with leave, stabilize, then add document security. License pricing adjusts accordingly.
-
-### Time Estimate
-**60-90 seconds** - Close strong, clear CTAs.
+### Time Estimate: **60-90 seconds**
 
 ---
 
 ## Post-Presentation Q&A Strategy
 
-### Common Objection Handling
+### Common Questions
 
-**Objection: "This seems expensive for our size."**
-Response: "Let's talk about cost vs. value. If your HR spends even 10 hours/month on manual leave admin at $50/hr, that's $6,000/year. Our system costs less and delivers additional compliance, security, and employee satisfaction benefits."
+**Q: "What other features exist that we didn't see?"**
+A: Employee onboarding (document submission workflow), asset management (laptops, equipment tracking), project/task management, support ticket system, announcements. We focused on the most-used features today.
 
-**Objection: "We're happy with our current system."**
-Response: "That's great. Can you answer these questions about your current system: (1) Are files encrypted at rest? (2) Can you generate an audit log for compliance? (3) How long does a typical leave approval take? If you're confident in all these areas, you may not need us. But if any are gaps, let's talk."
+**Q: "How does this compare to BambooHR or Workday?"**
+A: We offer deeper hybrid work support (WFH scheduler), better document encryption, and more flexible workflows. Happy to provide detailed comparison sheets.
 
-**Objection: "Our IT team is too busy for implementation."**
-Response: "We handle 90% of the implementation—setup, configuration, data migration. Your IT team's involvement is minimal: provide server access, approve security protocols. We estimate 10-15 hours total from your IT team over 6 weeks."
+**Q: "Can we customize the WFH quota per department?"**
+A: Absolutely. HR sets default (e.g., 2 days/week), then creates exceptions per department, role, or individual employee.
 
-**Objection: "What if employees resist the change?"**
-Response: "Change management is part of our implementation. We provide: (1) Training sessions (live + recorded), (2) User guides, (3) In-app tooltips, (4) Dedicated support during rollout. Most clients see 80%+ adoption within the first week—the system is intuitive enough that employees prefer it."
+**Q: "What if managers want to block WFH on certain days (e.g., all-hands meetings)?"**
+A: Feature request we're considering. Current workaround: Manager communicates expected in-office days, employees respect it.
+
+**Q: "Do you support other types of events on the calendar?"**
+A: Yes. We can add birthdays, work anniversaries, company events. Calendar is extensible.
 
 ---
 
-## Technical Deep-Dive (If Requested)
+## Technical Deep-Dive (If CTO/IT Asks)
 
-### For IT/Security Stakeholders
+### Architecture
+- **Backend**: Laravel 11 (PHP 8.2+)
+- **Frontend**: React 19 + Inertia.js + TailwindCSS 4
+- **Database**: PostgreSQL or MySQL
+- **Calendar**: FullCalendar library
+- **Encryption**: AES-256-CBC (OpenSSL)
+- **Authentication**: Laravel Sanctum + optional SSO
 
-**Architecture**:
-- Backend: Laravel 11 (PHP 8.2+), PostgreSQL or MySQL
-- Frontend: React 19 + Inertia.js + TailwindCSS 4
-- Authentication: Laravel Sanctum + optional SSO (SAML, OAuth)
-- Encryption: AES-256-CBC (OpenSSL), keys managed separately
-- Audit Logging: Append-only database table with cryptographic hashing
-
-**Security Measures**:
+### Security
 - Encryption at rest and in transit (TLS 1.3)
-- Role-Based Access Control (RBAC) with granular permissions
-- Two-Factor Authentication (TOTP via Google Authenticator)
-- Rate limiting on API endpoints (prevent brute force)
-- SQL injection prevention (parameterized queries, ORM)
-- XSS protection (content security policy, input sanitization)
-- CSRF protection (token-based)
+- RBAC with granular permissions
+- 2FA (TOTP via Google Authenticator)
+- Rate limiting, SQL injection prevention, XSS protection, CSRF tokens
 
-**Compliance**:
-- GDPR (data portability, right to be forgotten, anonymization)
-- SOC 2 Type II compatible (external audit available)
+### Compliance
+- GDPR (data portability, right to be forgotten)
+- SOC 2 Type II compatible
 - HIPAA-ready (for medical records)
 - ISO 27001 security practices
 
-**Deployment Options**:
-- On-premise: Install on your own servers
-- Cloud: AWS, Azure, Google Cloud (we manage)
-- Hybrid: Database on-premise, app in cloud
-
-**Scalability**:
+### Scalability
 - Tested with 10,000+ concurrent users
-- Horizontal scaling supported (load balancer + multiple app servers)
+- Horizontal scaling supported
 - Database replication for high availability
 
-**Backup & Disaster Recovery**:
-- Automated daily backups (encrypted)
-- Point-in-time recovery (up to 30 days)
-- Disaster recovery plan with 4-hour RTO, 1-hour RPO
+---
+
+## Features NOT Covered (Mention if Asked)
+
+### Medium Priority (Can add to future demos)
+1. **Employee Onboarding System**
+   - HR creates invites, employees register, upload documents
+   - Document approval workflow
+   - Secure from day one
+
+2. **Asset Management**
+   - Laptops, monitors, phones tracked
+   - Assignment/return workflows
+   - Accountability during offboarding
+
+3. **RBAC System Details**
+   - Custom role creation
+   - Granular permissions
+   - User overrides
+
+### Lower Priority
+4. **Project & Task Management** - Kanban boards, milestones
+5. **Ticket/Support System** - Internal helpdesk
+6. **Announcements** - Company-wide communication
 
 ---
 
 ## Presentation Tips
 
-1. **Pacing**: Stick to time estimates. If audience is engaged, you can go deeper. If they're checking phones, speed up.
+1. **Pacing**: Stick to time estimates. If audience is engaged, go deeper. If restless, speed up.
 
-2. **Visuals**: Let the slides breathe. Don't read bullets—explain the "why" behind each point.
+2. **Emphasize Balance**: Say "This is a comprehensive HR system" multiple times. Don't let it seem like just documents.
 
-3. **Stories**: Use customer anecdotes. "One client had a leave request lost in email for 2 weeks—employee booked a flight and got denied last minute. That doesn't happen with our system."
+3. **Highlight WFH & Calendar**: These are recent, modern features that differentiate us.
 
-4. **Interactivity**: Pause for questions after Sections 4, 5, and 8. Don't wait until the end—engagement drops.
+4. **Use Examples**: "Sarah schedules WFH in 30 seconds vs. 20-minute email thread."
 
-5. **Customization**: Tailor examples to the audience. If presenting to a tech company, emphasize developer-friendly APIs. If healthcare, emphasize HIPAA compliance.
-
-6. **Confidence**: You're presenting a solution to real problems they have. Be consultative, not salesy.
+5. **Pause for Questions**: After Sections 4, 5, 6, and 10. Don't wait until the end.
 
 ---
 
 ## Follow-Up Materials to Send
 
-After the presentation, send:
+After the presentation:
 1. **Slide deck (PDF)** - The visual presentation
 2. **This speaker guide** - For their internal review
-3. **Security whitepaper** - Encryption details, penetration test results
-4. **Case studies** - 2-3 relevant to their industry/size
-5. **Pricing sheet** - Transparent pricing tiers
-6. **Sandbox access** - Let them test the system
-7. **Implementation timeline** - Gantt chart showing 6-week rollout
-
----
-
-## Conclusion
-
-This demo showcases a **complete HR management system** that solves real problems with automation, security, and compliance. The key is not to overwhelm—focus on the pain points they care about most (usually time savings for managers, compliance for HR, transparency for employees).
-
-**End with confidence**: "This system is in production today, handling thousands of leave requests and securing millions of sensitive documents. It can do the same for you. What questions do you have?"
+3. **Security whitepaper** - Encryption details
+4. **Feature comparison** - vs. BambooHR, Workday, Zenefits
+5. **Pricing sheet** - Transparent tiers
+6. **Sandbox access** - Let them test
+7. **Implementation timeline** - Gantt chart for 6-week rollout
 
 ---
 
 **Good luck with the presentation! 🚀**
+
+Remember: This is a **comprehensive HR management system**, not just a document management tool. Emphasize the breadth of features!
