@@ -34,6 +34,13 @@ Route::get('/', function () {
 });
 
 // ============================================
+// 🎥 DEMO PRESENTATION (Public - No authentication required)
+// ============================================
+Route::get('/demo', function () {
+    return Inertia::render('Demo');
+})->name('demo');
+
+// ============================================
 // 👤 GUEST ONBOARDING ROUTES (No authentication required)
 // ✅ MUST BE OUTSIDE auth middleware - Using /guest prefix to avoid conflicts
 // ============================================
