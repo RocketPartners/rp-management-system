@@ -103,35 +103,49 @@ A: No—companies with 20+ employees benefit. Even small teams waste hours on co
 ## Section 3: Our Solution (Three Pillars)
 
 ### Key Message
-"We solve these problems with intelligent automation, enterprise security, and complete visibility."
+"We solve these problems with three pillars: modern workplace support, intelligent automation, and security & compliance."
 
 ### Talking Points
 
-1. **Pillar 1: Intelligent Automation** (Blue)
-   - Dynamic workflows: System routes approvals based on leave type, WFH patterns recur automatically
-   - Real-time validation: Can't apply for more days than available balance
-   - Smart conflict detection: Prevents double-booking, holiday conflicts
+1. **Pillar 1: Modern Workplace Support** (Blue)
+   - Built for 2026+ workplace: office, remote, and hybrid workers all supported
+   - WFH scheduling with month-specific patterns (Mon/Wed in Feb, Tue/Thu in Mar)
+   - Unified calendar shows all work arrangements: who's in office, who's remote, who's on leave
+   - Team coordination regardless of physical location
 
-2. **Pillar 2: Enterprise Security** (Green)
-   - AES-256 encryption for documents
-   - RBAC (Role-Based Access Control): Employees see only their data
-   - 2FA for sensitive documents, immutable audit logs
+2. **Pillar 2: Intelligent Automation** (Green)
+   - Automated leave and WFH workflows eliminate manual coordination emails
+   - Smart conflict detection: prevents over-booking quotas, holiday conflicts, team capacity issues
+   - Real-time notifications: everyone stays updated without checking email
+   - Auto-fetch holidays from API: 140+ countries supported, reduces admin time by 95%
 
-3. **Pillar 3: Complete Visibility** (Yellow)
-   - Unified calendar: Leaves, WFH, holidays in one view
-   - Team availability dashboard for managers
-   - Real-time updates, export to Google/Outlook
+3. **Pillar 3: Security & Compliance** (Yellow)
+   - AES-256 encryption for sensitive documents (bank-grade security)
+   - Role-Based Access Control (RBAC): employees see only their own data
+   - Immutable audit trails: every action logged, cannot be modified
+   - GDPR-ready: data export, right to be forgotten, anonymization on demand
+
+### Why These Pillars Matter
+
+**Modern Workplace Support** - Traditional HR systems were built for 9-5 office work. We're built for hybrid-first organizations where teams are distributed.
+
+**Intelligent Automation** - Your HR team should spend time on strategic work (culture, development), not admin tasks. We automate 90% of routine work.
+
+**Security & Compliance** - One data breach can cost millions in fines and reputational damage. We make security and compliance automatic, not an afterthought.
 
 ### Anticipated Questions
 
 **Q: "How customizable are the workflows?"**
-A: Highly customizable. HR admins configure leave types, WFH quotas, approval chains without developer involvement.
+A: Highly customizable. HR admins configure leave types, WFH quotas, approval chains without developer involvement. We provide templates for common scenarios (sick leave auto-approve, extended leave needs HR approval), but you can customize everything.
 
 **Q: "What about mobile access?"**
-A: Fully responsive. Employees apply for leave, schedule WFH, view calendar from phones. Managers approve on the go.
+A: Fully responsive. Employees apply for leave, schedule WFH, view calendar from phones. Managers approve on the go. Push notifications keep everyone updated.
+
+**Q: "Do you support international teams across multiple countries?"**
+A: Yes. WFH quotas can vary by country/department. Holiday calendar supports 140+ countries with state/regional variations. Leave types and policies can be configured per location.
 
 ### Time Estimate
-**60-90 seconds** - Set up the detailed sections to come.
+**60-90 seconds** - Set up the detailed sections to come. Emphasize "modern workplace" to differentiate from legacy systems.
 
 ---
 

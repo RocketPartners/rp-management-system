@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bot, Shield, BarChart3 } from 'lucide-react';
+import { Users, Bot, ShieldCheck } from 'lucide-react';
 import DemoSection from '../DemoSection';
 import FeatureCard from '../FeatureCard';
 import ScreenshotPlaceholder from '../ScreenshotPlaceholder';
@@ -7,36 +7,36 @@ import ScreenshotPlaceholder from '../ScreenshotPlaceholder';
 export default function SolutionSection() {
     const pillars = [
         {
-            icon: Bot,
-            title: 'Intelligent Automation',
+            icon: Users,
+            title: 'Modern Workplace Support',
             color: 'blue',
             bullets: [
-                'Dynamic approval workflows',
-                'Real-time balance validation',
-                'Automated compliance tracking',
-                'Calendar integration',
+                'Office, remote, and hybrid work—all supported',
+                'WFH scheduling with flexible patterns',
+                'Unified calendar across all work arrangements',
+                'Team coordination regardless of location',
             ],
         },
         {
-            icon: Shield,
-            title: 'Enterprise Security',
+            icon: Bot,
+            title: 'Intelligent Automation',
             color: 'green',
             bullets: [
-                'AES-256 encryption at rest',
-                'Role-based access control',
-                'Two-factor authentication',
-                'Immutable audit logs',
+                'Automated leave and WFH workflows',
+                'Smart conflict detection (holidays, quotas, capacity)',
+                'Real-time notifications and updates',
+                'Auto-fetch holidays from 140+ countries',
             ],
         },
         {
-            icon: BarChart3,
-            title: 'Complete Visibility',
+            icon: ShieldCheck,
+            title: 'Security & Compliance',
             color: 'yellow',
             bullets: [
-                'Real-time dashboards',
-                'Team calendar views',
-                'Compliance reporting',
-                'Historical analytics',
+                'AES-256 encryption for sensitive documents',
+                'Role-based access control (RBAC)',
+                'Immutable audit trails for all actions',
+                'GDPR-ready (data export, right to be forgotten)',
             ],
         },
     ];
