@@ -158,3 +158,61 @@ export async function getTextContent(page: Page, selector: string): Promise<stri
   const element = await page.locator(selector);
   return (await element.textContent()) || '';
 }
+
+/**
+ * Get audit log count for a specific action
+ */
+export async function getAuditLogCount(action?: string): Promise<number> {
+  const whereClause = action ? `where('action', '${action}')->` : '';
+  const phpCode = `echo App\\Models\\DocumentAccessLog::${whereClause}count();`;
+  const command = `php artisan tinker --execute="${phpCode}"`;
+
+  const { stdout } = await execAsync(command);
+  const count = parseInt(stdout.trim(), 10);
+  return isNaN(count) ? 0 : count;
+}
+
+/**
+ * Get latest audit log
+ */
+export async function getLatestAuditLog(): Promise<any> {
+  const phpCode = `echo json_encode(App\\Models\\DocumentAccessLog::with('user', 'document')->latest('accessed_at')->first()?->toArray() ?? []);`;
+  const command = `php artisan tinker --execute="${phpCode}"`;
+
+  const { stdout } = await execAsync(command);
+  const lines = stdout.split('\n').filter(l => l.trim().length > 0);
+  const jsonLine = lines.find(l => l.startsWith('{') || l.startsWith('['));
+
+  if (!jsonLine) {
+    return null;
+  }
+
+  return JSON.parse(jsonLine);
+}
+
+/**
+ * Get audit logs for a specific user
+ */
+export async function getAuditLogsForUser(userId: number): Promise<any[]> {
+  const phpCode = `echo json_encode(App\\Models\\DocumentAccessLog::where('user_id', ${userId})->orderBy('accessed_at', 'desc')->limit(10)->get()->toArray());`;
+  const command = `php artisan tinker --execute="${phpCode}"`;
+
+  const { stdout } = await execAsync(command);
+  const lines = stdout.split('\n').filter(l => l.trim().length > 0);
+  const jsonLine = lines.find(l => l.startsWith('['));
+
+  if (!jsonLine) {
+    return [];
+  }
+
+  return JSON.parse(jsonLine);
+}
+
+/**
+ * Clear all audit logs (for testing)
+ */
+export async function clearAuditLogs(): Promise<void> {
+  const phpCode = `App\\Models\\DocumentAccessLog::truncate();`;
+  const command = `php artisan tinker --execute="${phpCode}"`;
+  await execAsync(command);
+}

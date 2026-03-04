@@ -4,10 +4,16 @@ namespace App\Http\Controllers\Onboarding;
 
 use App\Http\Controllers\Controller;
 use App\Models\OnboardingDocument;
+use App\Services\DocumentAuditService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class OnboardingDocumentDownloadController extends Controller
 {
+    public function __construct(private DocumentAuditService $auditService)
+    {
+    }
+
     /**
      * Download onboarding document (with permission check)
      */
@@ -26,6 +32,17 @@ class OnboardingDocumentDownloadController extends Controller
         // Check if file exists
         if (! Storage::disk('private')->exists($document->path)) {
             abort(404, 'Document file not found.');
+        }
+
+        // 📝 AUDIT LOG: Record download action (non-blocking)
+        try {
+            $this->auditService->logAccess($document, 'download');
+        } catch (\Exception $e) {
+            Log::error('Failed to log document download', [
+                'document_id' => $document->id,
+                'user_id' => $user?->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         // Return file download
@@ -52,6 +69,17 @@ class OnboardingDocumentDownloadController extends Controller
 
         if (! Storage::disk('private')->exists($document->path)) {
             abort(404, 'Document file not found.');
+        }
+
+        // 📝 AUDIT LOG: Record view action (non-blocking)
+        try {
+            $this->auditService->logAccess($document, 'view');
+        } catch (\Exception $e) {
+            Log::error('Failed to log document view', [
+                'document_id' => $document->id,
+                'user_id' => $user?->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
         // Return file for viewing (inline)
