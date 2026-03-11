@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronDown, Check } from 'lucide-react';
 import DemoSection from '../DemoSection';
-import ScreenshotPlaceholder from '../ScreenshotPlaceholder';
+import LiveDemoButton from '../LiveDemoButton';
 
 export default function HeroSection() {
     return (
@@ -19,7 +19,7 @@ export default function HeroSection() {
                 <div className="max-w-4xl mx-auto space-y-4 mb-12">
                     {[
                         'Automated leave workflows save 90% approval time',
-                        'Bank-grade encryption protects employee data',
+                        'Role-based access control protects employee data',
                         'Complete audit trail ensures compliance',
                     ].map((value, index) => (
                         <div key={index} className="flex items-start justify-center text-lg md:text-xl">
@@ -36,12 +36,12 @@ export default function HeroSection() {
                 </div>
             </div>
 
-            {/* Dashboard Screenshot */}
+            {/* Live Demo Button - Opens in New Tab (No iframe issues) */}
             <div className="mt-12">
-                <ScreenshotPlaceholder
-                    title="Dashboard Overview"
-                    dimensions="1920x1080"
-                    aspectRatio="wide"
+                <LiveDemoButton
+                    dashboardUrl="http://52.64.225.64/dashboard"
+                    label="Launch Live Dashboard Demo"
+                    description="Click to explore the actual HR system in a new tab"
                 />
             </div>
         </DemoSection>

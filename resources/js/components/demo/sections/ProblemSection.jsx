@@ -2,7 +2,6 @@ import React from 'react';
 import { X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DemoSection from '../DemoSection';
-import ScreenshotPlaceholder from '../ScreenshotPlaceholder';
 
 export default function ProblemSection() {
     const problems = [
@@ -39,10 +38,16 @@ export default function ProblemSection() {
 
             {/* Before State Screenshot */}
             <div className="mt-12 max-w-4xl mx-auto">
-                <ScreenshotPlaceholder
-                    title="Before: Messy Spreadsheet Example"
-                    dimensions="1200x800"
-                />
+                <div className="relative">
+                    <div className="absolute -top-6 left-0 bg-red-100 text-red-800 px-4 py-2 rounded-t-lg font-semibold text-sm">
+                        Before: Messy Spreadsheet Example
+                    </div>
+                    <img
+                        src="/demo/media/images/problem-messy-spreadsheet.png"
+                        alt="Messy spreadsheet showing chaotic HR tracking"
+                        className="w-full rounded-lg shadow-2xl border-4 border-red-200"
+                    />
+                </div>
             </div>
         </DemoSection>
     );

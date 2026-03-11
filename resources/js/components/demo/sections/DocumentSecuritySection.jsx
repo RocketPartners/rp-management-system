@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Lock, Shield, FileText, Scale } from 'lucide-react';
+import { Check, Shield, FileText, Scale, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import DemoSection from '../DemoSection';
 import FeatureCard from '../FeatureCard';
@@ -11,74 +11,99 @@ export default function DocumentSecuritySection() {
             {/* Section 7A: Security Overview */}
             <DemoSection
                 id="security-overview"
-                title="Document Security"
-                subtitle="Enterprise-Grade Protection"
+                title="Document Security & Compliance"
+                subtitle="Robust Protection and Audit Controls"
                 backgroundColor="bg-gradient-to-br from-green-50 to-white"
             >
                 {/* Feature Cards */}
                 <div className="grid md:grid-cols-2 gap-6">
                     <FeatureCard
-                        icon={Lock}
-                        title="Encryption & Access"
-                        color="green"
-                        bullets={[
-                            'AES-256 encryption at rest',
-                            'Role-based access control (RBAC)',
-                            '2FA for highly sensitive documents',
-                        ]}
-                    />
-                    <FeatureCard
                         icon={FileText}
-                        title="Audit & Compliance"
+                        title="Immutable Audit Trail"
                         color="blue"
                         bullets={[
-                            'Immutable audit trail (every access logged)',
-                            '7-year retention for compliance',
-                            'GDPR data export & anonymization',
+                            'Every document access logged automatically',
+                            'Tracks: upload, view, download, replace, delete',
+                            'Captures user ID, IP address, timestamp',
+                            'Write-once logs—cannot be modified',
                         ]}
                     />
                     <FeatureCard
                         icon={Shield}
-                        title="Three-Tier Classification"
+                        title="Role-Based Access Control"
+                        color="green"
+                        bullets={[
+                            'HR/Admin: Full document access',
+                            'Managers: Team documents only',
+                            'Employees: Own documents only',
+                            'Enforced at controller and policy level',
+                        ]}
+                    />
+                    <FeatureCard
+                        icon={Clock}
+                        title="7-Year Retention Policy"
                         color="yellow"
                         bullets={[
-                            '🟢 Normal: Standard authentication',
-                            '🟡 Sensitive: RBAC enforced',
-                            '🔴 Highly Sensitive: 2FA required',
+                            'Compliant with Philippine labor law',
+                            'Automatic cleanup after retention period',
+                            'Legal hold overrides retention',
+                            'Configurable per document type',
                         ]}
                     />
                     <FeatureCard
                         icon={Scale}
-                        title="Legal Hold"
+                        title="Legal Hold System"
                         color="red"
                         bullets={[
                             'Prevent deletion during litigation',
-                            'Survives retention policies',
-                            'HR-controlled activation',
+                            'HR-controlled activation with reason',
+                            'Survives all retention policies',
+                            'Tracked in audit logs',
                         ]}
                     />
+                </div>
+
+                {/* Additional Features */}
+                <div className="mt-12 max-w-4xl mx-auto bg-gradient-to-r from-blue-50 to-green-50 rounded-xl p-8 border-2 border-gray-200">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">Additional Compliance Features</h3>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="flex items-start">
+                            <Check className="w-6 h-6 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                            <div>
+                                <div className="font-semibold text-gray-900">Three-Tier Classification</div>
+                                <div className="text-sm text-gray-600 mt-1">Normal, Sensitive, Highly Sensitive document levels</div>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <Check className="w-6 h-6 text-green-600 mr-3 mt-0.5 flex-shrink-0" />
+                            <div>
+                                <div className="font-semibold text-gray-900">User Anonymization</div>
+                                <div className="text-sm text-gray-600 mt-1">GDPR compliance for terminated employees</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Screenshots */}
                 <div className="grid md:grid-cols-2 gap-6 mt-12">
                     <ScreenshotPlaceholder title="Document Upload Interface" dimensions="1000x700" />
-                    <ScreenshotPlaceholder title="Access Audit Log" dimensions="1200x700" />
+                    <ScreenshotPlaceholder title="Audit Trail Command Output" dimensions="1200x700" />
                 </div>
             </DemoSection>
 
             {/* Section 7B: Employee Portal */}
             <DemoSection
                 id="security-portal"
-                subtitle="Secure Self-Service for Employees"
+                subtitle="Secure Document Management"
                 backgroundColor="bg-white"
             >
                 {/* Key Features */}
                 <div className="max-w-4xl mx-auto space-y-4">
                     {[
-                        'Drag-and-drop upload with instant encryption',
-                        'Track document status: Pending → Approved',
-                        '2FA prompt for sensitive documents',
-                        'GDPR data export: Download all your data anytime',
+                        'Drag-and-drop upload with automatic classification',
+                        'Track document status: Uploaded → Approved/Rejected',
+                        'Document replacement preserves audit history',
+                        'Legal hold protection prevents accidental deletion',
                     ].map((feature, index) => (
                         <motion.div
                             key={index}
@@ -101,17 +126,17 @@ export default function DocumentSecuritySection() {
                         <div className="text-center">
                             <div className="text-4xl mb-3">📄</div>
                             <div className="font-semibold text-gray-900 mb-2">Onboarding Documents</div>
-                            <div className="text-sm text-gray-600">Resumes, IDs, certificates encrypted on upload</div>
+                            <div className="text-sm text-gray-600">Resumes, IDs, certificates with full audit trail</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-4xl mb-3">🏥</div>
-                            <div className="font-semibold text-gray-900 mb-2">Medical Records</div>
-                            <div className="text-sm text-gray-600">2FA required, 15-min session timeout</div>
+                            <div className="text-4xl mb-3">🔍</div>
+                            <div className="font-semibold text-gray-900 mb-2">Compliance Audits</div>
+                            <div className="text-sm text-gray-600">Complete access history for regulators</div>
                         </div>
                         <div className="text-center">
                             <div className="text-4xl mb-3">⚖️</div>
                             <div className="font-semibold text-gray-900 mb-2">Litigation Support</div>
-                            <div className="text-sm text-gray-600">Legal hold prevents deletion</div>
+                            <div className="text-sm text-gray-600">Legal hold prevents document deletion</div>
                         </div>
                     </div>
                 </div>
@@ -119,7 +144,7 @@ export default function DocumentSecuritySection() {
                 {/* Screenshot */}
                 <div className="mt-12 max-w-5xl mx-auto">
                     <ScreenshotPlaceholder
-                        title="Document Portal with Status Badges"
+                        title="Document Portal with Audit Trail"
                         dimensions="1600x900"
                         aspectRatio="wide"
                     />

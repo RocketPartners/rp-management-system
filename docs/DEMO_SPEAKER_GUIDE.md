@@ -373,10 +373,10 @@ A: System supports state/regional holidays. Configure per location or department
 
 ---
 
-## Section 7: Document Security (Consolidated)
+## Section 7: Document Security & Compliance
 
 ### Overall Key Message
-"Employee documents are sensitive—our multi-layer approach ensures they're protected, auditable, and compliant."
+"Employee documents are sensitive—our system provides robust audit controls, access protection, and compliance features that are actually working today."
 
 ---
 
@@ -384,27 +384,39 @@ A: System supports state/regional holidays. Configure per location or department
 
 #### Talking Points
 
-1. **Encryption & Access**
-   - AES-256 encryption at rest (bank-grade)
-   - Role-Based Access Control: Only HR and document owner can view
-   - 2FA for highly sensitive documents (medical, financial)
+1. **Immutable Audit Trail** ⭐ (Core Feature)
+   - Every document access logged automatically
+   - Tracks: upload, view, download, replace, delete
+   - Captures: user ID, IP address, timestamp, device
+   - Write-once logs—cannot be modified or deleted
+   - Example: "We can tell you exactly who accessed which document, when, from where"
 
-2. **Audit & Compliance**
-   - Immutable audit trail: Every access logged (who, when, IP, device)
-   - 7-year retention for compliance
-   - GDPR-ready: Data export, right to be forgotten, anonymization
+2. **Role-Based Access Control**
+   - HR/Admin: Full document access across organization
+   - Managers: Team documents only
+   - Employees: Own documents only
+   - Enforced at controller and policy level
+   - Example: "A manager can't accidentally see another team's documents"
 
-3. **Three-Tier Classification**
-   - 🟢 Normal: Resume, certificates (standard auth)
-   - 🟡 Sensitive: IDs, contracts (RBAC enforced)
-   - 🔴 Highly Sensitive: Medical, financial (2FA required, 15-min timeout)
+3. **7-Year Retention Policy**
+   - Compliant with Philippine labor law requirements
+   - Automatic cleanup after retention period expires
+   - Legal hold overrides retention (litigation protection)
+   - Configurable per document type
+   - Command-line tool: `php artisan audit:status --detailed`
 
-4. **Legal Hold**
-   - Prevent deletion during litigation
-   - Survives retention policies
-   - HR-controlled activation
+4. **Legal Hold System**
+   - Prevent deletion during litigation or investigations
+   - HR-controlled activation with documented reason
+   - Survives all retention policies and cleanup processes
+   - Tracked in audit logs for transparency
+   - Example: "If you're in litigation, mark documents with legal hold—they're protected"
 
-#### Time Estimate: **90-120 seconds**
+5. **Additional Features**
+   - Three-tier classification: Normal, Sensitive, Highly Sensitive
+   - User anonymization for GDPR compliance (terminated employees)
+
+#### Time Estimate: **120-150 seconds**
 
 ---
 
@@ -412,33 +424,48 @@ A: System supports state/regional holidays. Configure per location or department
 
 #### Talking Points
 
-1. **Simple Upload**
+1. **User-Friendly Upload**
    - Drag-and-drop interface
-   - Instant encryption on upload
-   - Status tracking: Pending → Approved
+   - Automatic classification
+   - Status tracking: Uploaded → Approved/Rejected
+   - Example: "Upload your resume, we handle the rest"
 
-2. **Use Cases**
-   - **Onboarding**: New hires upload resumes, IDs, certificates
-   - **Medical Records**: 2FA required, highly sensitive classification
-   - **Legal Hold**: Documents preserved during litigation
+2. **Audit History Preserved**
+   - Document replacement preserves full history
+   - Every action logged and immutable
+   - HR can review complete timeline
+   - Example: "Even if you replace a document, we know what was there before"
 
-3. **GDPR Compliance**
-   - Employees can export all their data (Article 20)
-   - Right to be forgotten (Article 17)
-   - Transparent audit logs
+3. **Protection Features**
+   - Legal hold prevents accidental deletion
+   - Role-based access ensures privacy
+   - 7-year retention ensures compliance
+   - Example: "Your documents are protected and preserved for the required period"
+
+4. **Use Cases**
+   - **Onboarding**: Resumes, IDs, certificates with full audit trail
+   - **Compliance Audits**: Complete access history for regulators
+   - **Litigation Support**: Legal hold prevents document deletion
 
 #### Anticipated Questions
 
-**Q: "Can employees delete their own documents?"**
-A: No—prevents accidental deletion. They request deletion via HR, who decides based on retention policies.
+**Q: "Can I see who accessed my documents?"**
+A: Currently via command-line tool for HR. UI dashboard is planned for future release.
 
-**Q: "What if we need documents for an audit after employee leaves?"**
-A: Documents retained for 7 years (configurable). Legal hold prevents deletion if needed.
+**Q: "What if I need to delete a document?"**
+A: Employees request deletion via HR, who decides based on retention policies and legal requirements.
 
-#### Time Estimate: **60-90 seconds** - Keep it concise, this is one feature among many!
+**Q: "Is the data encrypted?"**
+A: Documents are stored on private disk with Laravel's storage security. Additional encryption layer is planned.
+
+**Q: "Can employees export their data (GDPR)?"**
+A: The data export service is built and ready, currently being integrated into the UI.
+
+#### Time Estimate: **90-120 seconds**
 
 ---
 
+**Total Section Time: 3.5-4.5 minutes**
 ## Section 8: Competitive Advantage
 
 ### Key Message

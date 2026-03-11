@@ -2,7 +2,7 @@ import React from 'react';
 import { Users, Bot, ShieldCheck } from 'lucide-react';
 import DemoSection from '../DemoSection';
 import FeatureCard from '../FeatureCard';
-import ScreenshotPlaceholder from '../ScreenshotPlaceholder';
+import SystemArchitectureDiagram from '../SystemArchitectureDiagram';
 
 export default function SolutionSection() {
     const pillars = [
@@ -62,12 +62,8 @@ export default function SolutionSection() {
             </div>
 
             {/* Architecture Diagram */}
-            <div className="mt-12 max-w-5xl mx-auto">
-                <ScreenshotPlaceholder
-                    title="System Architecture"
-                    dimensions="1600x900"
-                    aspectRatio="wide"
-                />
+            <div className="mt-12">
+                <SystemArchitectureDiagram />
             </div>
         </DemoSection>
     );
