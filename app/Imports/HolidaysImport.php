@@ -17,7 +17,9 @@ class HolidaysImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadi
     use SkipsErrors, SkipsFailures;
 
     private int $rowCount = 0;
+
     private int $created = 0;
+
     private int $skipped = 0;
 
     public function model(array $row)
@@ -30,6 +32,7 @@ class HolidaysImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadi
                     return $row[$key];
                 }
             }
+
             return null;
         };
 
@@ -43,6 +46,7 @@ class HolidaysImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadi
         if (! $name || ! $date) {
             $this->skipped++;
             Log::warning("Holiday Import - Row {$this->rowCount}: Skipped - Missing name or date");
+
             return null;
         }
 
@@ -54,6 +58,7 @@ class HolidaysImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadi
 
         if ($exists) {
             $this->skipped++;
+
             return null;
         }
 
@@ -98,9 +103,11 @@ class HolidaysImport implements SkipsOnError, SkipsOnFailure, ToModel, WithHeadi
             if (is_numeric($date)) {
                 return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($date)->format('Y-m-d');
             }
+
             return \Carbon\Carbon::parse($date)->format('Y-m-d');
         } catch (\Exception $e) {
             Log::warning("Holiday Import - Failed to parse date: {$date}");
+
             return null;
         }
     }

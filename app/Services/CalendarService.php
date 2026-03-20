@@ -25,7 +25,7 @@ class CalendarService
     ): Collection {
         // Build a cache key from the request parameters (includes version for non-Redis invalidation)
         $version = Cache::get('calendar_cache_version', 0);
-        $cacheKey = 'calendar_events:' . md5(json_encode([
+        $cacheKey = 'calendar_events:'.md5(json_encode([
             'start' => $startDate->format('Y-m-d'),
             'end' => $endDate->format('Y-m-d'),
             'filters' => $filters,
@@ -158,15 +158,15 @@ class CalendarService
         if ($usStates && in_array('US', $countryCodes)) {
             $query->where(function ($q) use ($usStates) {
                 $q->whereIn('state', $usStates)
-                  ->orWhere(function ($q2) {
-                      $q2->where('country_code', 'US')->whereNull('state');
-                  })
-                  ->orWhere('country_code', '!=', 'US');
+                    ->orWhere(function ($q2) {
+                        $q2->where('country_code', 'US')->whereNull('state');
+                    })
+                    ->orWhere('country_code', '!=', 'US');
             });
         }
 
         // Filter by holiday types if specified
-        if ($holidayTypes && !empty($holidayTypes)) {
+        if ($holidayTypes && ! empty($holidayTypes)) {
             $query->whereIn('type', $holidayTypes);
         }
 
@@ -175,7 +175,7 @@ class CalendarService
         // Transform to calendar event format
         return $holidays->map(function ($holiday) {
             // Get country flag emoji
-            $flag = match($holiday->country_code) {
+            $flag = match ($holiday->country_code) {
                 'PH' => '🇵🇭',
                 'US' => '🇺🇸',
                 'ES' => '🇪🇸',
@@ -183,7 +183,7 @@ class CalendarService
             };
 
             // Get holiday type display name
-            $holidayTypeLabel = match($holiday->type) {
+            $holidayTypeLabel = match ($holiday->type) {
                 'federal' => 'Federal Holiday',
                 'government' => 'Government Holiday',
                 'state' => 'State Holiday',
@@ -367,7 +367,7 @@ class CalendarService
         $eventTypes = CalendarEventType::active()->ordered()->get();
 
         // Get counts for each type
-        return $eventTypes->map(function ($eventType) use ($startDate, $endDate, $viewer) {
+        return $eventTypes->map(function ($eventType) use ($startDate, $endDate) {
             $count = 0;
 
             // Count leaves

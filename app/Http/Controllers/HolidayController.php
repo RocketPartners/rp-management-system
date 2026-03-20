@@ -19,8 +19,8 @@ class HolidayController extends Controller
         $year = $request->input('year', now()->year);
 
         $holidays = Holiday::query()
-            ->when($country, fn($q) => $q->where('country_code', $country))
-            ->when($year, fn($q) => $q->whereYear('date', $year))
+            ->when($country, fn ($q) => $q->where('country_code', $country))
+            ->when($year, fn ($q) => $q->whereYear('date', $year))
             ->orderBy('date')
             ->paginate(50);
 
@@ -122,7 +122,7 @@ class HolidayController extends Controller
      */
     public function toggleActive(Holiday $holiday)
     {
-        $holiday->update(['is_active' => !$holiday->is_active]);
+        $holiday->update(['is_active' => ! $holiday->is_active]);
 
         return redirect()->back()->with('success', 'Holiday status updated!');
     }

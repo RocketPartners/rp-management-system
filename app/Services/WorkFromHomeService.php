@@ -30,6 +30,7 @@ class WorkFromHomeService
             if (! $validation['valid']) {
                 $results['failed'][] = $date;
                 $results['errors'][$date] = $validation['message'];
+
                 continue;
             }
 
