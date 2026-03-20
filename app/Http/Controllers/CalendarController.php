@@ -45,12 +45,19 @@ class CalendarController extends Controller
             ->sort()
             ->values();
 
+        // Get managers for filter dropdown (users who have subordinates)
+        $managers = \App\Models\User::whereHas('subordinates')
+            ->select('id', 'name', 'department')
+            ->orderBy('name')
+            ->get();
+
         return Inertia::render('Calendar/Index', [
             'settings' => $settings,
             'eventTypes' => $eventTypes,
             'departments' => $departments,
             'leaveTypes' => $leaveTypes,
             'usStates' => $usStates,
+            'managers' => $managers,
         ]);
     }
 
@@ -67,6 +74,7 @@ class CalendarController extends Controller
             'user_ids' => ['nullable', 'array'],
             'user_ids.*' => ['integer', 'exists:users,id'],
             'department' => ['nullable', 'string'],
+            'manager_id' => ['nullable', 'integer', 'exists:users,id'],
             'leave_type_ids' => ['nullable', 'array'],
             'leave_type_ids.*' => ['integer', 'exists:leave_types,id'],
             'search' => ['nullable', 'string', 'max:100'],
@@ -84,6 +92,7 @@ class CalendarController extends Controller
             'event_types' => $validated['event_types'] ?? ['leave', 'holiday', 'wfh'],
             'user_ids' => $validated['user_ids'] ?? null,
             'department' => $validated['department'] ?? null,
+            'manager_id' => $validated['manager_id'] ?? null,
             'leave_type_ids' => $validated['leave_type_ids'] ?? null,
             'search' => $validated['search'] ?? null,
             'country_codes' => $validated['country_codes'] ?? ['PH', 'US', 'ES'],

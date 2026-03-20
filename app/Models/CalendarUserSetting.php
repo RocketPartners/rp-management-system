@@ -49,8 +49,8 @@ class CalendarUserSetting extends Model
             ['user_id' => $user->id],
             [
                 'default_view' => 'month',
-                'show_weekends' => true,
-                'visible_event_types' => ['leave'], // Show leaves by default
+                'show_weekends' => false,
+                'visible_event_types' => ['leave', 'holiday', 'wfh'],
                 'default_filters' => null,
             ]
         );

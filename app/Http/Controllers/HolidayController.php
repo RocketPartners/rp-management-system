@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\HolidaysImport;
 use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HolidayController extends Controller
 {
@@ -123,5 +125,32 @@ class HolidayController extends Controller
         $holiday->update(['is_active' => !$holiday->is_active]);
 
         return redirect()->back()->with('success', 'Holiday status updated!');
+    }
+
+    /**
+     * Import holidays from Excel file
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        $import = new HolidaysImport;
+        Excel::import($import, $request->file('file'));
+
+        $created = $import->getCreatedCount();
+        $skipped = $import->getSkippedCount();
+        $failures = count($import->failures());
+
+        $message = "{$created} holidays imported successfully.";
+        if ($skipped > 0) {
+            $message .= " {$skipped} duplicates skipped.";
+        }
+        if ($failures > 0) {
+            $message .= " {$failures} rows failed validation.";
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 }

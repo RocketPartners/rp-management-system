@@ -257,6 +257,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{holiday}', [HolidayController::class, 'update'])->name('update');
         Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('destroy');
         Route::post('/fetch-from-api', [HolidayController::class, 'fetchFromAPI'])->name('fetch-from-api');
+        Route::post('/import', [HolidayController::class, 'import'])->name('import');
         Route::patch('/{holiday}/toggle-active', [HolidayController::class, 'toggleActive'])->name('toggle-active');
     });
 

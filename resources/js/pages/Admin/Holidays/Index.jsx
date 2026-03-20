@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Calendar, Download, Plus, Trash2, Edit2, Power } from 'lucide-react';
+import { Calendar, Download, Plus, Trash2, Edit2, Power, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 export default function HolidaysIndex({
@@ -42,7 +42,12 @@ export default function HolidaysIndex({
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showFetchModal, setShowFetchModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [editingHoliday, setEditingHoliday] = useState(null);
+
+    const importForm = useForm({
+        file: null,
+    });
 
     const addForm = useForm({
         name: '',
@@ -129,6 +134,17 @@ export default function HolidaysIndex({
         });
     };
 
+    const handleImport = (e) => {
+        e.preventDefault();
+        importForm.post(route('holidays.import'), {
+            forceFormData: true,
+            onSuccess: () => {
+                setShowImportModal(false);
+                importForm.reset();
+            },
+        });
+    };
+
     const getCountryName = (code) => {
         const country = countries.find((c) => c.code === code);
         return country ? country.name : code;
@@ -148,6 +164,14 @@ export default function HolidaysIndex({
                         </p>
                     </div>
                     <div className="flex gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowImportModal(true)}
+                        >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Import Excel
+                        </Button>
                         <Button
                             variant="outline"
                             size="sm"
@@ -691,6 +715,66 @@ export default function HolidaysIndex({
                                 {fetchForm.processing
                                     ? 'Fetching...'
                                     : 'Fetch Holidays'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Import Excel Modal */}
+            <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Import Holidays from Excel</DialogTitle>
+                        <DialogDescription>
+                            Upload an Excel file (.xlsx, .xls) or CSV with holiday data.
+                            Required columns: <strong>name</strong>, <strong>date</strong>.
+                            Optional: country_code (default: PH), type, description, state.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleImport}>
+                        <div className="space-y-4 py-4">
+                            <div>
+                                <Label htmlFor="import-file">Excel / CSV File</Label>
+                                <Input
+                                    id="import-file"
+                                    type="file"
+                                    accept=".xlsx,.xls,.csv"
+                                    className="mt-1"
+                                    onChange={(e) =>
+                                        importForm.setData('file', e.target.files[0])
+                                    }
+                                />
+                                {importForm.errors.file && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {importForm.errors.file}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="rounded-lg bg-gray-50 p-3">
+                                <p className="text-xs font-medium text-gray-700 mb-1">
+                                    Expected columns:
+                                </p>
+                                <code className="text-xs text-gray-600">
+                                    name | date | country_code | type | description | state
+                                </code>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowImportModal(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={importForm.processing || !importForm.data.file}
+                            >
+                                {importForm.processing
+                                    ? 'Importing...'
+                                    : 'Import Holidays'}
                             </Button>
                         </DialogFooter>
                     </form>

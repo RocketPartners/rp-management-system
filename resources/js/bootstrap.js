@@ -2,25 +2,48 @@ import axios from 'axios';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+window.axios.defaults.withCredentials = true;
+window.axios.defaults.withXSRFToken = true;
 
-// Function to get fresh CSRF token
+// Helper: read CSRF token from meta tag
 const getCsrfToken = () => {
-    const token = document.head.querySelector('meta[name="csrf-token"]');
-    return token ? token.content : '';
+    const meta = document.head.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
 };
 
-// Automatically include CSRF token in all requests
-let token = getCsrfToken();
-if (token) {
-    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token;
-    console.log('✅ Axios configured with CSRF token');
-} else {
-    console.error(
-        '❌ CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token',
-    );
+// Helper: refresh the CSRF token by fetching a fresh one from the server
+const refreshCsrfToken = async () => {
+    try {
+        const response = await fetch('/sanctum/csrf-cookie', {
+            method: 'GET',
+            credentials: 'same-origin',
+        });
+
+        if (response.ok) {
+            // Also try to refresh the meta tag from a lightweight endpoint
+            const tokenResponse = await fetch('/api/keepalive', {
+                method: 'GET',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                credentials: 'same-origin',
+            });
+
+            // The XSRF-TOKEN cookie is now refreshed by the server response.
+            // Axios will automatically pick it up on the next request.
+            return true;
+        }
+    } catch (e) {
+        // Ignore — we'll fall back to reload if retry also fails
+    }
+    return false;
+};
+
+// Set initial CSRF token from meta tag as fallback
+const initialToken = getCsrfToken();
+if (initialToken) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = initialToken;
 }
 
-// Intercept requests to always use fresh CSRF token
+// Interceptor: always attach the freshest meta tag token as fallback
 window.axios.interceptors.request.use((config) => {
     const freshToken = getCsrfToken();
     if (freshToken) {
@@ -29,16 +52,42 @@ window.axios.interceptors.request.use((config) => {
     return config;
 });
 
-// Create a special axios instance for API requests that need credentials
+// Interceptor: auto-retry once on 419 (CSRF token mismatch)
+// Instead of showing a scary dialog, silently refresh the token and retry
+window.axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 419 && !originalRequest._retried) {
+            originalRequest._retried = true;
+
+            const refreshed = await refreshCsrfToken();
+            if (refreshed) {
+                // Retry the original request — axios will pick up the new XSRF cookie
+                return window.axios(originalRequest);
+            }
+
+            // If refresh failed, the session is truly dead — reload
+            window.location.reload();
+            return Promise.reject(error);
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+// Create API axios instance with the same auto-retry behavior
 window.apiAxios = axios.create({
     baseURL: window.location.origin,
     withCredentials: true,
+    withXSRFToken: true,
     headers: {
         'X-Requested-With': 'XMLHttpRequest',
     },
 });
 
-// Also add interceptor for API axios
+// Same interceptors for apiAxios
 window.apiAxios.interceptors.request.use((config) => {
     const freshToken = getCsrfToken();
     if (freshToken) {
@@ -47,35 +96,23 @@ window.apiAxios.interceptors.request.use((config) => {
     return config;
 });
 
-// Handle 419 CSRF Token Expiration for both axios instances
-const handle419Error = (error) => {
-    if (error.response && error.response.status === 419) {
-        // Show a friendly notification
-        if (
-            confirm(
-                '⚠️ Your session has expired.\n\n' +
-                    'This happens when:\n' +
-                    '• You left the page open for too long\n' +
-                    '• You logged out in another tab\n\n' +
-                    'Click OK to reload the page and continue.',
-            )
-        ) {
-            window.location.reload();
-        }
-        // Reject with a custom message
-        return Promise.reject(
-            new Error('Session expired. Please reload the page.'),
-        );
-    }
-    return Promise.reject(error);
-};
-
-window.axios.interceptors.response.use((response) => response, handle419Error);
-
 window.apiAxios.interceptors.response.use(
     (response) => response,
-    handle419Error,
-);
+    async (error) => {
+        const originalRequest = error.config;
 
-console.log('✅ API Axios configured with credentials');
-console.log('✅ 419 error handler configured');
+        if (error.response?.status === 419 && !originalRequest._retried) {
+            originalRequest._retried = true;
+
+            const refreshed = await refreshCsrfToken();
+            if (refreshed) {
+                return window.apiAxios(originalRequest);
+            }
+
+            window.location.reload();
+            return Promise.reject(error);
+        }
+
+        return Promise.reject(error);
+    }
+);
