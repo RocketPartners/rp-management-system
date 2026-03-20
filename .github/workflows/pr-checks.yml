@@ -1,0 +1,97 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  branch-naming:
+    name: Branch Naming Convention
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check branch name
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          PATTERN="^(feature|fix|hotfix|refactor|chore|docs|test)/"
+
+          if [[ ! "$BRANCH" =~ $PATTERN ]]; then
+            echo "::error::Branch name '$BRANCH' does not follow the naming convention."
+            echo ""
+            echo "Branch names must start with one of:"
+            echo "  feature/  fix/  hotfix/  refactor/  chore/  docs/  test/"
+            echo ""
+            echo "Examples:"
+            echo "  feature/HRIS-14-calendar-refactor"
+            echo "  fix/HRIS-22-leave-balance-bug"
+            echo "  hotfix/fix-login-error"
+            exit 1
+          fi
+
+          echo "Branch name '$BRANCH' follows naming convention."
+
+  commit-messages:
+    name: Commit Message Convention
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check commit messages
+        run: |
+          PATTERN="^(feat|fix|refactor|chore|docs|test|style|perf|merge|revert|Merge)"
+          COMMITS=$(git log --format="%s" origin/${{ github.base_ref }}..HEAD)
+
+          FAILED=0
+          while IFS= read -r MSG; do
+            if [[ -z "$MSG" ]]; then continue; fi
+            if [[ ! "$MSG" =~ $PATTERN ]]; then
+              echo "::warning::Non-conventional commit: '$MSG'"
+              FAILED=1
+            fi
+          done <<< "$COMMITS"
+
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "::notice::Some commits don't follow conventional format. This is a warning, not a blocker."
+            echo "Expected format: type(scope): description"
+            echo "Types: feat, fix, refactor, chore, docs, test, style, perf"
+          fi
+
+  label:
+    name: Auto Label
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Label PR based on branch
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref;
+            const labels = [];
+
+            if (branch.startsWith('feature/')) labels.push('feature');
+            else if (branch.startsWith('fix/')) labels.push('bug');
+            else if (branch.startsWith('hotfix/')) labels.push('hotfix', 'urgent');
+            else if (branch.startsWith('refactor/')) labels.push('refactor');
+            else if (branch.startsWith('docs/')) labels.push('documentation');
+            else if (branch.startsWith('chore/')) labels.push('chore');
+
+            if (branch.includes('HRIS-')) {
+              const match = branch.match(/HRIS-(\d+)/);
+              if (match) labels.push(`HRIS-${match[1]}`);
+            }
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels: labels
+              });
+            }
