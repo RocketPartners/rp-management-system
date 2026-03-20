@@ -24,6 +24,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserImportController;
+use App\Http\Controllers\WorkFromHomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -161,6 +162,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{leave}', [LeaveRequestController::class, 'show'])->name('show');
         Route::post('/{leave}/cancel', [LeaveRequestController::class, 'cancel'])->name('cancel');
         Route::post('/{leave}/request-cancel', [LeaveRequestController::class, 'requestCancellation'])->name('request-cancel');
+    });
+
+    // ============================================
+    // 🏠 WORK FROM HOME ROUTES (Self-Service)
+    // ============================================
+    Route::prefix('my-wfh')->name('my-wfh.')->group(function () {
+        Route::get('/', [WorkFromHomeController::class, 'page'])->name('index');
+        Route::post('/{wfh}/cancel', [WorkFromHomeController::class, 'cancel'])->name('cancel');
     });
 
     // ============================================

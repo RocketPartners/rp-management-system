@@ -24,6 +24,7 @@ import {
     FileCheck,
     FolderKanban,
     Globe,
+    Home,
     Laptop,
     Layers,
     LayoutDashboard,
@@ -115,6 +116,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 },
                 { name: 'Calendar', href: '/calendar', icon: Calendar },
                 { name: 'My Leaves', href: '/my-leaves', icon: ClipboardList },
+                { name: 'My WFH', href: '/my-wfh', icon: Home },
                 { name: 'My Assets', href: '/employees/assets', icon: Laptop },
             ],
         });
