@@ -4,11 +4,16 @@ namespace App\Services\Onboarding;
 
 use App\Models\OnboardingDocument;
 use App\Models\OnboardingSubmission;
+use App\Services\DocumentAuditService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OnboardingDocumentService
 {
+    public function __construct(private DocumentAuditService $auditService)
+    {
+    }
     /**
      * Upload a new document for submission
      */
@@ -34,6 +39,20 @@ class OnboardingDocumentService
         // Mark invite as in progress
         $submission->invite->markAsInProgress();
 
+        // 📝 AUDIT LOG: Record upload action (non-blocking)
+        try {
+            $this->auditService->logAccess($document, 'upload', null, [
+                'original_filename' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+                'mime_type' => $file->getClientMimeType(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to log document upload', [
+                'document_id' => $document->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return $document;
     }
 
@@ -42,6 +61,8 @@ class OnboardingDocumentService
      */
     public function replaceDocument(OnboardingDocument $document, UploadedFile $newFile): OnboardingDocument
     {
+        $oldFilename = $document->filename;
+
         // Delete old file
         $document->deleteFile();
 
@@ -60,6 +81,20 @@ class OnboardingDocumentService
             'verified_by' => null,
         ]);
 
+        // 📝 AUDIT LOG: Record replace action (non-blocking)
+        try {
+            $this->auditService->logAccess($document, 'replace', null, [
+                'old_filename' => $oldFilename,
+                'new_filename' => $newFile->getClientOriginalName(),
+                'new_file_size' => $newFile->getSize(),
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to log document replacement', [
+                'document_id' => $document->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         return $document;
     }
 
@@ -68,6 +103,19 @@ class OnboardingDocumentService
      */
     public function deleteDocument(OnboardingDocument $document): bool
     {
+        // 📝 AUDIT LOG: Record delete action BEFORE deletion (non-blocking)
+        try {
+            $this->auditService->logAccess($document, 'delete', null, [
+                'deleted_filename' => $document->filename,
+                'document_type' => $document->document_type,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Failed to log document deletion', [
+                'document_id' => $document->id,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         // Delete physical file
         $document->deleteFile();
 

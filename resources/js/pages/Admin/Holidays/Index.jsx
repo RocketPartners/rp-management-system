@@ -49,6 +49,7 @@ export default function HolidaysIndex({
         file: null,
     });
 
+
     const addForm = useForm({
         name: '',
         date: '',
@@ -144,6 +145,7 @@ export default function HolidaysIndex({
             },
         });
     };
+
 
     const getCountryName = (code) => {
         const country = countries.find((c) => c.code === code);

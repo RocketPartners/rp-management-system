@@ -385,6 +385,13 @@ class CalendarService
                     ->count();
             }
 
+            // Count holidays
+            if ($eventType->slug === 'holiday') {
+                $count = Holiday::where('is_active', true)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->count();
+            }
+
             // Future: Add counts for other event types
 
             return [

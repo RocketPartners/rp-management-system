@@ -41,7 +41,11 @@ npx playwright test
 ### Run specific test file
 
 ```bash
+# Onboarding workflow
 npx playwright test tests/e2e/onboarding-workflow.spec.ts
+
+# Audit trail
+npx playwright test tests/e2e/audit-trail.spec.ts
 ```
 
 ### Run in headed mode (see browser)
@@ -78,13 +82,30 @@ npx playwright test --grep "complete onboarding workflow"
   3. HR reviews and approves documents
   4. HR converts submission to user account
 
+- **`audit-trail.spec.ts`** - Immutable audit logging system test:
+  1. Verifies upload action creates audit log with metadata
+  2. Verifies view action creates audit log
+  3. Verifies download action creates audit log
+  4. Validates immutability (no `updated_at` timestamp)
+  5. Validates user ID, IP address, and context data capture
+
 ### Helper Utilities
 
 - **`utils/helpers.ts`** - Reusable helper functions:
-  - `loginAsHR(page)` - Login as HR user
-  - `createTestInvite(options)` - Create test invite via PHP command
-  - `getLatestInviteToken()` - Get latest invite token
-  - `resetTestDatabase()` - Reset test database
+  - **Authentication**:
+    - `loginAsHR(page)` - Login as HR user
+    - `loginAsEmployee(page, email, password)` - Login as employee
+    - `logout(page)` - Logout current user
+  - **Onboarding**:
+    - `createTestInvite(options)` - Create test invite via PHP command
+    - `getLatestInviteToken()` - Get latest invite token
+    - `getInviteTokenByEmail(email)` - Get token for specific email
+    - `resetTestDatabase()` - Reset test database
+  - **Audit Trail**:
+    - `getAuditLogCount(action?)` - Count total logs or by action type
+    - `getLatestAuditLog()` - Get most recent audit log with details
+    - `getAuditLogsForUser(userId)` - Get logs for specific user
+    - `clearAuditLogs()` - Clear all audit logs (test cleanup)
   - Other utility functions for common operations
 
 ### Test Fixtures
