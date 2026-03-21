@@ -83,7 +83,7 @@ class LeaveRequestController extends Controller
                 $q->whereIn('slug', ['super-admin', 'admin', 'hr-manager', 'project-manager', 'lead-engineer']);
             })
             ->get(['id', 'name', 'email', 'employee_id', 'position'])
-            ->map(fn($u) => [
+            ->map(fn ($u) => [
                 'id' => $u->id,
                 'name' => $u->name,
                 'email' => $u->email,
@@ -195,7 +195,7 @@ class LeaveRequestController extends Controller
         }
 
         // Ensure manager_id is NULL if empty string
-        $validated['manager_id'] = !empty($validated['manager_id']) ? $validated['manager_id'] : null;
+        $validated['manager_id'] = ! empty($validated['manager_id']) ? $validated['manager_id'] : null;
 
         // Create leave request
         $leaveRequest = LeaveRequest::create([
@@ -209,7 +209,7 @@ class LeaveRequestController extends Controller
         try {
             $this->notifyHRAndAdmin($leaveRequest);
         } catch (\Exception $e) {
-            \Log::warning('Failed to send leave notification email: ' . $e->getMessage());
+            \Log::warning('Failed to send leave notification email: '.$e->getMessage());
         }
 
         return redirect()->route('my-leaves.index')->with('success', $successMessage);
@@ -332,7 +332,7 @@ class LeaveRequestController extends Controller
         }
 
         // Ensure manager_id is NULL if empty string
-        $managerIdToUpdate = !empty($validated['manager_id']) ? $validated['manager_id'] : null;
+        $managerIdToUpdate = ! empty($validated['manager_id']) ? $validated['manager_id'] : null;
 
         $leave->update([
             'leave_type_id' => $validated['leave_type_id'],

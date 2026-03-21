@@ -61,7 +61,7 @@ class HandleInertiaRequests extends Middleware
                         ->where(function ($q) use ($user, $canApproveRoles) {
                             $q->where('manager_id', $user->id);
 
-                            if (!empty($canApproveRoles)) {
+                            if (! empty($canApproveRoles)) {
                                 $q->orWhere(function ($roleQuery) use ($canApproveRoles) {
                                     $roleQuery->whereNull('manager_id')
                                         ->whereHas('user.roles', function ($q) use ($canApproveRoles) {
@@ -79,7 +79,7 @@ class HandleInertiaRequests extends Middleware
                 $pendingCounts['hr_leaves'] = LeaveRequest::where('status', 'pending_hr')
                     ->where(function ($q) use ($user) {
                         $q->where('manager_id', $user->id)
-                          ->orWhereNull('manager_id');
+                            ->orWhereNull('manager_id');
                     })
                     ->count();
             }
@@ -90,8 +90,8 @@ class HandleInertiaRequests extends Middleware
                 ->whereIn('status', ['approved', 'rejected_by_manager', 'rejected_by_hr'])
                 ->where(function ($q) use ($lastCheck) {
                     $q->where('updated_at', '>', $lastCheck)
-                      ->orWhere('hr_approved_at', '>', $lastCheck)
-                      ->orWhere('manager_approved_at', '>', $lastCheck);
+                        ->orWhere('hr_approved_at', '>', $lastCheck)
+                        ->orWhere('manager_approved_at', '>', $lastCheck);
                 })
                 ->count();
         }

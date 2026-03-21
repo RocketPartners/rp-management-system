@@ -48,7 +48,7 @@ class LeaveApprovalController extends Controller
                 $q->where('manager_id', $user->id);
 
                 // Case 2: No manual assignment AND user can approve based on hierarchy
-                if (!empty($canApproveRoles)) {
+                if (! empty($canApproveRoles)) {
                     $q->orWhere(function ($roleQuery) use ($canApproveRoles) {
                         $roleQuery->whereNull('manager_id')
                             ->whereHas('user.roles', function ($q) use ($canApproveRoles) {

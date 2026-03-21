@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class OnboardingDocumentDownloadController extends Controller
 {
-    public function __construct(private DocumentAuditService $auditService)
-    {
-    }
+    public function __construct(private DocumentAuditService $auditService) {}
 
     /**
      * Download onboarding document (with permission check)

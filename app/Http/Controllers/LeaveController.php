@@ -47,7 +47,7 @@ class LeaveController extends Controller
                     // Case 1: Manually assigned to this specific user
                     $q->where('manager_id', $user->id)
                       // Case 2: No manual assignment (open queue)
-                      ->orWhereNull('manager_id');
+                        ->orWhereNull('manager_id');
                 });
             }
         }

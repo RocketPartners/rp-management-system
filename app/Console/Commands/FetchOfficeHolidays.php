@@ -73,8 +73,9 @@ class FetchOfficeHolidays extends Command
         foreach ($countries as $countryCode) {
             $countryCode = strtoupper(trim($countryCode));
 
-            if (!isset($this->countryMapping[$countryCode])) {
+            if (! isset($this->countryMapping[$countryCode])) {
                 $this->warn("Unknown country code: {$countryCode}. Skipping...");
+
                 continue;
             }
 
@@ -93,10 +94,11 @@ class FetchOfficeHolidays extends Command
                     }
                 }
 
-                $this->info("  → Found ".count($holidays)." holidays for {$this->countryNames[$countryCode]}");
+                $this->info('  → Found '.count($holidays)." holidays for {$this->countryNames[$countryCode]}");
 
             } catch (\Exception $e) {
                 $this->error("  ✗ Error processing {$countryCode}: ".$e->getMessage());
+
                 continue;
             }
         }
@@ -120,8 +122,8 @@ class FetchOfficeHolidays extends Command
 
         $response = Http::timeout(30)->get($url);
 
-        if (!$response->successful()) {
-            throw new \Exception("Failed to fetch ICS calendar: ".$response->status());
+        if (! $response->successful()) {
+            throw new \Exception('Failed to fetch ICS calendar: '.$response->status());
         }
 
         return $this->parseICS($response->body(), $countryCode, $year);
@@ -205,8 +207,8 @@ class FetchOfficeHolidays extends Command
     protected function cleanSummary(string $summary, string $countryName): string
     {
         // Remove patterns like "Philippines: Holiday Name" or "Holiday Name (Philippines)"
-        $summary = preg_replace('/^' . preg_quote($countryName, '/') . ':\s*/', '', $summary);
-        $summary = preg_replace('/\s*\(' . preg_quote($countryName, '/') . '\)$/', '', $summary);
+        $summary = preg_replace('/^'.preg_quote($countryName, '/').':\s*/', '', $summary);
+        $summary = preg_replace('/\s*\('.preg_quote($countryName, '/').'\)$/', '', $summary);
 
         return trim($summary);
     }
@@ -230,7 +232,7 @@ class FetchOfficeHolidays extends Command
             // Check in description
             if (stripos($description, $stateName) !== false) {
                 // Be more strict with description to avoid false positives
-                if (preg_match('/\b' . preg_quote($stateName, '/') . '\b/i', $description)) {
+                if (preg_match('/\b'.preg_quote($stateName, '/').'\b/i', $description)) {
                     $state = $stateName;
                     break;
                 }
@@ -254,7 +256,7 @@ class FetchOfficeHolidays extends Command
      */
     protected function extractHolidayType(string $name, string $description): string
     {
-        $combined = strtolower($name . ' ' . $description);
+        $combined = strtolower($name.' '.$description);
 
         // Check for explicit type mentions in description
         if (stripos($combined, 'federal holiday') !== false) {
@@ -307,6 +309,7 @@ class FetchOfficeHolidays extends Command
             return true;
         } catch (\Exception $e) {
             $this->warn("  ⚠ Failed to store holiday: {$data['name']} - ".$e->getMessage());
+
             return false;
         }
     }
