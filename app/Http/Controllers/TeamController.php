@@ -159,7 +159,6 @@ class TeamController extends Controller
             abort(403);
         }
 
-        $team->members()->detach();
         $team->delete();
 
         return redirect()->route('teams.index')->with('success', 'Team deleted successfully.');

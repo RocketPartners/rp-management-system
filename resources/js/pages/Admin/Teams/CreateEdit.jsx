@@ -284,11 +284,6 @@ export default function CreateEdit({ auth, team = null, users = [] }) {
         );
     });
 
-    const excludeLeaderIds = [
-        data.leader_id ? parseInt(data.leader_id) : null,
-        data.sub_leader_id ? parseInt(data.sub_leader_id) : null,
-    ].filter(Boolean);
-
     return (
         <AuthenticatedLayout
             header={

@@ -61,11 +61,14 @@ export default function Index({ auth, teams, filters }) {
     const { flash } = usePage().props;
     const { can } = usePermission();
 
-    const handleSearch = (value) => {
-        setSearch(value);
+    const handleSearch = (e) => {
+        e.preventDefault();
         router.get(
             route('teams.index'),
-            { search: value, status: status !== 'all' ? status : undefined },
+            {
+                search: search || undefined,
+                status: status !== 'all' ? status : undefined,
+            },
             { preserveState: true, replace: true },
         );
     };
@@ -148,15 +151,16 @@ export default function Index({ auth, teams, filters }) {
                 {/* Filters */}
                 <Card>
                     <CardContent className="pt-6">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                        <form
+                            onSubmit={handleSearch}
+                            className="flex flex-col gap-4 sm:flex-row sm:items-center"
+                        >
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                 <Input
                                     placeholder="Search teams..."
                                     value={search}
-                                    onChange={(e) =>
-                                        handleSearch(e.target.value)
-                                    }
+                                    onChange={(e) => setSearch(e.target.value)}
                                     className="pl-9"
                                 />
                             </div>
@@ -184,6 +188,7 @@ export default function Index({ auth, teams, filters }) {
                             </Select>
                             {hasFilters && (
                                 <Button
+                                    type="button"
                                     variant="ghost"
                                     size="sm"
                                     onClick={clearFilters}
@@ -192,7 +197,7 @@ export default function Index({ auth, teams, filters }) {
                                     Clear
                                 </Button>
                             )}
-                        </div>
+                        </form>
                     </CardContent>
                 </Card>
 
