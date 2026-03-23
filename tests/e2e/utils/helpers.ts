@@ -175,7 +175,7 @@ export async function getAuditLogCount(action?: string): Promise<number> {
 /**
  * Get latest audit log
  */
-export async function getLatestAuditLog(): Promise<any> {
+export async function getLatestAuditLog(): Promise<Record<string, unknown> | null> {
   const phpCode = `echo json_encode(App\\Models\\DocumentAccessLog::with('user', 'document')->latest('accessed_at')->first()?->toArray() ?? []);`;
   const command = `php artisan tinker --execute="${phpCode}"`;
 
@@ -193,7 +193,7 @@ export async function getLatestAuditLog(): Promise<any> {
 /**
  * Get audit logs for a specific user
  */
-export async function getAuditLogsForUser(userId: number): Promise<any[]> {
+export async function getAuditLogsForUser(userId: number): Promise<Record<string, unknown>[]> {
   const phpCode = `echo json_encode(App\\Models\\DocumentAccessLog::where('user_id', ${userId})->orderBy('accessed_at', 'desc')->limit(10)->get()->toArray());`;
   const command = `php artisan tinker --execute="${phpCode}"`;
 

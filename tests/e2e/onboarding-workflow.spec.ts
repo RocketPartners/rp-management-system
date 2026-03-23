@@ -239,7 +239,7 @@ test('complete onboarding workflow', async ({ page }) => {
     console.log('All documents uploaded successfully');
 
     // Note: Submit button should be DISABLED at this point (documents not approved yet)
-    const submitButton = page.locator('button:has-text("Submit to HR")');
+    page.locator('button:has-text("Submit to HR")');
     console.log(
         'Submit button should be disabled (documents pending approval)...',
     );

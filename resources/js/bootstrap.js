@@ -21,7 +21,7 @@ const refreshCsrfToken = async () => {
 
         if (response.ok) {
             // Also try to refresh the meta tag from a lightweight endpoint
-            const tokenResponse = await fetch('/api/keepalive', {
+            await fetch('/api/keepalive', {
                 method: 'GET',
                 headers: {
                     Accept: 'application/json',
@@ -34,7 +34,7 @@ const refreshCsrfToken = async () => {
             // Axios will automatically pick it up on the next request.
             return true;
         }
-    } catch (e) {
+    } catch {
         // Ignore — we'll fall back to reload if retry also fails
     }
     return false;
