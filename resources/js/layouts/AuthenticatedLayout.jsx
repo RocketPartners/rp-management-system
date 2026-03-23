@@ -11,7 +11,7 @@ import {
 import { useTimezone } from '@/hooks/use-timezone.jsx';
 import { usePermission } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
-import { Link, usePage, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import {
     Bell,
     Calendar,
@@ -24,6 +24,7 @@ import {
     FileCheck,
     FolderKanban,
     Globe,
+    Home,
     Laptop,
     Layers,
     LayoutDashboard,
@@ -73,12 +74,16 @@ export default function AuthenticatedLayout({ header, children }) {
         router.clearHistory();
 
         // Perform logout
-        router.post(route('logout'), {}, {
-            onFinish: () => {
-                // Force reload to ensure clean state
-                window.location.href = '/login';
-            }
-        });
+        router.post(
+            route('logout'),
+            {},
+            {
+                onFinish: () => {
+                    // Force reload to ensure clean state
+                    window.location.href = '/login';
+                },
+            },
+        );
     };
 
     const markNotificationsAsRead = () => {
@@ -86,10 +91,13 @@ export default function AuthenticatedLayout({ header, children }) {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                Accept: 'application/json',
+                'X-CSRF-TOKEN':
+                    document
+                        .querySelector('meta[name="csrf-token"]')
+                        ?.getAttribute('content') || '',
             },
-            credentials: 'same-origin'
+            credentials: 'same-origin',
         }).catch(() => {
             // Silently fail if marking as read fails
         });
@@ -115,6 +123,7 @@ export default function AuthenticatedLayout({ header, children }) {
                 },
                 { name: 'Calendar', href: '/calendar', icon: Calendar },
                 { name: 'My Leaves', href: '/my-leaves', icon: ClipboardList },
+                { name: 'My WFH', href: '/my-wfh', icon: Home },
                 { name: 'My Assets', href: '/employees/assets', icon: Laptop },
             ],
         });
@@ -138,7 +147,8 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Pending Approvals',
                     href: '/users/pending-approvals',
                     icon: UserCheck,
-                    badge: pendingCounts?.users > 0 ? pendingCounts.users : null,
+                    badge:
+                        pendingCounts?.users > 0 ? pendingCounts.users : null,
                 });
             }
 
@@ -158,7 +168,10 @@ export default function AuthenticatedLayout({ header, children }) {
                         name: 'Pending Approvals',
                         href: '/users/pending-approvals',
                         icon: UserCheck,
-                        badge: pendingCounts?.users > 0 ? pendingCounts.users : null,
+                        badge:
+                            pendingCounts?.users > 0
+                                ? pendingCounts.users
+                                : null,
                     },
                 ],
             });
@@ -222,7 +235,10 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Pending Approvals',
                     href: '/leaves/pending-approvals',
                     icon: CheckSquare,
-                    badge: pendingCounts?.manager_leaves > 0 ? pendingCounts.manager_leaves : null,
+                    badge:
+                        pendingCounts?.manager_leaves > 0
+                            ? pendingCounts.manager_leaves
+                            : null,
                 });
             }
 
@@ -236,7 +252,10 @@ export default function AuthenticatedLayout({ header, children }) {
                     name: 'Pending HR Approval',
                     href: '/leaves?status=pending_hr',
                     icon: CheckSquare,
-                    badge: pendingCounts?.hr_leaves > 0 ? pendingCounts.hr_leaves : null,
+                    badge:
+                        pendingCounts?.hr_leaves > 0
+                            ? pendingCounts.hr_leaves
+                            : null,
                 });
             }
 
@@ -428,11 +447,20 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <button className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
                                         <Bell className="h-6 w-6" />
                                         {(() => {
-                                            const totalPending = (pendingCounts?.users || 0) + (pendingCounts?.manager_leaves || 0) + (pendingCounts?.hr_leaves || 0) + (pendingCounts?.my_leave_updates || 0);
+                                            const totalPending =
+                                                (pendingCounts?.users || 0) +
+                                                (pendingCounts?.manager_leaves ||
+                                                    0) +
+                                                (pendingCounts?.hr_leaves ||
+                                                    0) +
+                                                (pendingCounts?.my_leave_updates ||
+                                                    0);
                                             if (totalPending > 0) {
                                                 return (
                                                     <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
-                                                        {totalPending > 99 ? '99+' : totalPending}
+                                                        {totalPending > 99
+                                                            ? '99+'
+                                                            : totalPending}
                                                     </span>
                                                 );
                                             }
@@ -440,11 +468,20 @@ export default function AuthenticatedLayout({ header, children }) {
                                         })()}
                                     </button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-80">
+                                <DropdownMenuContent
+                                    align="end"
+                                    className="w-80"
+                                >
                                     <DropdownMenuLabel className="flex items-center justify-between">
-                                        <span className="text-base font-semibold">Notifications</span>
+                                        <span className="text-base font-semibold">
+                                            Notifications
+                                        </span>
                                         {(() => {
-                                            const totalPending = (pendingCounts?.users || 0) + (pendingCounts?.manager_leaves || 0) + (pendingCounts?.hr_leaves || 0);
+                                            const totalPending =
+                                                (pendingCounts?.users || 0) +
+                                                (pendingCounts?.manager_leaves ||
+                                                    0) +
+                                                (pendingCounts?.hr_leaves || 0);
                                             if (totalPending > 0) {
                                                 return (
                                                     <Badge className="bg-blue-100 text-blue-700">
@@ -458,14 +495,24 @@ export default function AuthenticatedLayout({ header, children }) {
                                     <DropdownMenuSeparator />
 
                                     {(() => {
-                                        const totalPending = (pendingCounts?.users || 0) + (pendingCounts?.manager_leaves || 0) + (pendingCounts?.hr_leaves || 0) + (pendingCounts?.my_leave_updates || 0);
+                                        const totalPending =
+                                            (pendingCounts?.users || 0) +
+                                            (pendingCounts?.manager_leaves ||
+                                                0) +
+                                            (pendingCounts?.hr_leaves || 0) +
+                                            (pendingCounts?.my_leave_updates ||
+                                                0);
 
                                         if (totalPending === 0) {
                                             return (
                                                 <div className="px-4 py-8 text-center">
                                                     <CheckCircle2 className="mx-auto h-12 w-12 text-gray-300" />
-                                                    <p className="mt-2 text-sm font-medium text-gray-900">All caught up!</p>
-                                                    <p className="mt-1 text-xs text-gray-500">No pending approvals</p>
+                                                    <p className="mt-2 text-sm font-medium text-gray-900">
+                                                        All caught up!
+                                                    </p>
+                                                    <p className="mt-1 text-xs text-gray-500">
+                                                        No pending approvals
+                                                    </p>
                                                 </div>
                                             );
                                         }
@@ -483,20 +530,32 @@ export default function AuthenticatedLayout({ header, children }) {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="text-sm font-medium text-gray-900">
-                                                                    User Registrations
+                                                                    User
+                                                                    Registrations
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
-                                                                    {pendingCounts.users} {pendingCounts.users === 1 ? 'user' : 'users'} waiting for approval
+                                                                    {
+                                                                        pendingCounts.users
+                                                                    }{' '}
+                                                                    {pendingCounts.users ===
+                                                                    1
+                                                                        ? 'user'
+                                                                        : 'users'}{' '}
+                                                                    waiting for
+                                                                    approval
                                                                 </p>
                                                             </div>
                                                             <Badge className="mt-1 bg-green-100 text-green-700">
-                                                                {pendingCounts.users}
+                                                                {
+                                                                    pendingCounts.users
+                                                                }
                                                             </Badge>
                                                         </Link>
                                                     </DropdownMenuItem>
                                                 )}
 
-                                                {pendingCounts?.manager_leaves > 0 && (
+                                                {pendingCounts?.manager_leaves >
+                                                    0 && (
                                                     <DropdownMenuItem asChild>
                                                         <Link
                                                             href="/leaves/pending-approvals"
@@ -507,20 +566,32 @@ export default function AuthenticatedLayout({ header, children }) {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="text-sm font-medium text-gray-900">
-                                                                    Leave Approvals
+                                                                    Leave
+                                                                    Approvals
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
-                                                                    {pendingCounts.manager_leaves} {pendingCounts.manager_leaves === 1 ? 'request' : 'requests'} pending your review
+                                                                    {
+                                                                        pendingCounts.manager_leaves
+                                                                    }{' '}
+                                                                    {pendingCounts.manager_leaves ===
+                                                                    1
+                                                                        ? 'request'
+                                                                        : 'requests'}{' '}
+                                                                    pending your
+                                                                    review
                                                                 </p>
                                                             </div>
                                                             <Badge className="mt-1 bg-yellow-100 text-yellow-700">
-                                                                {pendingCounts.manager_leaves}
+                                                                {
+                                                                    pendingCounts.manager_leaves
+                                                                }
                                                             </Badge>
                                                         </Link>
                                                     </DropdownMenuItem>
                                                 )}
 
-                                                {pendingCounts?.hr_leaves > 0 && (
+                                                {pendingCounts?.hr_leaves >
+                                                    0 && (
                                                     <DropdownMenuItem asChild>
                                                         <Link
                                                             href="/leaves?status=pending_hr"
@@ -531,43 +602,77 @@ export default function AuthenticatedLayout({ header, children }) {
                                                             </div>
                                                             <div className="flex-1">
                                                                 <p className="text-sm font-medium text-gray-900">
-                                                                    HR Leave Approvals
+                                                                    HR Leave
+                                                                    Approvals
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
-                                                                    {pendingCounts.hr_leaves} {pendingCounts.hr_leaves === 1 ? 'request' : 'requests'} awaiting final approval
+                                                                    {
+                                                                        pendingCounts.hr_leaves
+                                                                    }{' '}
+                                                                    {pendingCounts.hr_leaves ===
+                                                                    1
+                                                                        ? 'request'
+                                                                        : 'requests'}{' '}
+                                                                    awaiting
+                                                                    final
+                                                                    approval
                                                                 </p>
                                                             </div>
                                                             <Badge className="mt-1 bg-blue-100 text-blue-700">
-                                                                {pendingCounts.hr_leaves}
+                                                                {
+                                                                    pendingCounts.hr_leaves
+                                                                }
                                                             </Badge>
                                                         </Link>
                                                     </DropdownMenuItem>
                                                 )}
 
-                                                {pendingCounts?.my_leave_updates > 0 && (
+                                                {pendingCounts?.my_leave_updates >
+                                                    0 && (
                                                     <>
-                                                        {(pendingCounts?.users > 0 || pendingCounts?.manager_leaves > 0 || pendingCounts?.hr_leaves > 0) && (
+                                                        {(pendingCounts?.users >
+                                                            0 ||
+                                                            pendingCounts?.manager_leaves >
+                                                                0 ||
+                                                            pendingCounts?.hr_leaves >
+                                                                0) && (
                                                             <DropdownMenuSeparator />
                                                         )}
-                                                        <DropdownMenuItem asChild>
+                                                        <DropdownMenuItem
+                                                            asChild
+                                                        >
                                                             <Link
                                                                 href="/my-leaves"
                                                                 className="flex cursor-pointer items-start gap-3 px-4 py-3"
-                                                                onClick={markNotificationsAsRead}
+                                                                onClick={
+                                                                    markNotificationsAsRead
+                                                                }
                                                             >
                                                                 <div className="mt-0.5 rounded-full bg-purple-100 p-2">
                                                                     <CheckCircle2 className="h-4 w-4 text-purple-600" />
                                                                 </div>
                                                                 <div className="flex-1">
                                                                     <p className="text-sm font-medium text-gray-900">
-                                                                        My Leave Updates
+                                                                        My Leave
+                                                                        Updates
                                                                     </p>
                                                                     <p className="text-xs text-gray-500">
-                                                                        {pendingCounts.my_leave_updates} {pendingCounts.my_leave_updates === 1 ? 'leave' : 'leaves'} with status updates
+                                                                        {
+                                                                            pendingCounts.my_leave_updates
+                                                                        }{' '}
+                                                                        {pendingCounts.my_leave_updates ===
+                                                                        1
+                                                                            ? 'leave'
+                                                                            : 'leaves'}{' '}
+                                                                        with
+                                                                        status
+                                                                        updates
                                                                     </p>
                                                                 </div>
                                                                 <Badge className="mt-1 bg-purple-100 text-purple-700">
-                                                                    {pendingCounts.my_leave_updates}
+                                                                    {
+                                                                        pendingCounts.my_leave_updates
+                                                                    }
                                                                 </Badge>
                                                             </Link>
                                                         </DropdownMenuItem>
@@ -738,9 +843,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                                     )}
                                                     {item.badge &&
                                                         !sidebarMinimized && (
-                                                            <Badge
-                                                                className="ml-2 border border-blue-200 bg-blue-100 text-xs font-semibold text-blue-700"
-                                                            >
+                                                            <Badge className="ml-2 border border-blue-200 bg-blue-100 text-xs font-semibold text-blue-700">
                                                                 {item.badge}
                                                             </Badge>
                                                         )}
@@ -811,10 +914,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                                                         }
                                                                     </span>
                                                                     {item.badge && (
-                                                                        <Badge
-                                                                            className="ml-2 border border-blue-200 bg-blue-100 text-xs font-semibold text-blue-700"
-                                                                        >
-                                                                            {item.badge}
+                                                                        <Badge className="ml-2 border border-blue-200 bg-blue-100 text-xs font-semibold text-blue-700">
+                                                                            {
+                                                                                item.badge
+                                                                            }
                                                                         </Badge>
                                                                     )}
                                                                 </Link>

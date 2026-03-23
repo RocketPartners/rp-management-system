@@ -9,8 +9,8 @@ use App\Models\LeaveType;
 use App\Models\User;
 use App\Models\WorkFromHomeSchedule;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class CalendarService
 {
@@ -18,6 +18,30 @@ class CalendarService
      * Get all calendar events for a date range with filters
      */
     public function getEvents(
+        Carbon $startDate,
+        Carbon $endDate,
+        array $filters,
+        User $viewer
+    ): Collection {
+        // Build a cache key from the request parameters (includes version for non-Redis invalidation)
+        $version = Cache::get('calendar_cache_version', 0);
+        $cacheKey = 'calendar_events:'.md5(json_encode([
+            'start' => $startDate->format('Y-m-d'),
+            'end' => $endDate->format('Y-m-d'),
+            'filters' => $filters,
+            'viewer' => $viewer->id,
+            'v' => $version,
+        ]));
+
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($startDate, $endDate, $filters, $viewer) {
+            return $this->fetchEvents($startDate, $endDate, $filters, $viewer);
+        });
+    }
+
+    /**
+     * Fetch events without caching (internal)
+     */
+    protected function fetchEvents(
         Carbon $startDate,
         Carbon $endDate,
         array $filters,
@@ -46,9 +70,20 @@ class CalendarService
             $events = $events->merge($wfhEvents);
         }
 
-        // Future: Add other event types (announcements, etc.)
-
         return $events;
+    }
+
+    /**
+     * Clear calendar cache (call after leave approval, WFH scheduling, etc.)
+     *
+     * Uses a version key to invalidate cached entries without wiping unrelated cache.
+     * When the version bumps, all existing cache keys (which embed the old version)
+     * become stale and will be regenerated on next request.
+     */
+    public static function clearCache(): void
+    {
+        $version = (int) Cache::get('calendar_cache_version', 0) + 1;
+        Cache::forever('calendar_cache_version', $version);
     }
 
     /**
@@ -65,9 +100,6 @@ class CalendarService
             ->approved()
             ->inDateRange($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
 
-        // Apply permission-based visibility
-        $query = $this->applyLeaveVisibilityRules($query, $viewer);
-
         // Apply filters
         if (! empty($filters['user_ids'])) {
             $query->forUsers($filters['user_ids']);
@@ -79,6 +111,13 @@ class CalendarService
 
         if (! empty($filters['leave_type_ids'])) {
             $query->whereIn('leave_type_id', $filters['leave_type_ids']);
+        }
+
+        // Filter by manager (show leaves of users managed by this manager)
+        if (! empty($filters['manager_id'])) {
+            $query->whereHas('user', function ($q) use ($filters) {
+                $q->where('manager_id', $filters['manager_id']);
+            });
         }
 
         if (! empty($filters['search'])) {
@@ -119,15 +158,15 @@ class CalendarService
         if ($usStates && in_array('US', $countryCodes)) {
             $query->where(function ($q) use ($usStates) {
                 $q->whereIn('state', $usStates)
-                  ->orWhere(function ($q2) {
-                      $q2->where('country_code', 'US')->whereNull('state');
-                  })
-                  ->orWhere('country_code', '!=', 'US');
+                    ->orWhere(function ($q2) {
+                        $q2->where('country_code', 'US')->whereNull('state');
+                    })
+                    ->orWhere('country_code', '!=', 'US');
             });
         }
 
         // Filter by holiday types if specified
-        if ($holidayTypes && !empty($holidayTypes)) {
+        if ($holidayTypes && ! empty($holidayTypes)) {
             $query->whereIn('type', $holidayTypes);
         }
 
@@ -136,7 +175,7 @@ class CalendarService
         // Transform to calendar event format
         return $holidays->map(function ($holiday) {
             // Get country flag emoji
-            $flag = match($holiday->country_code) {
+            $flag = match ($holiday->country_code) {
                 'PH' => '🇵🇭',
                 'US' => '🇺🇸',
                 'ES' => '🇪🇸',
@@ -144,7 +183,7 @@ class CalendarService
             };
 
             // Get holiday type display name
-            $holidayTypeLabel = match($holiday->type) {
+            $holidayTypeLabel = match ($holiday->type) {
                 'federal' => 'Federal Holiday',
                 'government' => 'Government Holiday',
                 'state' => 'State Holiday',
@@ -204,6 +243,13 @@ class CalendarService
             });
         }
 
+        // Filter by manager (show WFH of users managed by this manager)
+        if (! empty($filters['manager_id'])) {
+            $query->whereHas('user', function ($q) use ($filters) {
+                $q->where('manager_id', $filters['manager_id']);
+            });
+        }
+
         if (! empty($filters['search'])) {
             $search = $filters['search'];
             $query->whereHas('user', function ($q) use ($search) {
@@ -220,28 +266,7 @@ class CalendarService
     }
 
     /**
-     * Apply permission-based visibility rules for leaves
-     *
-     * CALENDAR VISIBILITY PHILOSOPHY:
-     * - Approved leaves are PUBLIC information (already approved by manager/HR)
-     * - Calendar is for COORDINATION, not management
-     * - All employees should see when coworkers are on leave
-     * - The leave management system (approval, viewing details) remains permission-restricted
-     */
-    protected function applyLeaveVisibilityRules(Builder $query, User $viewer): Builder
-    {
-        // ✅ ALL AUTHENTICATED USERS can see ALL APPROVED LEAVES on the calendar
-        // This is because:
-        // 1. These leaves are already approved (public information)
-        // 2. Employees need to see who's out for team coordination
-        // 3. Detailed leave management is still protected by separate permissions
-
-        // No filtering needed - show all approved leaves to everyone
-        return $query;
-    }
-
-    /**
-     * Get calendar statistics for a date range
+     * Get calendar statistics for a date range using efficient COUNT queries
      */
     public function getStatistics(
         Carbon $startDate,
@@ -249,31 +274,53 @@ class CalendarService
         array $filters,
         User $viewer
     ): array {
-        // Get all events
-        $events = $this->getEvents($startDate, $endDate, $filters, $viewer);
+        $eventTypes = $filters['event_types'] ?? ['leave'];
+        $byType = [];
+        $total = 0;
 
-        // Count by type
-        $byType = $events->groupBy('type')->map->count()->toArray();
+        if (in_array('leave', $eventTypes)) {
+            $count = LeaveRequest::query()
+                ->approved()
+                ->inDateRange($startDate->format('Y-m-d'), $endDate->format('Y-m-d'))
+                ->count();
+            $byType['leave'] = $count;
+            $total += $count;
+        }
+
+        if (in_array('holiday', $eventTypes)) {
+            $count = Holiday::where('is_active', true)
+                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                ->count();
+            $byType['holiday'] = $count;
+            $total += $count;
+        }
+
+        if (in_array('wfh', $eventTypes)) {
+            $count = WorkFromHomeSchedule::query()
+                ->approved()
+                ->inDateRange($startDate->format('Y-m-d'), $endDate->format('Y-m-d'))
+                ->count();
+            $byType['wfh'] = $count;
+            $total += $count;
+        }
 
         // Users on leave today
         $today = Carbon::today();
         $usersOnLeaveToday = 0;
 
         if ($today->between($startDate, $endDate)) {
-            $todayLeaves = LeaveRequest::query()
+            $usersOnLeaveToday = LeaveRequest::query()
                 ->approved()
                 ->where('start_date', '<=', $today)
                 ->where('end_date', '>=', $today)
                 ->count();
-
-            $usersOnLeaveToday = $todayLeaves;
         }
 
         return [
-            'total_events' => $events->count(),
+            'total_events' => $total,
             'by_type' => $byType,
             'users_on_leave_today' => $usersOnLeaveToday,
-            'upcoming_holidays' => [], // Future feature
+            'upcoming_holidays' => [],
         ];
     }
 
@@ -287,9 +334,6 @@ class CalendarService
             ->approved()
             ->where('start_date', '<=', $date->format('Y-m-d'))
             ->where('end_date', '>=', $date->format('Y-m-d'));
-
-        // Apply visibility rules
-        $query = $this->applyLeaveVisibilityRules($query, $viewer);
 
         return $query->get()->map(function ($leave) {
             return [
@@ -323,17 +367,22 @@ class CalendarService
         $eventTypes = CalendarEventType::active()->ordered()->get();
 
         // Get counts for each type
-        return $eventTypes->map(function ($eventType) use ($startDate, $endDate, $viewer) {
+        return $eventTypes->map(function ($eventType) use ($startDate, $endDate) {
             $count = 0;
 
             // Count leaves
             if ($eventType->slug === 'leave') {
-                $query = LeaveRequest::query()
+                $count = LeaveRequest::query()
                     ->approved()
-                    ->inDateRange($startDate->format('Y-m-d'), $endDate->format('Y-m-d'));
+                    ->inDateRange($startDate->format('Y-m-d'), $endDate->format('Y-m-d'))
+                    ->count();
+            }
 
-                $query = $this->applyLeaveVisibilityRules($query, $viewer);
-                $count = $query->count();
+            // Count holidays
+            if ($eventType->slug === 'holiday') {
+                $count = Holiday::where('is_active', true)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->count();
             }
 
             // Count holidays

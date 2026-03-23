@@ -3,15 +3,99 @@
 namespace App\Http\Controllers;
 
 use App\Models\WorkFromHomeSchedule;
+use App\Models\WorkFromHomeSetting;
 use App\Services\WorkFromHomeService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class WorkFromHomeController extends Controller
 {
     public function __construct(
         protected WorkFromHomeService $wfhService
     ) {}
+
+    /**
+     * Display the My WFH page (Inertia)
+     */
+    public function page(Request $request)
+    {
+        $user = $request->user();
+        $month = $request->get('month', now()->format('Y-m'));
+        [$year, $monthNum] = explode('-', $month);
+
+        $startDate = Carbon::createFromDate($year, $monthNum, 1)->startOfMonth();
+        $endDate = $startDate->copy()->endOfMonth();
+
+        // Get WFH schedules for the selected month (include all statuses)
+        $schedules = WorkFromHomeSchedule::where('user_id', $user->id)
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->orderBy('date')
+            ->get()
+            ->map(fn ($wfh) => [
+                'id' => $wfh->id,
+                'date' => $wfh->date->format('Y-m-d'),
+                'day_name' => $wfh->date->format('l'),
+                'type' => $wfh->type,
+                'status' => $wfh->status,
+                'reason' => $wfh->reason,
+                'is_past' => $wfh->date->isBefore(today()),
+                'is_today' => $wfh->date->isToday(),
+            ]);
+
+        // Get usage stats for the current week
+        $weeklyUsage = $this->wfhService->getWeeklyUsage($user, now());
+
+        // Get settings
+        $settings = WorkFromHomeSetting::getOrCreateForUser($user);
+
+        // Monthly summary counts
+        $monthlyStats = [
+            'total' => $schedules->whereIn('status', ['approved', 'pending'])->count(),
+            'approved' => $schedules->where('status', 'approved')->count(),
+            'cancelled' => $schedules->where('status', 'cancelled')->count(),
+            'upcoming' => $schedules->where('status', 'approved')->where('is_past', false)->count(),
+        ];
+
+        // Available months for filter (months with WFH data + current month)
+        $availableMonths = WorkFromHomeSchedule::where('user_id', $user->id)
+            ->selectRaw("DISTINCT DATE_FORMAT(date, '%Y-%m') as month")
+            ->orderBy('month', 'desc')
+            ->pluck('month')
+            ->toArray();
+
+        if (! in_array($month, $availableMonths)) {
+            $availableMonths[] = $month;
+            rsort($availableMonths);
+        }
+
+        return Inertia::render('Employees/WFH/Index', [
+            'schedules' => $schedules,
+            'weeklyUsage' => $weeklyUsage,
+            'settings' => [
+                'weekly_quota' => $settings->weekly_quota,
+                'recurring_enabled' => $settings->recurring_enabled,
+                'recurring_days' => $settings->recurring_days,
+            ],
+            'monthlyStats' => $monthlyStats,
+            'currentMonth' => $month,
+            'availableMonths' => $availableMonths,
+        ]);
+    }
+
+    /**
+     * Cancel a WFH from the page (web route, redirects back)
+     */
+    public function cancel(Request $request, WorkFromHomeSchedule $wfh)
+    {
+        $success = $this->wfhService->cancelWFH($wfh, $request->user());
+
+        if (! $success) {
+            return back()->with('error', 'Cannot cancel this WFH schedule.');
+        }
+
+        return back()->with('success', 'WFH cancelled successfully.');
+    }
 
     /**
      * Schedule WFH for specific dates

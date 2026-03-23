@@ -30,19 +30,35 @@ class WorkFromHomeService
             if (! $validation['valid']) {
                 $results['failed'][] = $date;
                 $results['errors'][$date] = $validation['message'];
+
                 continue;
             }
 
             try {
-                $wfh = WorkFromHomeSchedule::create([
-                    'user_id' => $user->id,
-                    'date' => $carbonDate,
-                    'type' => 'one_time',
-                    'status' => 'approved', // Auto-approve for now
-                    'reason' => $reason,
-                    'approved_by' => null,
-                    'approved_at' => now(),
-                ]);
+                // Check if a cancelled WFH exists for this date (unique constraint on user_id+date)
+                $cancelled = WorkFromHomeSchedule::where('user_id', $user->id)
+                    ->where('date', $carbonDate->format('Y-m-d'))
+                    ->where('status', 'cancelled')
+                    ->first();
+
+                if ($cancelled) {
+                    $cancelled->update([
+                        'type' => 'one_time',
+                        'status' => 'approved',
+                        'reason' => $reason,
+                        'approved_at' => now(),
+                    ]);
+                } else {
+                    WorkFromHomeSchedule::create([
+                        'user_id' => $user->id,
+                        'date' => $carbonDate,
+                        'type' => 'one_time',
+                        'status' => 'approved',
+                        'reason' => $reason,
+                        'approved_by' => null,
+                        'approved_at' => now(),
+                    ]);
+                }
 
                 $results['success'][] = $date;
             } catch (\Exception $e) {
@@ -187,8 +203,8 @@ class WorkFromHomeService
             return false;
         }
 
-        // Can't cancel past WFH
-        if ($wfh->date->isPast()) {
+        // Can't cancel past WFH (but today is still cancellable)
+        if ($wfh->date->isBefore(today())) {
             return false;
         }
 

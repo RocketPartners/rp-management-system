@@ -24,6 +24,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserImportController;
+use App\Http\Controllers\WorkFromHomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -164,6 +165,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // ============================================
+    // 🏠 WORK FROM HOME ROUTES (Self-Service)
+    // ============================================
+    Route::prefix('my-wfh')->name('my-wfh.')->group(function () {
+        Route::get('/', [WorkFromHomeController::class, 'page'])->name('index');
+        Route::post('/{wfh}/cancel', [WorkFromHomeController::class, 'cancel'])->name('cancel');
+    });
+
+    // ============================================
     // 👥 USER MANAGEMENT ROUTES (Admin/HR)
     // ============================================
     Route::get('/users/import', [UserImportController::class, 'show'])->name('users.import');
@@ -257,6 +266,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{holiday}', [HolidayController::class, 'update'])->name('update');
         Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->name('destroy');
         Route::post('/fetch-from-api', [HolidayController::class, 'fetchFromAPI'])->name('fetch-from-api');
+        Route::post('/import', [HolidayController::class, 'import'])->name('import');
         Route::patch('/{holiday}/toggle-active', [HolidayController::class, 'toggleActive'])->name('toggle-active');
     });
 

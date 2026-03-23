@@ -11,9 +11,8 @@ use Illuminate\Support\Facades\Log;
 
 class OnboardingDocumentService
 {
-    public function __construct(private DocumentAuditService $auditService)
-    {
-    }
+    public function __construct(private DocumentAuditService $auditService) {}
+
     /**
      * Upload a new document for submission
      */
@@ -244,5 +243,4 @@ class OnboardingDocumentService
     {
         return config("onboarding.document_types.{$type}.required", false);
     }
-
 }

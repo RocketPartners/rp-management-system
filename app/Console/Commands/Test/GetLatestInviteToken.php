@@ -28,8 +28,9 @@ class GetLatestInviteToken extends Command
     {
         $invite = OnboardingInvite::latest()->first();
 
-        if (!$invite) {
+        if (! $invite) {
             $this->error('No invites found in database.');
+
             return 1;
         }
 

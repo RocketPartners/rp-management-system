@@ -1,4 +1,3 @@
-import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,8 +27,9 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { Head, router, useForm } from '@inertiajs/react';
-import { Calendar, Download, Plus, Trash2, Edit2, Power } from 'lucide-react';
+import { Download, Edit2, Plus, Power, Trash2, Upload } from 'lucide-react';
 import { useState } from 'react';
 
 export default function HolidaysIndex({
@@ -42,7 +42,12 @@ export default function HolidaysIndex({
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showFetchModal, setShowFetchModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [editingHoliday, setEditingHoliday] = useState(null);
+
+    const importForm = useForm({
+        file: null,
+    });
 
     const addForm = useForm({
         name: '',
@@ -71,7 +76,7 @@ export default function HolidaysIndex({
         router.get(
             route('holidays.index'),
             { ...filters, [key]: value },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -129,6 +134,17 @@ export default function HolidaysIndex({
         });
     };
 
+    const handleImport = (e) => {
+        e.preventDefault();
+        importForm.post(route('holidays.import'), {
+            forceFormData: true,
+            onSuccess: () => {
+                setShowImportModal(false);
+                importForm.reset();
+            },
+        });
+    };
+
     const getCountryName = (code) => {
         const country = countries.find((c) => c.code === code);
         return country ? country.name : code;
@@ -151,15 +167,20 @@ export default function HolidaysIndex({
                         <Button
                             variant="outline"
                             size="sm"
+                            onClick={() => setShowImportModal(true)}
+                        >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Import Excel
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => setShowFetchModal(true)}
                         >
                             <Download className="mr-2 h-4 w-4" />
                             Fetch from API
                         </Button>
-                        <Button
-                            size="sm"
-                            onClick={() => setShowAddModal(true)}
-                        >
+                        <Button size="sm" onClick={() => setShowAddModal(true)}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Custom Holiday
                         </Button>
@@ -252,14 +273,14 @@ export default function HolidaysIndex({
                                             <TableRow key={holiday.id}>
                                                 <TableCell className="font-medium">
                                                     {new Date(
-                                                        holiday.date
+                                                        holiday.date,
                                                     ).toLocaleDateString(
                                                         'en-US',
                                                         {
                                                             month: 'short',
                                                             day: 'numeric',
                                                             year: 'numeric',
-                                                        }
+                                                        },
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
@@ -268,7 +289,7 @@ export default function HolidaysIndex({
                                                 <TableCell>
                                                     <Badge variant="outline">
                                                         {getCountryName(
-                                                            holiday.country_code
+                                                            holiday.country_code,
                                                         )}
                                                     </Badge>
                                                 </TableCell>
@@ -277,7 +298,8 @@ export default function HolidaysIndex({
                                                         variant="secondary"
                                                         className="capitalize"
                                                     >
-                                                        {holiday.type || 'public'}
+                                                        {holiday.type ||
+                                                            'public'}
                                                     </Badge>
                                                 </TableCell>
                                                 <TableCell>
@@ -298,7 +320,7 @@ export default function HolidaysIndex({
                                                             size="sm"
                                                             onClick={() =>
                                                                 handleToggleActive(
-                                                                    holiday
+                                                                    holiday,
                                                                 )
                                                             }
                                                         >
@@ -309,7 +331,7 @@ export default function HolidaysIndex({
                                                             size="sm"
                                                             onClick={() =>
                                                                 handleEdit(
-                                                                    holiday
+                                                                    holiday,
                                                                 )
                                                             }
                                                         >
@@ -320,7 +342,7 @@ export default function HolidaysIndex({
                                                             size="sm"
                                                             onClick={() =>
                                                                 handleDelete(
-                                                                    holiday
+                                                                    holiday,
                                                                 )
                                                             }
                                                         >
@@ -348,8 +370,7 @@ export default function HolidaysIndex({
                                             size="sm"
                                             disabled={!link.url}
                                             onClick={() =>
-                                                link.url &&
-                                                router.get(link.url)
+                                                link.url && router.get(link.url)
                                             }
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
@@ -472,7 +493,7 @@ export default function HolidaysIndex({
                                     onChange={(e) =>
                                         addForm.setData(
                                             'description',
-                                            e.target.value
+                                            e.target.value,
                                         )
                                     }
                                     placeholder="Additional information about this holiday"
@@ -488,7 +509,9 @@ export default function HolidaysIndex({
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={addForm.processing}>
-                                {addForm.processing ? 'Adding...' : 'Add Holiday'}
+                                {addForm.processing
+                                    ? 'Adding...'
+                                    : 'Add Holiday'}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -595,7 +618,7 @@ export default function HolidaysIndex({
                                     onChange={(e) =>
                                         editForm.setData(
                                             'description',
-                                            e.target.value
+                                            e.target.value,
                                         )
                                     }
                                 />
@@ -641,7 +664,10 @@ export default function HolidaysIndex({
                                     max="2100"
                                     value={fetchForm.data.year}
                                     onChange={(e) =>
-                                        fetchForm.setData('year', e.target.value)
+                                        fetchForm.setData(
+                                            'year',
+                                            e.target.value,
+                                        )
                                     }
                                     required
                                 />
@@ -691,6 +717,77 @@ export default function HolidaysIndex({
                                 {fetchForm.processing
                                     ? 'Fetching...'
                                     : 'Fetch Holidays'}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Import Excel Modal */}
+            <Dialog open={showImportModal} onOpenChange={setShowImportModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Import Holidays from Excel</DialogTitle>
+                        <DialogDescription>
+                            Upload an Excel file (.xlsx, .xls) or CSV with
+                            holiday data. Required columns:{' '}
+                            <strong>name</strong>, <strong>date</strong>.
+                            Optional: country_code (default: PH), type,
+                            description, state.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleImport}>
+                        <div className="space-y-4 py-4">
+                            <div>
+                                <Label htmlFor="import-file">
+                                    Excel / CSV File
+                                </Label>
+                                <Input
+                                    id="import-file"
+                                    type="file"
+                                    accept=".xlsx,.xls,.csv"
+                                    className="mt-1"
+                                    onChange={(e) =>
+                                        importForm.setData(
+                                            'file',
+                                            e.target.files[0],
+                                        )
+                                    }
+                                />
+                                {importForm.errors.file && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {importForm.errors.file}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="rounded-lg bg-gray-50 p-3">
+                                <p className="mb-1 text-xs font-medium text-gray-700">
+                                    Expected columns:
+                                </p>
+                                <code className="text-xs text-gray-600">
+                                    name | date | country_code | type |
+                                    description | state
+                                </code>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setShowImportModal(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={
+                                    importForm.processing ||
+                                    !importForm.data.file
+                                }
+                            >
+                                {importForm.processing
+                                    ? 'Importing...'
+                                    : 'Import Holidays'}
                             </Button>
                         </DialogFooter>
                     </form>

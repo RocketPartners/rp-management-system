@@ -38,14 +38,15 @@ class CreateTestInvite extends Command
             $query->whereIn('slug', ['super-admin', 'admin', 'hr-manager']);
         })->first();
 
-        if (!$creator) {
+        if (! $creator) {
             $this->error('No HR user found. Please seed the database first.');
+
             return 1;
         }
 
         // Create the invite
         $invite = OnboardingInvite::create([
-            'email' => $this->option('email') ?: 'test-' . Str::random(8) . '@example.com',
+            'email' => $this->option('email') ?: 'test-'.Str::random(8).'@example.com',
             'first_name' => $this->option('first_name') ?: 'Test',
             'last_name' => $this->option('last_name') ?: 'User',
             'position' => $this->option('position') ?: 'employee',
