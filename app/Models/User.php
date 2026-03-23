@@ -594,6 +594,32 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // ============================================
+    // TEAM RELATIONSHIPS
+    // ============================================
+
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class, 'team_user')
+            ->withPivot('is_primary', 'role_in_team')
+            ->withTimestamps();
+    }
+
+    public function ledTeams()
+    {
+        return $this->hasMany(Team::class, 'leader_id');
+    }
+
+    public function subLedTeams()
+    {
+        return $this->hasMany(Team::class, 'sub_leader_id');
+    }
+
+    public function primaryTeam()
+    {
+        return $this->teams()->wherePivot('is_primary', true)->first();
+    }
+
+    // ============================================
     // LEAVE MANAGEMENT RELATIONSHIPS
     // ============================================
 

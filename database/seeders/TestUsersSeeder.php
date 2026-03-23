@@ -132,7 +132,7 @@ class TestUsersSeeder extends Seeder
             'manager_id' => $leadEng2->id,
         ], 'senior-engineer');
 
-        $this->createUser([
+        $seniorEng1 = $this->createUser([
             'name' => 'Senior Engineer Three',
             'email' => 'senior3@example.com',
             'position' => 'Senior Software Engineer',
@@ -141,13 +141,84 @@ class TestUsersSeeder extends Seeder
             'manager_id' => $leadEng3->id,
         ], 'senior-engineer');
 
+        // ========================================
+        // 2 MID-LEVEL ENGINEERS
+        // ========================================
+        $this->createUser([
+            'name' => 'Mid Engineer One',
+            'email' => 'mid1@example.com',
+            'position' => 'Mid-Level Software Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'MID-001',
+            'manager_id' => $seniorEng1->id,
+        ], 'mid-level-engineer');
+
+        $this->createUser([
+            'name' => 'Mid Engineer Two',
+            'email' => 'mid2@example.com',
+            'position' => 'Mid-Level Software Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'MID-002',
+            'manager_id' => $seniorEng1->id,
+        ], 'mid-level-engineer');
+
+        // ========================================
+        // 3 JUNIOR ENGINEERS
+        // ========================================
+        $this->createUser([
+            'name' => 'Junior Engineer One',
+            'email' => 'junior1@example.com',
+            'position' => 'Junior Software Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'JR-001',
+            'manager_id' => $leadEng1->id,
+        ], 'junior-engineer');
+
+        $this->createUser([
+            'name' => 'Junior Engineer Two',
+            'email' => 'junior2@example.com',
+            'position' => 'Junior Software Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'JR-002',
+            'manager_id' => $leadEng2->id,
+        ], 'junior-engineer');
+
+        $this->createUser([
+            'name' => 'Junior Engineer Three',
+            'email' => 'junior3@example.com',
+            'position' => 'Junior Software Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'JR-003',
+            'manager_id' => $leadEng3->id,
+        ], 'junior-engineer');
+
+        // ========================================
+        // 2 ENTRY-LEVEL ENGINEERS
+        // ========================================
+        $this->createUser([
+            'name' => 'Entry Level One',
+            'email' => 'entry1@example.com',
+            'position' => 'Entry-Level Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'ENT-001',
+            'manager_id' => $leadEng1->id,
+        ], 'entry-level-engineer');
+
+        $this->createUser([
+            'name' => 'Entry Level Two',
+            'email' => 'entry2@example.com',
+            'position' => 'Entry-Level Engineer',
+            'department' => 'Engineering',
+            'employee_id' => 'ENT-002',
+            'manager_id' => $leadEng2->id,
+        ], 'entry-level-engineer');
+
         $this->command->info('');
-        $this->command->info('✅ Total users created: 14');
+        $this->command->info('✅ Total users created: 21');
         $this->command->info('');
         $this->command->info('👥 USER SUMMARY:');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('');
-        $this->command->info('CAN APPROVE USERS (9 users):');
         $this->command->info('  1. Super Admin        → superadmin@example.com');
         $this->command->info('  2. Admin One          → admin1@example.com');
         $this->command->info('  3. Admin Two          → admin2@example.com');
@@ -161,6 +232,13 @@ class TestUsersSeeder extends Seeder
         $this->command->info(' 11. Senior Engineer 1  → senior1@example.com');
         $this->command->info(' 12. Senior Engineer 2  → senior2@example.com');
         $this->command->info(' 13. Senior Engineer 3  → senior3@example.com');
+        $this->command->info(' 14. Mid Engineer 1     → mid1@example.com');
+        $this->command->info(' 15. Mid Engineer 2     → mid2@example.com');
+        $this->command->info(' 16. Junior Engineer 1  → junior1@example.com');
+        $this->command->info(' 17. Junior Engineer 2  → junior2@example.com');
+        $this->command->info(' 18. Junior Engineer 3  → junior3@example.com');
+        $this->command->info(' 19. Entry Level 1      → entry1@example.com');
+        $this->command->info(' 20. Entry Level 2      → entry2@example.com');
         $this->command->info('');
         $this->command->info('🔒 All passwords: password');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');

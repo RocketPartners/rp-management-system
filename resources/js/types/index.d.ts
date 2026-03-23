@@ -185,6 +185,40 @@ export interface UserOnLeave {
     total_days: number;
 }
 
+// ============================================
+// TEAM MANAGEMENT TYPES
+// ============================================
+
+export interface Team {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    leader_id: number | null;
+    sub_leader_id: number | null;
+    status: 'active' | 'inactive' | 'archived';
+    leader: TeamMember | null;
+    sub_leader: TeamMember | null;
+    members: TeamMember[];
+    members_count?: number;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface TeamMember {
+    id: number;
+    name: string;
+    email?: string;
+    position: string | null;
+    department: string | null;
+    profile_picture: string | null;
+    pivot?: {
+        is_primary: boolean;
+        role_in_team: 'lead' | 'sub-lead' | 'member' | null;
+        created_at: string;
+    };
+}
+
 export interface LeaveType {
     id: number;
     name: string;

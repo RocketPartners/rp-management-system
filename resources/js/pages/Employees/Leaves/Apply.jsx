@@ -41,6 +41,7 @@ export default function Apply({
     leaveBalances = {},
     user,
     potentialApprovers = [],
+    defaultApproverId = null,
 }) {
     const { flash } = usePage().props;
 
@@ -53,7 +54,7 @@ export default function Apply({
         emergency_contact_phone: user?.emergency_contact_phone || '',
         use_default_emergency_contact: true,
         availability: 'reachable',
-        manager_id: 'auto',
+        manager_id: defaultApproverId ? String(defaultApproverId) : 'auto',
     });
 
     const [selectedLeaveType, setSelectedLeaveType] = useState(null);

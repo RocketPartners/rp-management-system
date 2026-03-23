@@ -269,6 +269,38 @@ class PermissionSeeder extends Seeder
             ],
 
             // ============================================
+            // TEAM MANAGEMENT
+            // ============================================
+            [
+                'name' => 'View Teams',
+                'slug' => 'teams.view',
+                'description' => 'View team list and details',
+                'category' => 'teams',
+                'group' => 'teams',
+            ],
+            [
+                'name' => 'Create Teams',
+                'slug' => 'teams.create',
+                'description' => 'Create new teams',
+                'category' => 'teams',
+                'group' => 'teams',
+            ],
+            [
+                'name' => 'Edit Teams',
+                'slug' => 'teams.edit',
+                'description' => 'Edit team details and members',
+                'category' => 'teams',
+                'group' => 'teams',
+            ],
+            [
+                'name' => 'Delete Teams',
+                'slug' => 'teams.delete',
+                'description' => 'Delete teams',
+                'category' => 'teams',
+                'group' => 'teams',
+            ],
+
+            // ============================================
             // SYSTEM
             // ============================================
             [
@@ -338,9 +370,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own', 'leaves.create', 'leaves.view-team', 'leaves.view-all', 'leaves.approve', 'leaves.manage',
                     'onboarding.view', 'onboarding.manage', 'onboarding.approve-documents',
                     'assets.view',
+                    'teams.view', 'teams.create', 'teams.edit',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ HR Manager → Users, Leaves, Onboarding');
+            $this->command->info('   ✅ HR Manager → Users, Leaves, Onboarding, Teams');
         }
 
         // Project Manager / Department Head
@@ -352,9 +385,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own', 'leaves.create', 'leaves.view-team', 'leaves.view-all', 'leaves.approve',
                     'projects.view', 'projects.create', 'projects.edit', 'projects.delete', 'projects.manage-members',
                     'tasks.view', 'tasks.create', 'tasks.edit', 'tasks.assign',
+                    'teams.view',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ Project Manager → Leaves, Projects, Tasks');
+            $this->command->info('   ✅ Project Manager → Leaves, Projects, Tasks, Teams view');
         }
 
         // Lead Engineer / Team Lead
@@ -366,9 +400,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own', 'leaves.create', 'leaves.view-team', 'leaves.approve',
                     'projects.view', 'projects.edit',
                     'tasks.view', 'tasks.create', 'tasks.edit', 'tasks.assign',
+                    'teams.view',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ Lead Engineer → Team leaves, Projects, Tasks');
+            $this->command->info('   ✅ Lead Engineer → Team leaves, Projects, Tasks, Teams view');
         }
 
         // Senior Engineer
@@ -379,9 +414,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own', 'leaves.create',
                     'projects.view',
                     'tasks.view', 'tasks.create', 'tasks.edit',
+                    'teams.view',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ Senior Engineer → Own leaves, Projects view, Tasks');
+            $this->command->info('   ✅ Senior Engineer → Own leaves, Projects view, Tasks, Teams view');
         }
 
         // Mid-Level Engineer / Employee
@@ -392,9 +428,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own', 'leaves.create',
                     'projects.view',
                     'tasks.view', 'tasks.create',
+                    'teams.view',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ Mid-Level Engineer → Own leaves, Projects view, Tasks view/create');
+            $this->command->info('   ✅ Mid-Level Engineer → Own leaves, Projects view, Tasks view/create, Teams view');
         }
 
         // Junior Engineer
@@ -405,9 +442,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own', 'leaves.create',
                     'projects.view',
                     'tasks.view', 'tasks.create',
+                    'teams.view',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ Junior Engineer → Own leaves, Projects view, Tasks view/create');
+            $this->command->info('   ✅ Junior Engineer → Own leaves, Projects view, Tasks view/create, Teams view');
         }
 
         // Entry-Level Engineer / Intern
@@ -418,9 +456,10 @@ class PermissionSeeder extends Seeder
                     'leaves.view-own',
                     'projects.view',
                     'tasks.view',
+                    'teams.view',
                 ])->pluck('id')
             );
-            $this->command->info('   ✅ Entry-Level Engineer → View only');
+            $this->command->info('   ✅ Entry-Level Engineer → View only, Teams view');
         }
 
         $this->command->info('✅ Permission assignments complete!');

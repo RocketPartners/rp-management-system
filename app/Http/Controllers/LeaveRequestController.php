@@ -92,11 +92,37 @@ class LeaveRequestController extends Controller
             ])
             ->values();
 
+        // Auto-prefill: get user's primary team leader (only from active teams with active leaders)
+        $defaultApproverId = null;
+        $primaryTeam = $user->teams()
+            ->wherePivot('is_primary', true)
+            ->where('status', 'active')
+            ->with('leader')
+            ->first();
+
+        if ($primaryTeam && $primaryTeam->leader_id && $primaryTeam->leader_id !== $user->id
+            && $primaryTeam->leader && $primaryTeam->leader->employment_status === 'active') {
+            $defaultApproverId = $primaryTeam->leader_id;
+
+            // Ensure the team leader is in the approvers list even if their role isn't normally included
+            if (! $potentialApprovers->contains('id', $defaultApproverId)) {
+                $leader = $primaryTeam->leader;
+                $potentialApprovers->push([
+                    'id' => $leader->id,
+                    'name' => $leader->name,
+                    'email' => $leader->email,
+                    'employee_id' => $leader->employee_id,
+                    'position' => $leader->position,
+                ]);
+            }
+        }
+
         return Inertia::render('Employees/Leaves/Apply', [
             'leaveTypes' => $leaveTypes,
             'leaveBalances' => $leaveBalances,
             'user' => $user,
             'potentialApprovers' => $potentialApprovers,
+            'defaultApproverId' => $defaultApproverId,
         ]);
     }
 

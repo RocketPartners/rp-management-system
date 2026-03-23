@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
             ProjectSeeder::class,
             LeaveTypeSeeder::class,
             TestUsersSeeder::class,
+            LeaveBalanceSeeder::class,
             LeaveRequestSeeder::class,
             CalendarEventTypeSeeder::class,
             CalendarTestDataSeeder::class,

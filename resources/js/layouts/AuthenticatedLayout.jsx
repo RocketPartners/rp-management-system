@@ -40,6 +40,7 @@ import {
     UserCheck,
     UserPlus,
     Users,
+    UsersRound,
     Wallet,
     X,
 } from 'lucide-react';
@@ -131,7 +132,7 @@ export default function AuthenticatedLayout({ header, children }) {
         // ============================================
         // USER MANAGEMENT
         // ============================================
-        if (can('users.view')) {
+        if (can('users.view') || can('teams.view')) {
             const userItems = [];
 
             if (can('users.view')) {
@@ -149,6 +150,14 @@ export default function AuthenticatedLayout({ header, children }) {
                     icon: UserCheck,
                     badge:
                         pendingCounts?.users > 0 ? pendingCounts.users : null,
+                });
+            }
+
+            if (can('teams.view')) {
+                userItems.push({
+                    name: 'Teams',
+                    href: '/teams',
+                    icon: UsersRound,
                 });
             }
 
