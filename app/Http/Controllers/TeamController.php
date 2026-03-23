@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class TeamController extends Controller
@@ -48,14 +49,7 @@ class TeamController extends Controller
         }
 
         $users = User::where('employment_status', 'active')
-            ->get(['id', 'name', 'position', 'department', 'profile_picture'])
-            ->map(fn ($u) => [
-                'id' => $u->id,
-                'name' => $u->name,
-                'position' => $u->position,
-                'department' => $u->department,
-                'profile_picture' => $u->profile_picture,
-            ]);
+            ->get(['id', 'name', 'position', 'department', 'profile_picture']);
 
         return Inertia::render('Admin/Teams/CreateEdit', [
             'users' => $users,
@@ -120,14 +114,7 @@ class TeamController extends Controller
         $team->load(['leader:id,name', 'subLeader:id,name', 'members:users.id']);
 
         $users = User::where('employment_status', 'active')
-            ->get(['id', 'name', 'position', 'department', 'profile_picture'])
-            ->map(fn ($u) => [
-                'id' => $u->id,
-                'name' => $u->name,
-                'position' => $u->position,
-                'department' => $u->department,
-                'profile_picture' => $u->profile_picture,
-            ]);
+            ->get(['id', 'name', 'position', 'department', 'profile_picture']);
 
         return Inertia::render('Admin/Teams/CreateEdit', [
             'team' => $team,
@@ -190,10 +177,23 @@ class TeamController extends Controller
             $members->push($team->sub_leader_id);
         }
 
-        $members = $members->unique()->values();
+        $memberIds = $members->unique()->values();
+
+        // Batch-load existing pivot data to avoid N+1 queries
+        $existingPivots = DB::table('team_user')
+            ->where('team_id', $team->id)
+            ->whereIn('user_id', $memberIds)
+            ->pluck('is_primary', 'user_id');
+
+        $usersWithOtherTeams = DB::table('team_user')
+            ->where('team_id', '!=', $team->id)
+            ->whereIn('user_id', $memberIds)
+            ->distinct()
+            ->pluck('user_id')
+            ->flip();
 
         $syncData = [];
-        foreach ($members as $memberId) {
+        foreach ($memberIds as $memberId) {
             $roleInTeam = 'member';
             if ($memberId == $team->leader_id) {
                 $roleInTeam = 'lead';
@@ -201,19 +201,12 @@ class TeamController extends Controller
                 $roleInTeam = 'sub-lead';
             }
 
-            // Check if this is the user's first team — auto-set as primary
-            $isFirstTeam = ! \DB::table('team_user')
-                ->where('user_id', $memberId)
-                ->where('team_id', '!=', $team->id)
-                ->exists();
-
-            // Preserve existing is_primary value if user is already in this team
-            $existingPivot = \DB::table('team_user')
-                ->where('user_id', $memberId)
-                ->where('team_id', $team->id)
-                ->first();
-
-            $isPrimary = $existingPivot ? (bool) $existingPivot->is_primary : $isFirstTeam;
+            if ($existingPivots->has($memberId)) {
+                $isPrimary = (bool) $existingPivots[$memberId];
+            } else {
+                // First team for this user — auto-set as primary
+                $isPrimary = ! $usersWithOtherTeams->has($memberId);
+            }
 
             $syncData[$memberId] = [
                 'role_in_team' => $roleInTeam,
