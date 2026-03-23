@@ -430,7 +430,12 @@ export default function Apply({
                                         <Select
                                             value={data.manager_id}
                                             onValueChange={(value) =>
-                                                setData('manager_id', value === 'auto' ? '' : value)
+                                                setData(
+                                                    'manager_id',
+                                                    value === 'auto'
+                                                        ? ''
+                                                        : value,
+                                                )
                                             }
                                         >
                                             <SelectTrigger>
@@ -438,7 +443,8 @@ export default function Apply({
                                             </SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="auto">
-                                                    Auto (Based on Role Hierarchy)
+                                                    Auto (Based on Role
+                                                    Hierarchy)
                                                 </SelectItem>
                                                 {potentialApprovers.map(
                                                     (approver) => (

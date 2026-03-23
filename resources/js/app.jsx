@@ -60,7 +60,11 @@ const startSessionKeepalive = () => {
     }
 
     keepaliveInterval = setInterval(() => {
-        if (!window.location.pathname.match(/^\/(login|register|forgot-password|reset-password)/)) {
+        if (
+            !window.location.pathname.match(
+                /^\/(login|register|forgot-password|reset-password)/,
+            )
+        ) {
             // Use apiAxios so it goes through the CSRF interceptors
             // This keeps the session alive AND refreshes the XSRF-TOKEN cookie
             window.apiAxios?.get('/api/keepalive').catch(() => {

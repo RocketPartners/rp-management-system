@@ -15,7 +15,9 @@ export default function EventDetailModal({ event, open, onOpenChange }) {
                 <DialogHeader>
                     <DialogTitle>{event.user_name}</DialogTitle>
                     {event.event_type === 'leave' && event.leave_type && (
-                        <p className="text-sm text-gray-500">{event.leave_type}</p>
+                        <p className="text-sm text-gray-500">
+                            {event.leave_type}
+                        </p>
                     )}
                 </DialogHeader>
 

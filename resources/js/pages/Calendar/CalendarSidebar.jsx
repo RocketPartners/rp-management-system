@@ -19,11 +19,17 @@ export default function CalendarSidebar({
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">Total Events</span>
-                            <Badge variant="secondary">{statistics.total_events}</Badge>
+                            <span className="text-sm text-gray-600">
+                                Total Events
+                            </span>
+                            <Badge variant="secondary">
+                                {statistics.total_events}
+                            </Badge>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-600">On Leave Today</span>
+                            <span className="text-sm text-gray-600">
+                                On Leave Today
+                            </span>
                             <Badge variant="secondary">
                                 {statistics.users_on_leave_today}
                             </Badge>
@@ -58,7 +64,8 @@ export default function CalendarSidebar({
                                         <Badge
                                             className="mt-1 text-xs"
                                             style={{
-                                                backgroundColor: leave.leave_type.color,
+                                                backgroundColor:
+                                                    leave.leave_type.color,
                                                 color: '#fff',
                                             }}
                                         >
@@ -86,12 +93,14 @@ export default function CalendarSidebar({
                 <CardContent>
                     <div className="space-y-2">
                         {eventTypes.map((type) => {
-                            const isVisible = visibleEventTypes.includes(type.slug);
+                            const isVisible = visibleEventTypes.includes(
+                                type.slug,
+                            );
                             return (
                                 <button
                                     key={type.id}
                                     onClick={() => onToggleEventType(type.slug)}
-                                    className={`flex w-full items-center gap-3 rounded-md p-2 transition-all hover:bg-gray-100 border-2 ${
+                                    className={`flex w-full items-center gap-3 rounded-md border-2 p-2 transition-all hover:bg-gray-100 ${
                                         isVisible
                                             ? 'border-gray-200 bg-white'
                                             : 'border-transparent bg-gray-50 opacity-50'
@@ -111,7 +120,10 @@ export default function CalendarSidebar({
                                         {type.name}
                                     </span>
                                     {type.count !== undefined && (
-                                        <Badge variant="secondary" className="text-xs">
+                                        <Badge
+                                            variant="secondary"
+                                            className="text-xs"
+                                        >
                                             {type.count}
                                         </Badge>
                                     )}

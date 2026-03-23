@@ -6,13 +6,19 @@ import listPlugin from '@fullcalendar/list';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import { Head } from '@inertiajs/react';
-import { ChevronLeft, ChevronRight, Download, Filter, Loader2 } from 'lucide-react';
+import {
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    Filter,
+    Loader2,
+} from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import CalendarFilters from './CalendarFilters';
 import CalendarSidebar from './CalendarSidebar';
-import EventDetailModal from './EventDetailModal';
 import { setupEventTooltip } from './event-tooltip';
+import EventDetailModal from './EventDetailModal';
 import WFHScheduleModal from './WFHScheduleModal';
 
 // Map backend view names to FullCalendar view names
@@ -46,17 +52,22 @@ function loadFilters(settings) {
             const parsed = JSON.parse(saved);
             return { ...DEFAULT_FILTERS, ...parsed };
         }
-    } catch { /* ignore */ }
+    } catch {
+        /* ignore */
+    }
     return {
         ...DEFAULT_FILTERS,
-        event_types: settings.visible_event_types || DEFAULT_FILTERS.event_types,
+        event_types:
+            settings.visible_event_types || DEFAULT_FILTERS.event_types,
     };
 }
 
 function persistFilters(filters) {
     try {
         localStorage.setItem('calendar_filters', JSON.stringify(filters));
-    } catch { /* ignore */ }
+    } catch {
+        /* ignore */
+    }
 }
 
 export default function CalendarIndex({
@@ -91,23 +102,29 @@ export default function CalendarIndex({
     }, [filters]);
 
     // Fetch calendar events
-    const fetchEvents = useCallback(async (fetchInfo) => {
-        setLoading(true);
-        try {
-            const response = await window.apiAxios.get('/api/calendar/events', {
-                params: {
-                    start: fetchInfo.startStr.split('T')[0],
-                    end: fetchInfo.endStr.split('T')[0],
-                    ...filters,
-                },
-            });
-            setEvents(response.data.data);
-        } catch (error) {
-            console.error('Error fetching calendar events:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [filters]);
+    const fetchEvents = useCallback(
+        async (fetchInfo) => {
+            setLoading(true);
+            try {
+                const response = await window.apiAxios.get(
+                    '/api/calendar/events',
+                    {
+                        params: {
+                            start: fetchInfo.startStr.split('T')[0],
+                            end: fetchInfo.endStr.split('T')[0],
+                            ...filters,
+                        },
+                    },
+                );
+                setEvents(response.data.data);
+            } catch (error) {
+                console.error('Error fetching calendar events:', error);
+            } finally {
+                setLoading(false);
+            }
+        },
+        [filters],
+    );
 
     // Fetch statistics
     const fetchStatistics = useCallback(async () => {
@@ -115,13 +132,16 @@ export default function CalendarIndex({
             const calendarApi = calendarRef.current?.getApi();
             if (!calendarApi) return;
             const view = calendarApi.view;
-            const response = await window.apiAxios.get('/api/calendar/statistics', {
-                params: {
-                    start: view.currentStart.toISOString().split('T')[0],
-                    end: view.currentEnd.toISOString().split('T')[0],
-                    event_types: filters.event_types,
+            const response = await window.apiAxios.get(
+                '/api/calendar/statistics',
+                {
+                    params: {
+                        start: view.currentStart.toISOString().split('T')[0],
+                        end: view.currentEnd.toISOString().split('T')[0],
+                        event_types: filters.event_types,
+                    },
                 },
-            });
+            );
             setStatistics(response.data.data);
         } catch (error) {
             console.error('Error fetching statistics:', error);
@@ -131,9 +151,12 @@ export default function CalendarIndex({
     // Fetch users on leave today
     const fetchUsersOnLeaveToday = useCallback(async () => {
         try {
-            const response = await window.apiAxios.get('/api/calendar/users-on-leave', {
-                params: { date: new Date().toISOString().split('T')[0] },
-            });
+            const response = await window.apiAxios.get(
+                '/api/calendar/users-on-leave',
+                {
+                    params: { date: new Date().toISOString().split('T')[0] },
+                },
+            );
             setUsersOnLeaveToday(response.data.data);
         } catch (error) {
             console.error('Error fetching users on leave:', error);
@@ -156,17 +179,26 @@ export default function CalendarIndex({
     // Navigation handlers
     const handlePrevious = () => {
         const api = calendarRef.current?.getApi();
-        if (api) { api.prev(); setCurrentDate(api.getDate()); }
+        if (api) {
+            api.prev();
+            setCurrentDate(api.getDate());
+        }
     };
 
     const handleNext = () => {
         const api = calendarRef.current?.getApi();
-        if (api) { api.next(); setCurrentDate(api.getDate()); }
+        if (api) {
+            api.next();
+            setCurrentDate(api.getDate());
+        }
     };
 
     const handleToday = () => {
         const api = calendarRef.current?.getApi();
-        if (api) { api.today(); setCurrentDate(api.getDate()); }
+        if (api) {
+            api.today();
+            setCurrentDate(api.getDate());
+        }
     };
 
     const handleViewChange = (view) => {
@@ -216,24 +248,29 @@ export default function CalendarIndex({
         try {
             const response = await window.apiAxios.get('/api/wfh/weekly-usage');
             setWfhWeeklyUsage(response.data.data);
-        } catch { /* ignore */ }
+        } catch {
+            /* ignore */
+        }
         setShowWFHModal(true);
     };
 
     // WFH scheduled callback — refresh calendar and show success
-    const handleWFHScheduled = useCallback((message) => {
-        setSuccessMessage(message);
-        setTimeout(() => setSuccessMessage(null), 5000);
+    const handleWFHScheduled = useCallback(
+        (message) => {
+            setSuccessMessage(message);
+            setTimeout(() => setSuccessMessage(null), 5000);
 
-        const api = calendarRef.current?.getApi();
-        if (api) {
-            const view = api.view;
-            fetchEvents({
-                startStr: view.currentStart.toISOString(),
-                endStr: view.currentEnd.toISOString(),
-            });
-        }
-    }, [fetchEvents]);
+            const api = calendarRef.current?.getApi();
+            if (api) {
+                const view = api.view;
+                fetchEvents({
+                    startStr: view.currentStart.toISOString(),
+                    endStr: view.currentEnd.toISOString(),
+                });
+            }
+        },
+        [fetchEvents],
+    );
 
     // Refetch on filter changes
     useEffect(() => {
@@ -253,12 +290,14 @@ export default function CalendarIndex({
     // Save settings on unmount
     useEffect(() => {
         return () => {
-            window.apiAxios.put('/calendar/settings', {
-                default_view: toBackendView(currentView),
-                show_weekends: settings.show_weekends,
-                visible_event_types: filters.event_types,
-                default_filters: filters,
-            }).catch(() => {});
+            window.apiAxios
+                .put('/calendar/settings', {
+                    default_view: toBackendView(currentView),
+                    show_weekends: settings.show_weekends,
+                    visible_event_types: filters.event_types,
+                    default_filters: filters,
+                })
+                .catch(() => {});
         };
     }, [currentView, filters]);
 
@@ -270,11 +309,18 @@ export default function CalendarIndex({
         const end = api.view.currentEnd;
 
         if (currentView === 'dayGridMonth') {
-            return start.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+            return start.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+            });
         } else if (currentView === 'timeGridWeek') {
             return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
         }
-        return start.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        return start.toLocaleDateString('en-US', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+        });
     };
 
     return (
@@ -291,17 +337,39 @@ export default function CalendarIndex({
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        <Button variant="default" size="sm" onClick={handleOpenWFHModal}>
-                            <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        <Button
+                            variant="default"
+                            size="sm"
+                            onClick={handleOpenWFHModal}
+                        >
+                            <svg
+                                className="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 4v16m8-8H4"
+                                />
                             </svg>
                             Schedule WFH
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => setShowFilters(true)}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowFilters(true)}
+                        >
                             <Filter className="mr-2 h-4 w-4" />
                             Filters
                         </Button>
-                        <Button variant="outline" size="sm" onClick={handleExport}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleExport}
+                        >
                             <Download className="mr-2 h-4 w-4" />
                             Export
                         </Button>
@@ -315,8 +383,10 @@ export default function CalendarIndex({
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Success Message */}
                     {successMessage && (
-                        <div className="mb-4 animate-fade-in rounded-lg border border-green-200 bg-green-50 p-3">
-                            <p className="text-sm font-medium text-green-800">{successMessage}</p>
+                        <div className="animate-fade-in mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
+                            <p className="text-sm font-medium text-green-800">
+                                {successMessage}
+                            </p>
                         </div>
                     )}
 
@@ -328,27 +398,56 @@ export default function CalendarIndex({
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="flex items-center gap-2">
-                                                <Button variant="outline" size="sm" onClick={handlePrevious}>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handlePrevious}
+                                                >
                                                     <ChevronLeft className="h-4 w-4" />
                                                 </Button>
-                                                <Button variant="outline" size="sm" onClick={handleToday}>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleToday}
+                                                >
                                                     Today
                                                 </Button>
-                                                <Button variant="outline" size="sm" onClick={handleNext}>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={handleNext}
+                                                >
                                                     <ChevronRight className="h-4 w-4" />
                                                 </Button>
                                             </div>
-                                            <h3 className="text-lg font-semibold">{getDateRangeText()}</h3>
+                                            <h3 className="text-lg font-semibold">
+                                                {getDateRangeText()}
+                                            </h3>
                                         </div>
                                         <div className="flex items-center gap-2">
-                                            {['dayGridMonth', 'timeGridWeek', 'timeGridDay'].map((view) => (
+                                            {[
+                                                'dayGridMonth',
+                                                'timeGridWeek',
+                                                'timeGridDay',
+                                            ].map((view) => (
                                                 <Button
                                                     key={view}
-                                                    variant={currentView === view ? 'default' : 'outline'}
+                                                    variant={
+                                                        currentView === view
+                                                            ? 'default'
+                                                            : 'outline'
+                                                    }
                                                     size="sm"
-                                                    onClick={() => handleViewChange(view)}
+                                                    onClick={() =>
+                                                        handleViewChange(view)
+                                                    }
                                                 >
-                                                    {view === 'dayGridMonth' ? 'Month' : view === 'timeGridWeek' ? 'Week' : 'Day'}
+                                                    {view === 'dayGridMonth'
+                                                        ? 'Month'
+                                                        : view ===
+                                                            'timeGridWeek'
+                                                          ? 'Week'
+                                                          : 'Day'}
                                                 </Button>
                                             ))}
                                         </div>
@@ -362,7 +461,11 @@ export default function CalendarIndex({
                                     )}
                                     <FullCalendar
                                         ref={calendarRef}
-                                        plugins={[dayGridPlugin, timeGridPlugin, listPlugin]}
+                                        plugins={[
+                                            dayGridPlugin,
+                                            timeGridPlugin,
+                                            listPlugin,
+                                        ]}
                                         initialView={currentView}
                                         headerToolbar={false}
                                         events={events}
@@ -382,7 +485,10 @@ export default function CalendarIndex({
                                         dayMaxEvents={3}
                                         dayMaxEventRows={3}
                                         views={{
-                                            dayGridMonth: { dayMaxEvents: 3, dayMaxEventRows: 3 },
+                                            dayGridMonth: {
+                                                dayMaxEvents: 3,
+                                                dayMaxEventRows: 3,
+                                            },
                                         }}
                                         moreLinkClick="popover"
                                         moreLinkText={(num) => `+${num} more`}

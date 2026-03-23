@@ -53,7 +53,12 @@ function generateRecurringDates(recurringDays, recurringMonth) {
     return dates;
 }
 
-export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onScheduled }) {
+export default function WFHScheduleModal({
+    open,
+    onOpenChange,
+    weeklyUsage,
+    onScheduled,
+}) {
     const [mode, setMode] = useState('one-time');
     const [selectedDates, setSelectedDates] = useState([]);
     const [reason, setReason] = useState('');
@@ -71,7 +76,7 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
         setSelectedDates((prev) =>
             prev.includes(dateStr)
                 ? prev.filter((d) => d !== dateStr)
-                : [...prev, dateStr].sort()
+                : [...prev, dateStr].sort(),
         );
     };
 
@@ -107,7 +112,10 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                 setError('Please select at least one day of the week');
                 return;
             }
-            datesToSchedule = generateRecurringDates(recurringDays, recurringMonth);
+            datesToSchedule = generateRecurringDates(
+                recurringDays,
+                recurringMonth,
+            );
             if (datesToSchedule.length === 0) {
                 setError('No valid dates found for the selected pattern');
                 return;
@@ -129,50 +137,66 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
             onScheduled(response.data.message);
         } catch (err) {
             if (err.response?.data?.errors) {
-                const errorMessages = Object.values(err.response.data.errors).flat();
+                const errorMessages = Object.values(
+                    err.response.data.errors,
+                ).flat();
                 setError(errorMessages.join(', '));
             } else {
-                setError(err.response?.data?.message || 'Failed to schedule WFH');
+                setError(
+                    err.response?.data?.message || 'Failed to schedule WFH',
+                );
             }
         } finally {
             setLoading(false);
         }
     };
 
-    const previewDates = mode === 'recurring'
-        ? generateRecurringDates(recurringDays, recurringMonth)
-        : [];
+    const previewDates =
+        mode === 'recurring'
+            ? generateRecurringDates(recurringDays, recurringMonth)
+            : [];
 
-    const scheduleDateCount = mode === 'one-time' ? selectedDates.length : previewDates.length;
+    const scheduleDateCount =
+        mode === 'one-time' ? selectedDates.length : previewDates.length;
 
     return (
-        <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) handleClose(); else onOpenChange(true); }}>
+        <Dialog
+            open={open}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) handleClose();
+                else onOpenChange(true);
+            }}
+        >
             <DialogContent className="sm:max-w-[700px]">
                 <DialogHeader>
                     <DialogTitle>Schedule Work From Home</DialogTitle>
                     <DialogDescription>
-                        Schedule specific dates or set up a recurring weekly pattern. Weekends are not allowed.
+                        Schedule specific dates or set up a recurring weekly
+                        pattern. Weekends are not allowed.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-6">
                     {/* Weekly Usage */}
                     {weeklyUsage && (
-                        <div className="rounded-lg bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 p-4">
+                        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-4">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h4 className="text-sm font-semibold text-blue-900">
                                         This Week's Quota
                                     </h4>
                                     <p className="mt-1 text-xs text-blue-700">
-                                        {weeklyUsage.used} of {weeklyUsage.quota} days used
+                                        {weeklyUsage.used} of{' '}
+                                        {weeklyUsage.quota} days used
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-2xl font-bold text-blue-900">
                                         {weeklyUsage.remaining}
                                     </div>
-                                    <div className="text-xs text-blue-700">days left</div>
+                                    <div className="text-xs text-blue-700">
+                                        days left
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -205,8 +229,18 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                     {/* Error Display */}
                     {error && (
                         <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
-                            <svg className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <svg
+                                className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                />
                             </svg>
                             <p className="text-sm text-red-800">{error}</p>
                         </div>
@@ -218,7 +252,10 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                         <div className="space-y-4">
                             {mode === 'one-time' ? (
                                 <div>
-                                    <Label htmlFor="wfh-date" className="text-base font-semibold">
+                                    <Label
+                                        htmlFor="wfh-date"
+                                        className="text-base font-semibold"
+                                    >
                                         Select Date
                                     </Label>
                                     <p className="mb-3 mt-1 text-xs text-gray-500">
@@ -228,10 +265,16 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                                         type="date"
                                         id="wfh-date"
                                         className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                        min={new Date().toISOString().split('T')[0]}
+                                        min={
+                                            new Date()
+                                                .toISOString()
+                                                .split('T')[0]
+                                        }
                                         onChange={(e) => {
                                             if (e.target.value) {
-                                                handleDateSelect(e.target.value);
+                                                handleDateSelect(
+                                                    e.target.value,
+                                                );
                                                 e.target.value = '';
                                             }
                                         }}
@@ -240,19 +283,29 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                             ) : (
                                 <>
                                     <div>
-                                        <Label htmlFor="wfh-month" className="text-base font-semibold">
+                                        <Label
+                                            htmlFor="wfh-month"
+                                            className="text-base font-semibold"
+                                        >
                                             Select Month
                                         </Label>
                                         <p className="mb-3 mt-1 text-xs text-gray-500">
-                                            Choose the month for your WFH pattern
+                                            Choose the month for your WFH
+                                            pattern
                                         </p>
                                         <input
                                             type="month"
                                             id="wfh-month"
                                             value={recurringMonth}
-                                            onChange={(e) => setRecurringMonth(e.target.value)}
+                                            onChange={(e) =>
+                                                setRecurringMonth(
+                                                    e.target.value,
+                                                )
+                                            }
                                             className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                            min={new Date().toISOString().slice(0, 7)}
+                                            min={new Date()
+                                                .toISOString()
+                                                .slice(0, 7)}
                                         />
                                     </div>
                                     <div>
@@ -260,9 +313,18 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                                             Select Days of the Week
                                         </Label>
                                         <p className="mb-3 mt-1 text-xs text-gray-500">
-                                            Choose which days you'll work from home for{' '}
+                                            Choose which days you'll work from
+                                            home for{' '}
                                             {recurringMonth
-                                                ? new Date(recurringMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                                                ? new Date(
+                                                      recurringMonth + '-01',
+                                                  ).toLocaleDateString(
+                                                      'en-US',
+                                                      {
+                                                          month: 'long',
+                                                          year: 'numeric',
+                                                      },
+                                                  )
                                                 : 'the selected month'}
                                         </p>
                                         <div className="grid grid-cols-5 gap-2">
@@ -271,14 +333,26 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                                                     key={day}
                                                     type="button"
                                                     onClick={() =>
-                                                        setRecurringDays((prev) =>
-                                                            prev.includes(day)
-                                                                ? prev.filter((d) => d !== day)
-                                                                : [...prev, day].sort()
+                                                        setRecurringDays(
+                                                            (prev) =>
+                                                                prev.includes(
+                                                                    day,
+                                                                )
+                                                                    ? prev.filter(
+                                                                          (d) =>
+                                                                              d !==
+                                                                              day,
+                                                                      )
+                                                                    : [
+                                                                          ...prev,
+                                                                          day,
+                                                                      ].sort(),
                                                         )
                                                     }
                                                     className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
-                                                        recurringDays.includes(day)
+                                                        recurringDays.includes(
+                                                            day,
+                                                        )
                                                             ? 'bg-blue-500 text-white shadow-md'
                                                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                                     }`}
@@ -292,7 +366,10 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                             )}
 
                             <div>
-                                <Label htmlFor="wfh-reason" className="text-base font-semibold">
+                                <Label
+                                    htmlFor="wfh-reason"
+                                    className="text-base font-semibold"
+                                >
                                     Reason (Optional)
                                 </Label>
                                 <textarea
@@ -337,8 +414,10 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                         onClick={handleSubmit}
                         disabled={
                             loading ||
-                            (mode === 'one-time' && selectedDates.length === 0) ||
-                            (mode === 'recurring' && (!recurringMonth || recurringDays.length === 0))
+                            (mode === 'one-time' &&
+                                selectedDates.length === 0) ||
+                            (mode === 'recurring' &&
+                                (!recurringMonth || recurringDays.length === 0))
                         }
                         className="flex-1 bg-blue-600 hover:bg-blue-700 sm:flex-none"
                     >
@@ -349,12 +428,24 @@ export default function WFHScheduleModal({ open, onOpenChange, weeklyUsage, onSc
                             </>
                         ) : (
                             <>
-                                <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <svg
+                                    className="mr-2 h-4 w-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M5 13l4 4L19 7"
+                                    />
                                 </svg>
                                 {scheduleDateCount > 0
                                     ? `Schedule (${scheduleDateCount} ${scheduleDateCount === 1 ? 'day' : 'days'})`
-                                    : mode === 'one-time' ? 'Schedule WFH' : 'Schedule Pattern'}
+                                    : mode === 'one-time'
+                                      ? 'Schedule WFH'
+                                      : 'Schedule Pattern'}
                             </>
                         )}
                     </Button>
@@ -372,11 +463,25 @@ function SelectedDatesList({ dates, onRemove }) {
             </Label>
             {dates.length === 0 ? (
                 <div className="mt-2 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                     </svg>
-                    <p className="mt-2 text-sm text-gray-500">No dates selected yet</p>
-                    <p className="mt-1 text-xs text-gray-400">Pick a date to get started</p>
+                    <p className="mt-2 text-sm text-gray-500">
+                        No dates selected yet
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">
+                        Pick a date to get started
+                    </p>
                 </div>
             ) : (
                 <div className="mt-2 max-h-64 space-y-2 overflow-y-auto pr-2">
@@ -391,10 +496,20 @@ function SelectedDatesList({ dates, onRemove }) {
                                 </div>
                                 <div>
                                     <div className="text-sm font-semibold text-blue-900">
-                                        {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' })}
+                                        {new Date(
+                                            date + 'T00:00:00',
+                                        ).toLocaleDateString('en-US', {
+                                            weekday: 'long',
+                                        })}
                                     </div>
                                     <div className="text-xs text-blue-700">
-                                        {new Date(date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        {new Date(
+                                            date + 'T00:00:00',
+                                        ).toLocaleDateString('en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                        })}
                                     </div>
                                 </div>
                             </div>
@@ -403,8 +518,18 @@ function SelectedDatesList({ dates, onRemove }) {
                                 className="rounded-full p-1 text-red-600 opacity-0 transition-opacity hover:bg-red-100 hover:text-red-800 group-hover:opacity-100"
                                 title="Remove date"
                             >
-                                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                <svg
+                                    className="h-5 w-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
                                 </svg>
                             </button>
                         </div>
@@ -421,22 +546,51 @@ function RecurringPreview({ dates, recurringDays, recurringMonth }) {
             <Label className="text-base font-semibold">Pattern Preview</Label>
             {dates.length === 0 ? (
                 <div className="mt-2 rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-                    <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                        className="mx-auto h-12 w-12 text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
                     </svg>
-                    <p className="mt-2 text-sm text-gray-500">No dates to preview</p>
-                    <p className="mt-1 text-xs text-gray-400">Select days and date range</p>
+                    <p className="mt-2 text-sm text-gray-500">
+                        No dates to preview
+                    </p>
+                    <p className="mt-1 text-xs text-gray-400">
+                        Select days and date range
+                    </p>
                 </div>
             ) : (
                 <>
                     <div className="mb-3 mt-2 rounded-lg border-2 border-blue-200 bg-blue-50 p-3">
                         <p className="text-sm font-semibold text-blue-900">
-                            {dates.length} WFH {dates.length === 1 ? 'day' : 'days'} will be scheduled
+                            {dates.length} WFH{' '}
+                            {dates.length === 1 ? 'day' : 'days'} will be
+                            scheduled
                         </p>
                         <p className="mt-1 text-xs text-blue-700">
-                            {recurringDays.map((d) => ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][d - 1]).join(', ')} &bull;{' '}
+                            {recurringDays
+                                .map(
+                                    (d) =>
+                                        ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'][
+                                            d - 1
+                                        ],
+                                )
+                                .join(', ')}{' '}
+                            &bull;{' '}
                             {recurringMonth
-                                ? new Date(recurringMonth + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                                ? new Date(
+                                      recurringMonth + '-01',
+                                  ).toLocaleDateString('en-US', {
+                                      month: 'long',
+                                      year: 'numeric',
+                                  })
                                 : ''}
                         </p>
                     </div>
@@ -450,7 +604,9 @@ function RecurringPreview({ dates, recurringDays, recurringMonth }) {
                                     {index + 1}
                                 </div>
                                 <div className="text-xs font-semibold text-blue-900">
-                                    {new Date(date + 'T00:00:00').toLocaleDateString('en-US', {
+                                    {new Date(
+                                        date + 'T00:00:00',
+                                    ).toLocaleDateString('en-US', {
                                         weekday: 'short',
                                         month: 'short',
                                         day: 'numeric',

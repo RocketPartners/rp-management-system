@@ -7,7 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { CheckCircle2, Clock, LogOut, Mail } from 'lucide-react';
 
 export default function PendingApproval({ auth }) {
@@ -16,11 +16,15 @@ export default function PendingApproval({ auth }) {
         localStorage.clear();
         sessionStorage.clear();
         router.clearHistory();
-        router.post(route('logout'), {}, {
-            onFinish: () => {
-                window.location.href = '/login';
-            }
-        });
+        router.post(
+            route('logout'),
+            {},
+            {
+                onFinish: () => {
+                    window.location.href = '/login';
+                },
+            },
+        );
     };
     return (
         <>

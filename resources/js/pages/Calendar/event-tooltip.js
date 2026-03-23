@@ -7,11 +7,20 @@ export function setupEventTooltip(info) {
     let tooltipContent = '';
 
     if (eventType === 'holiday') {
-        const holidayName = info.event.extendedProps?.holiday_name || info.event.title;
+        const holidayName =
+            info.event.extendedProps?.holiday_name || info.event.title;
         const countryName = info.event.extendedProps?.country_name || '';
         const countryCode = info.event.extendedProps?.country_code || '';
-        const holidayTypeLabel = info.event.extendedProps?.holiday_type_label || '';
-        const flag = countryCode === 'PH' ? '\u{1F1F5}\u{1F1ED}' : countryCode === 'US' ? '\u{1F1FA}\u{1F1F8}' : countryCode === 'ES' ? '\u{1F1EA}\u{1F1F8}' : '\u{1F389}';
+        const holidayTypeLabel =
+            info.event.extendedProps?.holiday_type_label || '';
+        const flag =
+            countryCode === 'PH'
+                ? '\u{1F1F5}\u{1F1ED}'
+                : countryCode === 'US'
+                  ? '\u{1F1FA}\u{1F1F8}'
+                  : countryCode === 'ES'
+                    ? '\u{1F1EA}\u{1F1F8}'
+                    : '\u{1F389}';
 
         tooltipContent = `
             <div class="custom-tooltip-content">
@@ -21,7 +30,8 @@ export function setupEventTooltip(info) {
             </div>
         `;
     } else if (eventType === 'wfh') {
-        const userName = info.event.extendedProps?.user_name || info.event.title;
+        const userName =
+            info.event.extendedProps?.user_name || info.event.title;
         const department = info.event.extendedProps?.department || '';
         const wfhType = info.event.extendedProps?.wfh_type || '';
         const reason = info.event.extendedProps?.reason || '';
@@ -36,7 +46,8 @@ export function setupEventTooltip(info) {
             </div>
         `;
     } else {
-        const userName = info.event.extendedProps?.user_name || info.event.title;
+        const userName =
+            info.event.extendedProps?.user_name || info.event.title;
         const leaveType = info.event.extendedProps?.leave_type || '';
         const department = info.event.extendedProps?.department || '';
         const totalDays = info.event.extendedProps?.total_days || '';
@@ -57,7 +68,9 @@ export function setupEventTooltip(info) {
     let tooltipEl = null;
 
     const showTooltip = () => {
-        document.querySelectorAll('.custom-event-tooltip').forEach(el => el.remove());
+        document
+            .querySelectorAll('.custom-event-tooltip')
+            .forEach((el) => el.remove());
 
         tooltipEl = document.createElement('div');
         tooltipEl.className = 'custom-event-tooltip';
@@ -68,7 +81,8 @@ export function setupEventTooltip(info) {
         const tooltipRect = tooltipEl.getBoundingClientRect();
 
         let top = rect.bottom + window.scrollY + 5;
-        let left = rect.left + window.scrollX + (rect.width / 2) - (tooltipRect.width / 2);
+        let left =
+            rect.left + window.scrollX + rect.width / 2 - tooltipRect.width / 2;
 
         if (left < 10) left = 10;
         if (left + tooltipRect.width > window.innerWidth - 10) {

@@ -98,7 +98,9 @@ export default function CalendarFilters({
                 <div className="mt-6 space-y-6">
                     {/* Event Types */}
                     <div>
-                        <h3 className="mb-3 text-sm font-semibold">Event Types</h3>
+                        <h3 className="mb-3 text-sm font-semibold">
+                            Event Types
+                        </h3>
                         <div className="space-y-3">
                             {eventTypes.map((type) => (
                                 <div
@@ -107,13 +109,19 @@ export default function CalendarFilters({
                                 >
                                     <Checkbox
                                         id={`event-${type.slug}`}
-                                        checked={tempFilters.event_types.includes(type.slug)}
-                                        onCheckedChange={() => toggleEventType(type.slug)}
+                                        checked={tempFilters.event_types.includes(
+                                            type.slug,
+                                        )}
+                                        onCheckedChange={() =>
+                                            toggleEventType(type.slug)
+                                        }
                                     />
                                     <div className="flex flex-1 items-center gap-2">
                                         <div
                                             className="h-4 w-4 rounded"
-                                            style={{ backgroundColor: type.color }}
+                                            style={{
+                                                backgroundColor: type.color,
+                                            }}
                                         />
                                         <Label
                                             htmlFor={`event-${type.slug}`}
@@ -123,7 +131,10 @@ export default function CalendarFilters({
                                         </Label>
                                     </div>
                                     {type.count !== undefined && (
-                                        <Badge variant="secondary" className="text-xs">
+                                        <Badge
+                                            variant="secondary"
+                                            className="text-xs"
+                                        >
                                             {type.count}
                                         </Badge>
                                     )}
@@ -146,8 +157,12 @@ export default function CalendarFilters({
                                     >
                                         <Checkbox
                                             id={`country-${code.toLowerCase()}`}
-                                            checked={tempFilters.country_codes.includes(code)}
-                                            onCheckedChange={() => toggleCountry(code)}
+                                            checked={tempFilters.country_codes.includes(
+                                                code,
+                                            )}
+                                            onCheckedChange={() =>
+                                                toggleCountry(code)
+                                            }
                                         />
                                         <Label
                                             htmlFor={`country-${code.toLowerCase()}`}
@@ -166,10 +181,13 @@ export default function CalendarFilters({
                         tempFilters.country_codes.includes('US') &&
                         usStates.length > 0 && (
                             <div>
-                                <h3 className="mb-3 text-sm font-semibold">US States</h3>
+                                <h3 className="mb-3 text-sm font-semibold">
+                                    US States
+                                </h3>
                                 <p className="mb-3 text-xs text-gray-500">
-                                    Filter holidays by specific US states. If no states are
-                                    selected, all US holidays will be shown.
+                                    Filter holidays by specific US states. If no
+                                    states are selected, all US holidays will be
+                                    shown.
                                 </p>
                                 <div className="max-h-64 space-y-3 overflow-y-auto rounded border border-gray-200 p-3">
                                     {usStates.map((state) => (
@@ -179,8 +197,12 @@ export default function CalendarFilters({
                                         >
                                             <Checkbox
                                                 id={`state-${state.replace(/\s+/g, '-').toLowerCase()}`}
-                                                checked={tempFilters.us_states.includes(state)}
-                                                onCheckedChange={() => toggleUSState(state)}
+                                                checked={tempFilters.us_states.includes(
+                                                    state,
+                                                )}
+                                                onCheckedChange={() =>
+                                                    toggleUSState(state)
+                                                }
                                             />
                                             <Label
                                                 htmlFor={`state-${state.replace(/\s+/g, '-').toLowerCase()}`}

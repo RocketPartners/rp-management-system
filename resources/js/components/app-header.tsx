@@ -80,8 +80,10 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     const { timezone, setTimezone, timezones } = useTimezone();
 
     const currentTimezone =
-        timezones.find((tz: { id: string; name: string; flag: string; offset: string }) => tz.id === timezone) ||
-        timezones[2];
+        timezones.find(
+            (tz: { id: string; name: string; flag: string; offset: string }) =>
+                tz.id === timezone,
+        ) || timezones[2];
 
     return (
         <>
@@ -274,28 +276,36 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                     Select Timezone
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                {timezones.map((tz: { id: string; name: string; flag: string; offset: string }) => (
-                                    <DropdownMenuItem
-                                        key={tz.id}
-                                        onClick={() => setTimezone(tz.id)}
-                                        className={cn(
-                                            'flex cursor-pointer items-center justify-between',
-                                            timezone === tz.id && 'bg-accent',
-                                        )}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            <img
-                                                src={tz.flag}
-                                                alt={tz.name}
-                                                className="h-4 w-4 rounded-sm object-cover"
-                                            />
-                                            <span>{tz.name}</span>
-                                        </span>
-                                        <span className="text-xs text-muted-foreground">
-                                            {tz.offset}
-                                        </span>
-                                    </DropdownMenuItem>
-                                ))}
+                                {timezones.map(
+                                    (tz: {
+                                        id: string;
+                                        name: string;
+                                        flag: string;
+                                        offset: string;
+                                    }) => (
+                                        <DropdownMenuItem
+                                            key={tz.id}
+                                            onClick={() => setTimezone(tz.id)}
+                                            className={cn(
+                                                'flex cursor-pointer items-center justify-between',
+                                                timezone === tz.id &&
+                                                    'bg-accent',
+                                            )}
+                                        >
+                                            <span className="flex items-center gap-2">
+                                                <img
+                                                    src={tz.flag}
+                                                    alt={tz.name}
+                                                    className="h-4 w-4 rounded-sm object-cover"
+                                                />
+                                                <span>{tz.name}</span>
+                                            </span>
+                                            <span className="text-xs text-muted-foreground">
+                                                {tz.offset}
+                                            </span>
+                                        </DropdownMenuItem>
+                                    ),
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                         <DropdownMenu>

@@ -29,9 +29,9 @@ import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import WFHScheduleModal from '@/pages/Calendar/WFHScheduleModal';
 import { Head, router, usePage } from '@inertiajs/react';
 import {
+    AlertCircle,
     Calendar,
     CheckCircle2,
-    AlertCircle,
     Home,
     Plus,
     XCircle,
@@ -39,9 +39,21 @@ import {
 import { useState } from 'react';
 
 const statusConfig = {
-    approved: { label: 'Approved', variant: 'default', className: 'bg-green-100 text-green-800 border-green-200' },
-    pending: { label: 'Pending', variant: 'secondary', className: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    cancelled: { label: 'Cancelled', variant: 'outline', className: 'bg-gray-100 text-gray-500 border-gray-200' },
+    approved: {
+        label: 'Approved',
+        variant: 'default',
+        className: 'bg-green-100 text-green-800 border-green-200',
+    },
+    pending: {
+        label: 'Pending',
+        variant: 'secondary',
+        className: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    },
+    cancelled: {
+        label: 'Cancelled',
+        variant: 'outline',
+        className: 'bg-gray-100 text-gray-500 border-gray-200',
+    },
 };
 
 export default function MyWFH({
@@ -63,7 +75,9 @@ export default function MyWFH({
         try {
             const response = await window.apiAxios.get('/api/wfh/weekly-usage');
             setWfhWeeklyUsage(response.data.data);
-        } catch { /* ignore */ }
+        } catch {
+            /* ignore */
+        }
         setShowScheduleModal(true);
     };
 
@@ -80,15 +94,22 @@ export default function MyWFH({
 
     const handleCancel = () => {
         if (!cancelTarget) return;
-        router.post(`/my-wfh/${cancelTarget.id}/cancel`, {}, {
-            preserveScroll: true,
-            onSuccess: () => setCancelTarget(null),
-        });
+        router.post(
+            `/my-wfh/${cancelTarget.id}/cancel`,
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setCancelTarget(null),
+            },
+        );
     };
 
     const formatMonth = (monthStr) => {
         const [y, m] = monthStr.split('-');
-        return new Date(y, m - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        return new Date(y, m - 1).toLocaleDateString('en-US', {
+            month: 'long',
+            year: 'numeric',
+        });
     };
 
     const formatDate = (dateStr) => {
@@ -129,7 +150,7 @@ export default function MyWFH({
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Flash Messages */}
                     {flash?.success && (
-                        <Alert className="mb-4 animate-fade-in border-green-200 bg-green-50">
+                        <Alert className="animate-fade-in mb-4 border-green-200 bg-green-50">
                             <CheckCircle2 className="h-4 w-4 text-green-600" />
                             <AlertDescription className="font-medium text-green-800">
                                 {flash.success}
@@ -137,7 +158,7 @@ export default function MyWFH({
                         </Alert>
                     )}
                     {flash?.error && (
-                        <Alert className="mb-4 animate-fade-in border-red-200 bg-red-50">
+                        <Alert className="animate-fade-in mb-4 border-red-200 bg-red-50">
                             <AlertCircle className="h-4 w-4 text-red-600" />
                             <AlertDescription className="font-medium text-red-800">
                                 {flash.error}
@@ -147,7 +168,7 @@ export default function MyWFH({
 
                     {/* Success Message from WFH scheduling */}
                     {successMessage && (
-                        <Alert className="mb-4 animate-fade-in border-green-200 bg-green-50">
+                        <Alert className="animate-fade-in mb-4 border-green-200 bg-green-50">
                             <CheckCircle2 className="h-4 w-4 text-green-600" />
                             <AlertDescription className="font-medium text-green-800">
                                 {successMessage}
@@ -161,11 +182,16 @@ export default function MyWFH({
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm text-gray-500">This Week</p>
-                                        <p className="mt-1 text-2xl font-bold">
-                                            {weeklyUsage.used}/{weeklyUsage.quota}
+                                        <p className="text-sm text-gray-500">
+                                            This Week
                                         </p>
-                                        <p className="text-xs text-gray-500">days used</p>
+                                        <p className="mt-1 text-2xl font-bold">
+                                            {weeklyUsage.used}/
+                                            {weeklyUsage.quota}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                            days used
+                                        </p>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                                         <Home className="h-6 w-6 text-blue-600" />
@@ -178,11 +204,15 @@ export default function MyWFH({
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm text-gray-500">Remaining</p>
+                                        <p className="text-sm text-gray-500">
+                                            Remaining
+                                        </p>
                                         <p className="mt-1 text-2xl font-bold text-green-600">
                                             {weeklyUsage.remaining}
                                         </p>
-                                        <p className="text-xs text-gray-500">days this week</p>
+                                        <p className="text-xs text-gray-500">
+                                            days this week
+                                        </p>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                                         <CheckCircle2 className="h-6 w-6 text-green-600" />
@@ -195,11 +225,15 @@ export default function MyWFH({
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm text-gray-500">This Month</p>
+                                        <p className="text-sm text-gray-500">
+                                            This Month
+                                        </p>
                                         <p className="mt-1 text-2xl font-bold">
                                             {monthlyStats.approved}
                                         </p>
-                                        <p className="text-xs text-gray-500">approved days</p>
+                                        <p className="text-xs text-gray-500">
+                                            approved days
+                                        </p>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
                                         <Calendar className="h-6 w-6 text-purple-600" />
@@ -212,11 +246,15 @@ export default function MyWFH({
                             <CardContent className="pt-6">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm text-gray-500">Upcoming</p>
+                                        <p className="text-sm text-gray-500">
+                                            Upcoming
+                                        </p>
                                         <p className="mt-1 text-2xl font-bold text-blue-600">
                                             {monthlyStats.upcoming}
                                         </p>
-                                        <p className="text-xs text-gray-500">days scheduled</p>
+                                        <p className="text-xs text-gray-500">
+                                            days scheduled
+                                        </p>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                                         <Calendar className="h-6 w-6 text-blue-600" />
@@ -230,14 +268,22 @@ export default function MyWFH({
                     <Card>
                         <CardHeader>
                             <div className="flex items-center justify-between">
-                                <CardTitle className="text-base">WFH Schedule</CardTitle>
-                                <Select value={currentMonth} onValueChange={handleMonthChange}>
+                                <CardTitle className="text-base">
+                                    WFH Schedule
+                                </CardTitle>
+                                <Select
+                                    value={currentMonth}
+                                    onValueChange={handleMonthChange}
+                                >
                                     <SelectTrigger className="w-48">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {availableMonths.map((month) => (
-                                            <SelectItem key={month} value={month}>
+                                            <SelectItem
+                                                key={month}
+                                                value={month}
+                                            >
                                                 {formatMonth(month)}
                                             </SelectItem>
                                         ))}
@@ -250,7 +296,8 @@ export default function MyWFH({
                                 <div className="py-12 text-center">
                                     <Home className="mx-auto h-12 w-12 text-gray-300" />
                                     <p className="mt-3 text-sm text-gray-500">
-                                        No WFH days scheduled for {formatMonth(currentMonth)}
+                                        No WFH days scheduled for{' '}
+                                        {formatMonth(currentMonth)}
                                     </p>
                                     <Button
                                         variant="outline"
@@ -271,49 +318,81 @@ export default function MyWFH({
                                             <TableHead>Type</TableHead>
                                             <TableHead>Reason</TableHead>
                                             <TableHead>Status</TableHead>
-                                            <TableHead className="text-right">Action</TableHead>
+                                            <TableHead className="text-right">
+                                                Action
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {schedules.map((wfh) => {
-                                            const config = statusConfig[wfh.status] || statusConfig.approved;
+                                            const config =
+                                                statusConfig[wfh.status] ||
+                                                statusConfig.approved;
                                             return (
                                                 <TableRow
                                                     key={wfh.id}
-                                                    className={wfh.is_today ? 'bg-blue-50/50' : wfh.is_past && wfh.status !== 'cancelled' ? '' : wfh.status === 'cancelled' ? 'opacity-50' : ''}
+                                                    className={
+                                                        wfh.is_today
+                                                            ? 'bg-blue-50/50'
+                                                            : wfh.is_past &&
+                                                                wfh.status !==
+                                                                    'cancelled'
+                                                              ? ''
+                                                              : wfh.status ===
+                                                                  'cancelled'
+                                                                ? 'opacity-50'
+                                                                : ''
+                                                    }
                                                 >
                                                     <TableCell className="font-medium">
                                                         {formatDate(wfh.date)}
                                                         {wfh.is_today && (
-                                                            <Badge className="ml-2 bg-blue-100 text-blue-700 text-xs">
+                                                            <Badge className="ml-2 bg-blue-100 text-xs text-blue-700">
                                                                 Today
                                                             </Badge>
                                                         )}
                                                     </TableCell>
-                                                    <TableCell>{wfh.day_name}</TableCell>
                                                     <TableCell>
-                                                        <span className="capitalize">{wfh.type.replace('_', ' ')}</span>
+                                                        {wfh.day_name}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span className="capitalize">
+                                                            {wfh.type.replace(
+                                                                '_',
+                                                                ' ',
+                                                            )}
+                                                        </span>
                                                     </TableCell>
                                                     <TableCell className="max-w-xs truncate text-gray-500">
                                                         {wfh.reason || '-'}
                                                     </TableCell>
                                                     <TableCell>
-                                                        <Badge className={config.className}>
+                                                        <Badge
+                                                            className={
+                                                                config.className
+                                                            }
+                                                        >
                                                             {config.label}
                                                         </Badge>
                                                     </TableCell>
                                                     <TableCell className="text-right">
-                                                        {!wfh.is_past && wfh.status !== 'cancelled' && (
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="text-red-600 hover:bg-red-50 hover:text-red-700"
-                                                                onClick={() => setCancelTarget(wfh)}
-                                                            >
-                                                                <XCircle className="mr-1 h-4 w-4" />
-                                                                Cancel
-                                                            </Button>
-                                                        )}
+                                                        {!wfh.is_past &&
+                                                            wfh.status !==
+                                                                'cancelled' && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                                                                    onClick={() =>
+                                                                        setCancelTarget(
+                                                                            wfh,
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    <XCircle className="mr-1 h-4 w-4" />
+                                                                    Cancel
+                                                                </Button>
+                                                            )}
                                                     </TableCell>
                                                 </TableRow>
                                             );
@@ -335,7 +414,12 @@ export default function MyWFH({
             />
 
             {/* Cancel Confirmation Dialog */}
-            <Dialog open={!!cancelTarget} onOpenChange={(open) => { if (!open) setCancelTarget(null); }}>
+            <Dialog
+                open={!!cancelTarget}
+                onOpenChange={(open) => {
+                    if (!open) setCancelTarget(null);
+                }}
+            >
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Cancel WFH</DialogTitle>
@@ -348,7 +432,10 @@ export default function MyWFH({
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2">
-                        <Button variant="outline" onClick={() => setCancelTarget(null)}>
+                        <Button
+                            variant="outline"
+                            onClick={() => setCancelTarget(null)}
+                        >
                             Keep It
                         </Button>
                         <Button variant="destructive" onClick={handleCancel}>

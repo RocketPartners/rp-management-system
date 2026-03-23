@@ -12,7 +12,13 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Calendar, Folder, LayoutGrid, PartyPopper } from 'lucide-react';
+import {
+    BookOpen,
+    Calendar,
+    Folder,
+    LayoutGrid,
+    PartyPopper,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [

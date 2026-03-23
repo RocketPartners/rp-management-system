@@ -23,7 +23,10 @@ const refreshCsrfToken = async () => {
             // Also try to refresh the meta tag from a lightweight endpoint
             const tokenResponse = await fetch('/api/keepalive', {
                 method: 'GET',
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
                 credentials: 'same-origin',
             });
 
@@ -74,7 +77,7 @@ window.axios.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
+    },
 );
 
 // Create API axios instance with the same auto-retry behavior
@@ -114,5 +117,5 @@ window.apiAxios.interceptors.response.use(
         }
 
         return Promise.reject(error);
-    }
+    },
 );
