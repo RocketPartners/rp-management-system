@@ -53,6 +53,14 @@ jobs:
       - name: Install Node Dependencies
         run: npm ci
 
+      - name: Prepare Laravel Application
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Generate Wayfinder Routes
+        run: php artisan wayfinder:generate
+
       - name: Check PHP code style (Pint)
         run: vendor/bin/pint --test
 
