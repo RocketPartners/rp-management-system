@@ -21,6 +21,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TeamController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserImportController;
@@ -186,6 +187,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users/{user}/reject', [UserController::class, 'reject'])->name('users.reject');
 
     Route::resource('users', UserController::class);
+
+    // ============================================
+    // 👥 TEAM MANAGEMENT
+    // ============================================
+    Route::resource('teams', TeamController::class);
 
     // ============================================
     // 🛡️ ROLE MANAGEMENT (Admin/HR only)

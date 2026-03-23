@@ -92,11 +92,19 @@ class LeaveRequestController extends Controller
             ])
             ->values();
 
+        // Auto-prefill: get user's primary team leader
+        $defaultApproverId = null;
+        $primaryTeam = $user->teams()->wherePivot('is_primary', true)->with('leader')->first();
+        if ($primaryTeam && $primaryTeam->leader_id && $primaryTeam->leader_id !== $user->id) {
+            $defaultApproverId = $primaryTeam->leader_id;
+        }
+
         return Inertia::render('Employees/Leaves/Apply', [
             'leaveTypes' => $leaveTypes,
             'leaveBalances' => $leaveBalances,
             'user' => $user,
             'potentialApprovers' => $potentialApprovers,
+            'defaultApproverId' => $defaultApproverId,
         ]);
     }
 
