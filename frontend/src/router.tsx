@@ -3,9 +3,19 @@ import { ProtectedRoute, GuestRoute } from '@/components/route-guards';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { lazy, Suspense } from 'react';
 
-// Phase 1 — Migrated pages
+// Phase 1 — Migrated pages (TSX)
 const Login = lazy(() => import('@/pages/Auth/Login'));
 const Dashboard = lazy(() => import('@/pages/Employees/Dashboard'));
+
+// Phase 2 — Employee Leave pages (TSX)
+const MyLeaves = lazy(() => import('@/pages/Employees/Leaves/MyLeaves'));
+const ApplyLeave = lazy(() => import('@/pages/Employees/Leaves/Apply'));
+const ShowLeave = lazy(() => import('@/pages/Employees/Leaves/Show'));
+const EditLeave = lazy(() => import('@/pages/Employees/Leaves/Edit'));
+
+// Phase 3 — Calendar + WFH pages (TSX)
+const Calendar = lazy(() => import('@/pages/Calendar/Index'));
+const MyWFH = lazy(() => import('@/pages/Employees/WFH/Index'));
 
 // Placeholder for unmigrated pages
 function ComingSoon() {
@@ -56,13 +66,16 @@ export const router = createBrowserRouter([
                         children: [
                             { path: '/dashboard', element: <Dashboard /> },
 
+                            // Employee Leave pages (migrated)
+                            { path: '/my-leaves', element: <MyLeaves /> },
+                            { path: '/my-leaves/apply', element: <ApplyLeave /> },
+                            { path: '/my-leaves/:id', element: <ShowLeave /> },
+                            { path: '/my-leaves/:id/edit', element: <EditLeave /> },
+
                             // Placeholder routes — will be migrated in subsequent phases
-                            { path: '/calendar', element: <ComingSoon /> },
-                            { path: '/my-leaves', element: <ComingSoon /> },
-                            { path: '/my-leaves/apply', element: <ComingSoon /> },
-                            { path: '/my-leaves/:id', element: <ComingSoon /> },
+                            { path: '/calendar', element: <Calendar /> },
                             { path: '/my-assets', element: <ComingSoon /> },
-                            { path: '/my-wfh', element: <ComingSoon /> },
+                            { path: '/my-wfh', element: <MyWFH /> },
                             { path: '/users', element: <ComingSoon /> },
                             { path: '/users/pending-approvals', element: <ComingSoon /> },
                             { path: '/users/:id', element: <ComingSoon /> },

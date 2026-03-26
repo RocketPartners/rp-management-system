@@ -221,3 +221,235 @@ export interface LeaveType {
     is_active?: boolean;
     sort_order?: number;
 }
+
+// ============================================
+// SPRING BOOT API TYPES (camelCase)
+// ============================================
+
+export interface LeaveApplicationResponse {
+    id: number;
+    userId: number;
+    userName: string;
+    leaveTypeId: number;
+    leaveTypeName: string;
+    leaveTypeCode: string;
+    leaveTypeColor: string;
+    startDate: string;
+    endDate: string;
+    totalDays: number;
+    duration: string;
+    reason: string;
+    attachment: string | null;
+    emergencyContactName: string | null;
+    emergencyContactPhone: string | null;
+    availability: string;
+    status: LeaveStatus;
+    statusLabel: string;
+    assignedManagerId: number | null;
+    assignedManagerName: string | null;
+    managerApprovedById: number | null;
+    managerApprovedByName: string | null;
+    managerApprovedAt: string | null;
+    managerComments: string | null;
+    hrApprovedById: number | null;
+    hrApprovedByName: string | null;
+    hrApprovedAt: string | null;
+    hrComments: string | null;
+    cancellationReason: string | null;
+    cancellationRequestedAt: string | null;
+    cancellationApprovedById: number | null;
+    cancellationApprovedByName: string | null;
+    cancellationApprovedAt: string | null;
+    cancellationHrComments: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export type LeaveStatus =
+    | 'PENDING_MANAGER'
+    | 'PENDING_HR'
+    | 'APPROVED'
+    | 'REJECTED_BY_MANAGER'
+    | 'REJECTED_BY_HR'
+    | 'CANCELLED'
+    | 'PENDING_CANCELLATION';
+
+export interface LeaveBalanceResponse {
+    id: number;
+    userId: number;
+    userName: string;
+    leaveTypeId: number;
+    leaveTypeName: string;
+    leaveTypeCode: string;
+    year: number;
+    totalDays: number;
+    usedDays: number;
+    pendingDays: number;
+    remainingDays: number;
+    carriedOverDays: number;
+    adjustmentDays: number;
+    adjustmentReason: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface LeaveTypeResponse {
+    id: number;
+    name: string;
+    code: string;
+    description: string | null;
+    defaultDaysPerYear: number;
+    isPaid: boolean;
+    requiresMedicalCert: boolean;
+    medicalCertDaysThreshold: number | null;
+    isCarryOverAllowed: boolean;
+    maxCarryOverDays: number | null;
+    requiresManagerApproval: boolean;
+    requiresHrApproval: boolean;
+    color: string;
+    icon: string | null;
+    sortOrder: number;
+    genderSpecific: string | null;
+    maxConsecutiveDays: number | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PagedResponse<T> {
+    content: T[];
+    totalPages: number;
+    totalElements: number;
+    number: number;
+    size: number;
+    first: boolean;
+    last: boolean;
+}
+
+export interface ApiResponse<T> {
+    status: 'success' | 'error';
+    message: string;
+    data: T;
+}
+
+export interface PotentialApprover {
+    id: number;
+    name: string;
+    email: string;
+    employeeId: string | null;
+    position: string | null;
+}
+
+// ============================================
+// CALENDAR & WFH TYPES (Spring Boot)
+// ============================================
+
+export interface CalendarSettings {
+    defaultView: string;
+    showWeekends: boolean;
+    visibleEventTypes: string[];
+    defaultFilters: Record<string, unknown> | null;
+}
+
+export interface CalendarFiltersState {
+    event_types: string[];
+    user_ids: number[] | null;
+    department_id: number | null;
+    manager_id: number | null;
+    leave_type_ids: number[] | null;
+    search: string | null;
+    country_codes: string[];
+    us_states: string[];
+}
+
+export interface CalendarEventTypeConfig {
+    id: number;
+    name: string;
+    slug: string;
+    color: string;
+    icon: string;
+    description: string;
+    isSystem: boolean;
+    isActive: boolean;
+    sortOrder: number;
+    count?: number;
+}
+
+export interface CalendarStatsResponse {
+    totalEvents: number;
+    byType: Record<string, number>;
+    usersOnLeaveToday: number;
+    upcomingHolidays: unknown[];
+}
+
+export interface UserOnLeaveResponse {
+    id: number;
+    user: {
+        id: number;
+        name: string;
+        avatar: string | null;
+        department: { id: number; name: string } | null;
+    };
+    leaveType: {
+        id: number;
+        name: string;
+        color: string;
+    };
+    startDate: string;
+    endDate: string;
+    totalDays: number;
+}
+
+export interface CalendarEventData {
+    id: string;
+    title: string;
+    start: string;
+    end: string;
+    allDay: boolean;
+    color: string;
+    textColor: string;
+    type: string;
+    extendedProps: Record<string, unknown>;
+}
+
+export interface CalendarManagerOption {
+    id: number;
+    name: string;
+    department?: { id: number; name: string } | null;
+}
+
+export interface WFHWeeklyUsage {
+    used: number;
+    quota: number;
+    remaining: number;
+}
+
+export interface WFHMonthlyStats {
+    approved: number;
+    upcoming: number;
+}
+
+export interface WFHSchedule {
+    id: number;
+    date: string;
+    dayName: string;
+    type: string;
+    reason: string | null;
+    status: 'approved' | 'pending' | 'cancelled';
+    isToday: boolean;
+    isPast: boolean;
+}
+
+export interface SelectedCalendarEvent {
+    title: string;
+    start: Date | null;
+    end: Date | null;
+    event_type: string;
+    user_name?: string;
+    leave_type?: string;
+    department?: { id: number; name: string } | null;
+    total_days?: number;
+    reason?: string;
+    status?: string;
+    [key: string]: unknown;
+}
