@@ -440,6 +440,92 @@ export interface WFHSchedule {
     isPast: boolean;
 }
 
+// ============================================
+// USER MANAGEMENT TYPES (Spring Boot camelCase)
+// ============================================
+
+export type AccountStatus = 'PENDING' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED';
+
+export interface UserResponse {
+    id: number;
+    email: string;
+    firstName: string;
+    middleName: string | null;
+    lastName: string;
+    suffix: string | null;
+    fullName: string;
+    phone: string | null;
+    personalMobile: string | null;
+    workEmail: string | null;
+    personalEmail: string | null;
+    civilStatus: string | null;
+    dateOfBirth: string | null;
+    birthday: string | null;
+    gender: string | null;
+    address: string | null;
+    addressLine2: string | null;
+    city: string | null;
+    state: string | null;
+    postalCode: string | null;
+    country: string | null;
+    emergencyContactName: string | null;
+    emergencyContactPhone: string | null;
+    emergencyContactMobile: string | null;
+    emergencyContactRelationship: string | null;
+    sssNumber: string | null;
+    tinNumber: string | null;
+    hdmfNumber: string | null;
+    philhealthNumber: string | null;
+    payrollAccount: string | null;
+    hireDate: string | null;
+    terminationDate: string | null;
+    employeeId: string | null;
+    profileImageUrl: string | null;
+    employmentType: string | null;
+    status: string;
+    accountStatus: AccountStatus;
+    approvedBy: number | null;
+    approvedAt: string | null;
+    departmentId: number | null;
+    departmentName: string | null;
+    positionId: number | null;
+    positionTitle: string | null;
+    managerId: number | null;
+    managerName: string | null;
+    roles: string[];
+    permissions: string[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface PermissionMatrixEntry {
+    permissionId: number;
+    permissionName: string;
+    permissionSlug: string;
+    group: string;
+    fromRole: boolean;
+    overrideType: 'GRANT' | 'REVOKE' | null;
+    effective: boolean;
+    reason: string | null;
+    expiresAt: string | null;
+    grantedBy: number | null;
+}
+
+export interface DepartmentOption {
+    id: number;
+    name: string;
+}
+
+export interface PositionOption {
+    id: number;
+    title: string;
+}
+
+export interface RoleOption {
+    id: number;
+    name: string;
+}
+
 export interface SelectedCalendarEvent {
     title: string;
     start: Date | null;

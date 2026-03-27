@@ -120,3 +120,65 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 
     return res;
 }
+
+// ---- Typed fetch helpers for TanStack Query ----
+
+export async function apiGet<T>(path: string): Promise<T> {
+    const res = await apiFetch(path);
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(err.message || `Request failed (${res.status})`);
+    }
+    const json = await res.json();
+    return (json.data ?? json) as T;
+}
+
+export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
+    const res = await apiFetch(path, {
+        method: 'POST',
+        body: body != null ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(err.message || `Request failed (${res.status})`);
+    }
+    const json = await res.json();
+    return (json.data ?? json) as T;
+}
+
+export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
+    const res = await apiFetch(path, {
+        method: 'PUT',
+        body: body != null ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(err.message || `Request failed (${res.status})`);
+    }
+    const json = await res.json();
+    return (json.data ?? json) as T;
+}
+
+export async function apiPatch<T>(path: string, body?: unknown): Promise<T> {
+    const res = await apiFetch(path, {
+        method: 'PATCH',
+        body: body != null ? JSON.stringify(body) : undefined,
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(err.message || `Request failed (${res.status})`);
+    }
+    const json = await res.json();
+    return (json.data ?? json) as T;
+}
+
+export async function apiDelete<T = void>(path: string): Promise<T> {
+    const res = await apiFetch(path, { method: 'DELETE' });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(err.message || `Request failed (${res.status})`);
+    }
+    if (res.status === 204) return undefined as T;
+    const json = await res.json();
+    return (json.data ?? json) as T;
+}

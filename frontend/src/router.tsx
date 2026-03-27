@@ -17,6 +17,14 @@ const EditLeave = lazy(() => import('@/pages/Employees/Leaves/Edit'));
 const Calendar = lazy(() => import('@/pages/Calendar/Index'));
 const MyWFH = lazy(() => import('@/pages/Employees/WFH/Index'));
 
+// Phase 4 — User Management pages (TSX)
+const UserList = lazy(() => import('@/pages/Users/Index'));
+const UserCreate = lazy(() => import('@/pages/Users/Create'));
+const UserEdit = lazy(() => import('@/pages/Users/Edit'));
+const UserShow = lazy(() => import('@/pages/Users/Show'));
+const UserPendingApprovals = lazy(() => import('@/pages/Users/PendingApprovals'));
+const Profile = lazy(() => import('@/pages/Profile/Index'));
+
 // Placeholder for unmigrated pages
 function ComingSoon() {
     return (
@@ -76,9 +84,13 @@ export const router = createBrowserRouter([
                             { path: '/calendar', element: <Calendar /> },
                             { path: '/my-assets', element: <ComingSoon /> },
                             { path: '/my-wfh', element: <MyWFH /> },
-                            { path: '/users', element: <ComingSoon /> },
-                            { path: '/users/pending-approvals', element: <ComingSoon /> },
-                            { path: '/users/:id', element: <ComingSoon /> },
+                            // User Management (migrated)
+                            { path: '/users', element: <UserList /> },
+                            { path: '/users/create', element: <UserCreate /> },
+                            { path: '/users/pending-approvals', element: <UserPendingApprovals /> },
+                            { path: '/users/:id', element: <UserShow /> },
+                            { path: '/users/:id/edit', element: <UserEdit /> },
+                            { path: '/profile', element: <Profile /> },
                             { path: '/teams', element: <ComingSoon /> },
                             { path: '/roles', element: <ComingSoon /> },
                             { path: '/roles/:id', element: <ComingSoon /> },
