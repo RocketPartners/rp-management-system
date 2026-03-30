@@ -694,5 +694,60 @@ export interface AdminDashboardResponse {
     usersWfhTodayCount: number;
     upcomingHolidays: AdminUpcomingHoliday[];
     teamOverview: AdminTeamOverview[];
-    announcements: unknown[];
+    recentAnnouncements: AnnouncementPreview[];
+}
+
+// ============================================
+// ANNOUNCEMENT TYPES (Spring Boot camelCase)
+// ============================================
+
+export interface AnnouncementImage {
+    id: number;
+    url: string;
+    fileName: string;
+    sortOrder: number;
+}
+
+export interface AnnouncementComment {
+    id: number;
+    userId: number;
+    userName: string;
+    userPosition: string | null;
+    userImageUrl: string | null;
+    body: string;
+    parentId: number | null;
+    createdAt: string;
+    replies: AnnouncementComment[];
+}
+
+export interface AnnouncementResponse {
+    id: number;
+    title: string;
+    body: string;
+    category: string;
+    isPinned: boolean;
+    authorId: number;
+    authorName: string;
+    authorPosition: string | null;
+    authorImageUrl: string | null;
+    publishedAt: string;
+    images: AnnouncementImage[];
+    reactions: Record<string, number>;
+    userReactions: string[];
+    commentsCount: number;
+    comments?: AnnouncementComment[];
+    createdAt: string;
+}
+
+export interface AnnouncementDetailResponse extends AnnouncementResponse {
+    comments: AnnouncementComment[];
+}
+
+export interface AnnouncementPreview {
+    id: number;
+    title: string;
+    authorName: string;
+    category: string;
+    publishedAt: string;
+    totalReactions: number;
 }

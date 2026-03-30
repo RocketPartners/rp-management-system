@@ -31,6 +31,7 @@ import {
     LifeBuoy,
     LogOut,
     Mail,
+    Megaphone,
     Menu,
     Package,
     PartyPopper,
@@ -158,6 +159,7 @@ export default function AuthenticatedLayout() {
                 { name: 'Calendar', href: '/calendar', icon: Calendar },
                 { name: 'My Leaves', href: '/my-leaves', icon: ClipboardList },
                 { name: 'My WFH', href: '/my-wfh', icon: Home },
+                { name: 'Announcements', href: '/announcements', icon: Megaphone },
                 { name: 'My Assets', href: '/my-assets', icon: Laptop },
             ],
         });

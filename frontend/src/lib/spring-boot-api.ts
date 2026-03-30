@@ -182,3 +182,51 @@ export async function apiDelete<T = void>(path: string): Promise<T> {
     const json = await res.json();
     return (json.data ?? json) as T;
 }
+
+export async function apiPostFormData<T>(path: string, formData: FormData): Promise<T> {
+    if (!accessToken) throw new Error('Not authenticated');
+
+    if (tokenExpiry && Date.now() >= tokenExpiry) {
+        await refreshAccessToken();
+    }
+
+    const res = await fetch(`${API_URL}${path}`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+        body: formData,
+    });
+
+    if (res.status === 401) {
+        try {
+            await refreshAccessToken();
+            const retryRes = await fetch(`${API_URL}${path}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: formData,
+            });
+            if (!retryRes.ok) {
+                const err = await retryRes.json().catch(() => ({ message: 'Request failed' }));
+                throw new Error(err.message || `Request failed (${retryRes.status})`);
+            }
+            const json = await retryRes.json();
+            return (json.data ?? json) as T;
+        } catch {
+            accessToken = null;
+            refreshToken = null;
+            tokenExpiry = null;
+            persistTokens();
+            throw new Error('Session expired');
+        }
+    }
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Request failed' }));
+        throw new Error(err.message || `Request failed (${res.status})`);
+    }
+    const json = await res.json();
+    return (json.data ?? json) as T;
+}

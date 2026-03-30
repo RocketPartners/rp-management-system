@@ -538,22 +538,63 @@ function AdminDashboardTab({ data, isLoading }: { data?: AdminDashboardResponse;
                         </CardContent>
                     </Card>
 
-                    {/* Announcements (placeholder) */}
+                    {/* Announcements */}
                     <Card>
                         <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Bell className="h-5 w-5" />
-                                Announcements
-                            </CardTitle>
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="flex items-center gap-2">
+                                    <Bell className="h-5 w-5" />
+                                    Recent Announcements
+                                </CardTitle>
+                                <Link to="/announcements">
+                                    <Button variant="ghost" size="sm" className="gap-1 text-xs">
+                                        View All <Eye className="h-3 w-3" />
+                                    </Button>
+                                </Link>
+                            </div>
                         </CardHeader>
                         <CardContent>
-                            <div className="py-8 text-center text-gray-500">
-                                <Bell className="mx-auto mb-2 h-12 w-12 text-gray-400" />
-                                <p>No announcements yet</p>
-                                <p className="mt-1 text-xs text-gray-400">
-                                    Company announcements will appear here
-                                </p>
-                            </div>
+                            {adminDashboard?.recentAnnouncements && adminDashboard.recentAnnouncements.length > 0 ? (
+                                <div className="space-y-3">
+                                    {adminDashboard.recentAnnouncements.map((a) => (
+                                        <Link
+                                            key={a.id}
+                                            to="/announcements"
+                                            className="flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-50"
+                                        >
+                                            <div className="min-w-0 flex-1">
+                                                <p className="truncate text-sm font-medium text-gray-900">
+                                                    {a.title}
+                                                </p>
+                                                <p className="mt-0.5 text-xs text-gray-500">
+                                                    {a.authorName} · {a.category.replace('_', ' ')}
+                                                </p>
+                                            </div>
+                                            <div className="ml-3 text-right">
+                                                <span className="text-xs text-gray-400">
+                                                    {new Date(a.publishedAt).toLocaleDateString('en-US', {
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                    })}
+                                                </span>
+                                                {a.totalReactions > 0 && (
+                                                    <p className="text-xs text-gray-400">
+                                                        {a.totalReactions} reactions
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="py-8 text-center text-gray-500">
+                                    <Bell className="mx-auto mb-2 h-12 w-12 text-gray-400" />
+                                    <p>No announcements yet</p>
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Company announcements will appear here
+                                    </p>
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
 
