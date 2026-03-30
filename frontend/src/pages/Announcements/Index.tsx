@@ -128,7 +128,7 @@ function UserAvatar({ name, imageUrl, size = 'md' }: { name: string; imageUrl?: 
     }
     return (
         <div
-            className={`${sizeClasses} flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 font-semibold text-white`}
+            className={`${sizeClasses} flex items-center justify-center rounded-full bg-blue-600 font-semibold text-white`}
         >
             {getInitials(name)}
         </div>
@@ -668,7 +668,7 @@ export default function AnnouncementList() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
                             <Megaphone className="h-6 w-6 text-white" />
                         </div>
                         <div>
@@ -681,7 +681,7 @@ export default function AnnouncementList() {
                     {can('announcements.create') && (
                         <Button
                             onClick={() => setCreateDialogOpen(true)}
-                            className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                            className="gap-2"
                         >
                             <Plus className="h-4 w-4" />
                             New Post
