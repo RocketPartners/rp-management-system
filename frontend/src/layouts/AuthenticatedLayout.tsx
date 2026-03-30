@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
     Bell,
+    Briefcase,
+    Building2,
     Calendar,
     CheckCircle2,
     CheckSquare,
@@ -103,6 +105,10 @@ export default function AuthenticatedLayout() {
         if (cleanHref === '/users' && cleanUrl.startsWith('/users/'))
             return true;
         if (cleanHref === '/teams' && cleanUrl.startsWith('/teams/'))
+            return true;
+        if (cleanHref === '/departments' && cleanUrl.startsWith('/departments/'))
+            return true;
+        if (cleanHref === '/positions' && cleanUrl.startsWith('/positions/'))
             return true;
         if (cleanHref === '/roles' && cleanUrl.startsWith('/roles/'))
             return true;
@@ -219,6 +225,36 @@ export default function AuthenticatedLayout() {
                     },
                 ],
             });
+        }
+
+        // ORGANIZATION (Departments & Positions)
+        if (can('departments.view') || can('positions.view')) {
+            const orgItems: NavItemConfig[] = [];
+
+            if (can('departments.view')) {
+                orgItems.push({
+                    name: 'Departments',
+                    href: '/departments',
+                    icon: Building2,
+                });
+            }
+
+            if (can('positions.view')) {
+                orgItems.push({
+                    name: 'Positions',
+                    href: '/positions',
+                    icon: Briefcase,
+                });
+            }
+
+            if (orgItems.length > 0) {
+                nav.push({
+                    type: 'accordion',
+                    name: 'Organization',
+                    icon: Building2,
+                    items: orgItems,
+                });
+            }
         }
 
         // ONBOARDING MANAGEMENT

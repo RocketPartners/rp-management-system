@@ -212,6 +212,43 @@ export interface TeamMember {
 }
 
 // ============================================
+// DEPARTMENT TYPES (Spring Boot camelCase)
+// ============================================
+
+export interface DepartmentResponse {
+    id: number;
+    name: string;
+    code: string;
+    description: string | null;
+    parentId: number | null;
+    parentName: string | null;
+    managerId: number | null;
+    managerName: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// ============================================
+// POSITION TYPES (Spring Boot camelCase)
+// ============================================
+
+export interface PositionResponse {
+    id: number;
+    title: string;
+    code: string;
+    description: string | null;
+    departmentId: number | null;
+    departmentName: string | null;
+    minSalary: number | null;
+    maxSalary: number | null;
+    level: string | null;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+}
+
+// ============================================
 // TEAM MANAGEMENT TYPES (Spring Boot camelCase)
 // ============================================
 
