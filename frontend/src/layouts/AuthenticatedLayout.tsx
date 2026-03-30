@@ -102,6 +102,8 @@ export default function AuthenticatedLayout() {
             return true;
         if (cleanHref === '/users' && cleanUrl.startsWith('/users/'))
             return true;
+        if (cleanHref === '/teams' && cleanUrl.startsWith('/teams/'))
+            return true;
         if (cleanHref === '/roles' && cleanUrl.startsWith('/roles/'))
             return true;
         if (cleanHref === '/leaves' && cleanUrl.startsWith('/leaves/'))

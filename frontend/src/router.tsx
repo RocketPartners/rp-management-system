@@ -17,6 +17,11 @@ const EditLeave = lazy(() => import('@/pages/Employees/Leaves/Edit'));
 const Calendar = lazy(() => import('@/pages/Calendar/Index'));
 const MyWFH = lazy(() => import('@/pages/Employees/WFH/Index'));
 
+// Phase 5 — Team Management pages (TSX)
+const TeamList = lazy(() => import('@/pages/Teams/Index'));
+const TeamShow = lazy(() => import('@/pages/Teams/Show'));
+const TeamCreateEdit = lazy(() => import('@/pages/Teams/CreateEdit'));
+
 // Phase 4 — User Management pages (TSX)
 const UserList = lazy(() => import('@/pages/Users/Index'));
 const UserCreate = lazy(() => import('@/pages/Users/Create'));
@@ -91,7 +96,10 @@ export const router = createBrowserRouter([
                             { path: '/users/:id', element: <UserShow /> },
                             { path: '/users/:id/edit', element: <UserEdit /> },
                             { path: '/profile', element: <Profile /> },
-                            { path: '/teams', element: <ComingSoon /> },
+                            { path: '/teams', element: <TeamList /> },
+                            { path: '/teams/create', element: <TeamCreateEdit /> },
+                            { path: '/teams/:id', element: <TeamShow /> },
+                            { path: '/teams/:id/edit', element: <TeamCreateEdit /> },
                             { path: '/roles', element: <ComingSoon /> },
                             { path: '/roles/:id', element: <ComingSoon /> },
                             { path: '/onboarding/invites', element: <ComingSoon /> },

@@ -211,6 +211,36 @@ export interface TeamMember {
     };
 }
 
+// ============================================
+// TEAM MANAGEMENT TYPES (Spring Boot camelCase)
+// ============================================
+
+export interface TeamResponse {
+    id: number;
+    name: string;
+    slug: string;
+    description: string | null;
+    leaderId: number | null;
+    leaderName: string | null;
+    subLeaderId: number | null;
+    subLeaderName: string | null;
+    status: string;
+    membersCount: number;
+    members: TeamMemberResponse[] | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface TeamMemberResponse {
+    userId: number;
+    userName: string;
+    email: string | null;
+    position: string | null;
+    department: string | null;
+    roleInTeam: string;
+    isPrimary: boolean;
+}
+
 export interface LeaveType {
     id: number;
     name: string;

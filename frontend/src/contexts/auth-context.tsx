@@ -14,6 +14,84 @@ import {
     apiFetch,
 } from '@/lib/spring-boot-api';
 
+/**
+ * Maps backend SCREAMING_SNAKE permissions to frontend dotted format.
+ * Both formats are kept so `can('users.view')` and `can('USER_READ')` both work.
+ */
+const ACTION_MAP: Record<string, string[]> = {
+    READ: ['view', 'read'],
+    CREATE: ['create'],
+    UPDATE: ['edit', 'update', 'manage'],
+    DELETE: ['delete'],
+    APPROVE: ['approve'],
+    REJECT: ['reject'],
+};
+
+const RESOURCE_ALIASES: Record<string, string[]> = {
+    USER: ['users'],
+    ROLE: ['roles'],
+    DEPARTMENT: ['departments'],
+    PERMISSION: ['permissions'],
+    POSITION: ['positions'],
+    TEAM: ['teams'],
+    LEAVE_TYPE: ['leave-types'],
+    LEAVE_APPLICATION: ['leaves', 'leave-applications'],
+    ATTENDANCE: ['attendance'],
+    HOLIDAY: ['holidays'],
+    INVENTORY_ITEM: ['assets', 'inventory-items'],
+    INVENTORY_CATEGORY: ['inventory-categories'],
+    INVENTORY_ASSIGNMENT: ['inventory-assignments'],
+    PROJECT: ['projects'],
+    PROJECT_ASSIGNMENT: ['project-assignments', 'tasks'],
+};
+
+// Extra dotted aliases that don't follow the generic pattern
+const EXTRA_ALIASES: Record<string, string[]> = {
+    USER_UPDATE: ['users.approve', 'users.assign-permissions'],
+    LEAVE_APPLICATION_READ: ['leaves.view-all'],
+};
+
+function normalizePermissions(backendPerms: string[]): string[] {
+    const expanded = new Set<string>(backendPerms);
+
+    for (const perm of backendPerms) {
+        // Find the action suffix (last segment after final _)
+        const actionKeys = Object.keys(ACTION_MAP);
+        let matchedAction = '';
+        let resourcePart = '';
+
+        for (const action of actionKeys) {
+            if (perm.endsWith(`_${action}`)) {
+                matchedAction = action;
+                resourcePart = perm.slice(0, -(action.length + 1));
+                break;
+            }
+        }
+
+        if (!matchedAction || !resourcePart) continue;
+
+        const resources = RESOURCE_ALIASES[resourcePart];
+        const actions = ACTION_MAP[matchedAction];
+        if (resources && actions) {
+            for (const res of resources) {
+                for (const act of actions) {
+                    expanded.add(`${res}.${act}`);
+                }
+            }
+        }
+
+        // Add any extra aliases
+        const extras = EXTRA_ALIASES[perm];
+        if (extras) {
+            for (const alias of extras) {
+                expanded.add(alias);
+            }
+        }
+    }
+
+    return Array.from(expanded);
+}
+
 export interface AuthUser {
     id: number;
     name: string;
@@ -62,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     employeeId: data.employeeId,
                     phoneNumber: data.phoneNumber,
                     roles: data.roles || [],
-                    permissions: data.permissions || [],
+                    permissions: normalizePermissions(data.permissions || []),
                 });
             } else {
                 setUser(null);
