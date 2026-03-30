@@ -1,6 +1,14 @@
-// resources/js/Components/DeleteConfirmationModal.jsx
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, X } from 'lucide-react';
+
+interface DeleteConfirmationModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => void;
+    title?: string;
+    description?: string;
+    itemName?: string | null;
+}
 
 export default function DeleteConfirmationModal({
     isOpen,
@@ -9,7 +17,7 @@ export default function DeleteConfirmationModal({
     title = 'Are you sure?',
     description = 'This action cannot be undone. This will permanently delete this item and remove all associated data.',
     itemName = null,
-}) {
+}: DeleteConfirmationModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -35,7 +43,7 @@ export default function DeleteConfirmationModal({
                                 </h3>
                                 {itemName && (
                                     <p className="mt-0.5 text-sm text-gray-600">
-                                        Delete "{itemName}"
+                                        Delete &ldquo;{itemName}&rdquo;
                                     </p>
                                 )}
                             </div>

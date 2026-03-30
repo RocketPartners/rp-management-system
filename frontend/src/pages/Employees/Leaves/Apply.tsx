@@ -92,10 +92,11 @@ export default function Apply() {
 
     const fetchFormData = useCallback(async () => {
         try {
-            const [typesRes, balancesRes, approversRes] = await Promise.allSettled([
+            const [typesRes, balancesRes, approversRes, defaultApproverRes] = await Promise.allSettled([
                 apiFetch('/leave-types/active'),
                 apiFetch('/leave-applications/balances/my'),
                 apiFetch('/users/potential-approvers'),
+                apiFetch('/teams/my-default-approver'),
             ]);
 
             if (typesRes.status === 'fulfilled' && typesRes.value.ok) {
@@ -111,6 +112,15 @@ export default function Apply() {
             if (approversRes.status === 'fulfilled' && approversRes.value.ok) {
                 const json = await approversRes.value.json();
                 setApprovers(json.data || []);
+            }
+
+            // Auto-prefill: set manager to primary team leader if available
+            if (defaultApproverRes.status === 'fulfilled' && defaultApproverRes.value.ok) {
+                const json = await defaultApproverRes.value.json();
+                const approverId = json.data?.approverId;
+                if (approverId) {
+                    setForm((prev) => ({ ...prev, managerId: String(approverId) }));
+                }
             }
         } catch {
             // Silent fail

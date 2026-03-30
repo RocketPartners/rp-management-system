@@ -22,6 +22,12 @@ const TeamList = lazy(() => import('@/pages/Teams/Index'));
 const TeamShow = lazy(() => import('@/pages/Teams/Show'));
 const TeamCreateEdit = lazy(() => import('@/pages/Teams/CreateEdit'));
 
+// Phase 6 — Department & Position Management pages (TSX)
+const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
+const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
+const PositionList = lazy(() => import('@/pages/Positions/Index'));
+const PositionCreateEdit = lazy(() => import('@/pages/Positions/CreateEdit'));
+
 // Phase 4 — User Management pages (TSX)
 const UserList = lazy(() => import('@/pages/Users/Index'));
 const UserCreate = lazy(() => import('@/pages/Users/Create'));
@@ -100,6 +106,12 @@ export const router = createBrowserRouter([
                             { path: '/teams/create', element: <TeamCreateEdit /> },
                             { path: '/teams/:id', element: <TeamShow /> },
                             { path: '/teams/:id/edit', element: <TeamCreateEdit /> },
+                            { path: '/departments', element: <DepartmentList /> },
+                            { path: '/departments/create', element: <DepartmentCreateEdit /> },
+                            { path: '/departments/:id/edit', element: <DepartmentCreateEdit /> },
+                            { path: '/positions', element: <PositionList /> },
+                            { path: '/positions/create', element: <PositionCreateEdit /> },
+                            { path: '/positions/:id/edit', element: <PositionCreateEdit /> },
                             { path: '/roles', element: <ComingSoon /> },
                             { path: '/roles/:id', element: <ComingSoon /> },
                             { path: '/onboarding/invites', element: <ComingSoon /> },
