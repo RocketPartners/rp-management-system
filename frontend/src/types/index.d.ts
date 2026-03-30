@@ -606,3 +606,93 @@ export interface SelectedCalendarEvent {
     status?: string;
     [key: string]: unknown;
 }
+
+// ============================================
+// DASHBOARD TYPES (Spring Boot camelCase)
+// ============================================
+
+export interface DashboardLeaveTypeInfo {
+    id: number;
+    name: string;
+    code: string;
+    color: string;
+}
+
+export interface DashboardLeaveBalanceSummary {
+    id: number;
+    leaveType: DashboardLeaveTypeInfo;
+    totalDays: number;
+    usedDays: number;
+    pendingDays: number;
+    remainingDays: number;
+    carriedOverDays: number;
+}
+
+export interface DashboardLeaveItem {
+    id: number;
+    leaveTypeName: string;
+    leaveTypeColor: string;
+    startDate: string;
+    endDate: string;
+    totalDays: number;
+    status: string;
+}
+
+export interface MyDashboardResponse {
+    leaveBalances: DashboardLeaveBalanceSummary[];
+    upcomingLeaves: DashboardLeaveItem[];
+    pendingLeaves: DashboardLeaveItem[];
+    upcomingLeavesCount: number;
+    pendingLeavesCount: number;
+    wfhThisWeekCount: number;
+    assignedAssetsCount: number;
+    announcementsCount: number;
+}
+
+export interface AdminRecentLeaveApplication {
+    id: number;
+    userName: string;
+    leaveTypeName: string;
+    leaveTypeColor: string;
+    startDate: string;
+    endDate: string;
+    totalDays: number;
+    status: string;
+    createdAt: string;
+}
+
+export interface AdminUserOnLeave {
+    userId: number;
+    userName: string;
+    leaveTypeName: string;
+    leaveTypeColor: string;
+    profileImageUrl: string | null;
+}
+
+export interface AdminUpcomingHoliday {
+    id: number;
+    name: string;
+    date: string;
+    country: string;
+}
+
+export interface AdminTeamOverview {
+    teamId: number;
+    teamName: string;
+    leaderName: string;
+    membersCount: number;
+    status: string;
+}
+
+export interface AdminDashboardResponse {
+    totalActiveEmployees: number;
+    pendingAccountApprovals: number;
+    pendingLeaveRequests: number;
+    activeTeamsCount: number;
+    recentLeaveApplications: AdminRecentLeaveApplication[];
+    usersOnLeaveToday: AdminUserOnLeave[];
+    usersWfhTodayCount: number;
+    upcomingHolidays: AdminUpcomingHoliday[];
+    teamOverview: AdminTeamOverview[];
+    announcements: unknown[];
+}

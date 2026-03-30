@@ -5,7 +5,7 @@ import { lazy, Suspense } from 'react';
 
 // Phase 1 — Migrated pages (TSX)
 const Login = lazy(() => import('@/pages/Auth/Login'));
-const Dashboard = lazy(() => import('@/pages/Employees/Dashboard'));
+const Dashboard = lazy(() => import('@/pages/Dashboard/Index'));
 
 // Phase 2 — Employee Leave pages (TSX)
 const MyLeaves = lazy(() => import('@/pages/Employees/Leaves/MyLeaves'));
