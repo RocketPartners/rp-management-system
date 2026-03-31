@@ -28,6 +28,9 @@ const AnnouncementList = lazy(() => import('@/pages/Announcements/Index'));
 // Phase 8 — Asset & Inventory Management (TSX)
 const AssetList = lazy(() => import('@/pages/Assets/Index'));
 
+// Phase 9 — Support / Tickets (TSX)
+const SupportTickets = lazy(() => import('@/pages/Support/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -135,7 +138,7 @@ export const router = createBrowserRouter([
                             { path: '/projects', element: <ComingSoon /> },
                             { path: '/tasks', element: <ComingSoon /> },
                             { path: '/tasks/kanban', element: <ComingSoon /> },
-                            { path: '/support', element: <ComingSoon /> },
+                            { path: '/support', element: <SupportTickets /> },
                             { path: '/settings', element: <ComingSoon /> },
                         ],
                     },
