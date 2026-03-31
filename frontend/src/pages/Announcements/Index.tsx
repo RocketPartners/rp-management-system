@@ -13,6 +13,11 @@ import {
     Dialog,
     DialogContent,
 } from '@/components/ui/dialog';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
 import { useAuth } from '@/contexts/auth-context';
 import { usePermission } from '@/hooks/usePermission';
 import {
@@ -39,6 +44,7 @@ import {
     PinOff,
     Plus,
     Send,
+    SmilePlus,
     X,
 } from 'lucide-react';
 import { useState, useCallback } from 'react';
@@ -60,11 +66,11 @@ const CATEGORIES = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
-    COMPANY_NEWS: 'bg-blue-100 text-blue-700',
-    EVENTS: 'bg-purple-100 text-purple-700',
-    FUN: 'bg-pink-100 text-pink-700',
-    HR_UPDATES: 'bg-amber-100 text-amber-700',
-    GENERAL: 'bg-gray-100 text-gray-700',
+    COMPANY_NEWS: 'bg-blue-50 text-blue-700 border-blue-200',
+    EVENTS: 'bg-purple-50 text-purple-700 border-purple-200',
+    FUN: 'bg-pink-50 text-pink-700 border-pink-200',
+    HR_UPDATES: 'bg-amber-50 text-amber-700 border-amber-200',
+    GENERAL: 'bg-gray-50 text-gray-700 border-gray-200',
 };
 
 const EMOJI_MAP: Record<string, string> = {
@@ -117,6 +123,25 @@ function getInitials(name: string): string {
         .slice(0, 2);
 }
 
+const avatarColors = [
+    'bg-blue-600',
+    'bg-purple-600',
+    'bg-emerald-600',
+    'bg-amber-600',
+    'bg-rose-600',
+    'bg-cyan-600',
+    'bg-indigo-600',
+    'bg-teal-600',
+];
+
+function getAvatarColor(name: string): string {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
 // ============================================
 // Avatar Component
 // ============================================
@@ -128,7 +153,7 @@ function UserAvatar({ name, imageUrl, size = 'md' }: { name: string; imageUrl?: 
     }
     return (
         <div
-            className={`${sizeClasses} flex items-center justify-center rounded-full bg-blue-600 font-semibold text-white`}
+            className={`${sizeClasses} flex items-center justify-center rounded-full ${getAvatarColor(name)} font-semibold text-white`}
         >
             {getInitials(name)}
         </div>
@@ -158,43 +183,53 @@ function ReactionBar({
         },
     });
 
-    return (
-        <div className="space-y-2">
-            {/* Reaction summary */}
-            {Object.keys(reactions).length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                    {Object.entries(reactions).map(([emoji, count]) => (
-                        <button
-                            key={emoji}
-                            onClick={() => toggleReaction.mutate(emoji)}
-                            className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-all ${
-                                userReactions.includes(emoji)
-                                    ? 'border-blue-300 bg-blue-50 text-blue-700'
-                                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
-                            }`}
-                        >
-                            <span>{EMOJI_MAP[emoji] || emoji}</span>
-                            <span>{count}</span>
-                        </button>
-                    ))}
-                </div>
-            )}
+    const totalReactions = Object.values(reactions).reduce((sum, count) => sum + count, 0);
 
-            {/* Reaction picker */}
-            <div className="flex items-center gap-1">
-                {Object.entries(EMOJI_MAP).map(([key, emoji]) => (
+    return (
+        <div className="flex items-center gap-2">
+            {/* Existing reaction pills */}
+            {Object.entries(reactions).map(([emoji, count]) => (
+                <button
+                    key={emoji}
+                    onClick={() => toggleReaction.mutate(emoji)}
+                    className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${
+                        userReactions.includes(emoji)
+                            ? 'border-blue-200 bg-blue-50 text-blue-700'
+                            : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'
+                    }`}
+                >
+                    <span className="text-sm">{EMOJI_MAP[emoji] || emoji}</span>
+                    <span>{count}</span>
+                </button>
+            ))}
+
+            {/* Add reaction button */}
+            <Popover>
+                <PopoverTrigger asChild>
                     <button
-                        key={key}
-                        onClick={() => toggleReaction.mutate(key)}
-                        title={EMOJI_LABELS[key]}
-                        className={`rounded-lg p-1.5 text-lg transition-all hover:scale-110 hover:bg-gray-100 ${
-                            userReactions.includes(key) ? 'bg-blue-50' : ''
-                        }`}
+                        className="inline-flex items-center gap-1 rounded-full border border-dashed border-gray-300 px-2 py-0.5 text-xs text-gray-400 transition-colors hover:border-gray-400 hover:text-gray-600"
                     >
-                        {emoji}
+                        <SmilePlus className="h-3.5 w-3.5" />
+                        {totalReactions === 0 && <span>React</span>}
                     </button>
-                ))}
-            </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-2" side="top" align="start">
+                    <div className="flex items-center gap-1">
+                        {Object.entries(EMOJI_MAP).map(([key, emoji]) => (
+                            <button
+                                key={key}
+                                onClick={() => toggleReaction.mutate(key)}
+                                title={EMOJI_LABELS[key]}
+                                className={`rounded-lg p-1.5 text-lg transition-all hover:scale-110 hover:bg-gray-100 ${
+                                    userReactions.includes(key) ? 'bg-blue-50' : ''
+                                }`}
+                            >
+                                {emoji}
+                            </button>
+                        ))}
+                    </div>
+                </PopoverContent>
+            </Popover>
         </div>
     );
 }
@@ -256,13 +291,13 @@ function CommentThread({
     };
 
     return (
-        <div className="border-t border-gray-100 pt-3">
+        <div className="pt-3">
             <button
                 onClick={() => setExpanded(!expanded)}
                 className="flex items-center gap-1.5 text-sm font-medium text-gray-500 transition-colors hover:text-gray-700"
             >
                 <MessageCircle className="h-4 w-4" />
-                {commentsCount > 0 ? `${commentsCount} comment${commentsCount !== 1 ? 's' : ''}` : 'Add a comment'}
+                {commentsCount > 0 ? `${commentsCount} comment${commentsCount !== 1 ? 's' : ''}` : 'Comment'}
                 {commentsCount > 0 && (expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />)}
             </button>
 
@@ -274,7 +309,7 @@ function CommentThread({
                             <div className="flex gap-2.5">
                                 <UserAvatar name={comment.userName} imageUrl={comment.userImageUrl} size="sm" />
                                 <div className="flex-1 min-w-0">
-                                    <div className="rounded-xl bg-gray-50 px-3.5 py-2.5">
+                                    <div className="rounded-lg bg-gray-50 px-3 py-2">
                                         <div className="flex items-center gap-2">
                                             <span className="text-sm font-semibold text-gray-900">
                                                 {comment.userName}
@@ -315,7 +350,7 @@ function CommentThread({
                                         <div key={reply.id} className="flex gap-2.5">
                                             <UserAvatar name={reply.userName} imageUrl={reply.userImageUrl} size="sm" />
                                             <div className="flex-1 min-w-0">
-                                                <div className="rounded-xl bg-gray-50 px-3.5 py-2.5">
+                                                <div className="rounded-lg bg-gray-50 px-3 py-2">
                                                     <div className="flex items-center gap-2">
                                                         <span className="text-sm font-semibold text-gray-900">
                                                             {reply.userName}
@@ -465,12 +500,8 @@ function AnnouncementCard({
     const isAdmin = can('users.view');
 
     return (
-        <Card
-            className={`overflow-hidden transition-shadow hover:shadow-md ${
-                announcement.isPinned ? 'border-l-4 border-l-blue-500' : ''
-            }`}
-        >
-            <CardContent className="p-6">
+        <Card className={announcement.isPinned ? 'border-l-4 border-l-blue-500' : ''}>
+            <CardContent className="p-5">
                 {/* Header */}
                 <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
@@ -480,12 +511,12 @@ function AnnouncementCard({
                         />
                         <div>
                             <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-900">
+                                <span className="text-sm font-semibold text-gray-900">
                                     {announcement.authorName}
                                 </span>
                                 {announcement.isPinned && (
-                                    <Badge variant="secondary" className="gap-1 bg-blue-50 text-blue-600 text-xs">
-                                        <Pin className="h-3 w-3" />
+                                    <Badge variant="secondary" className="gap-1 text-[10px] px-1.5 py-0 bg-blue-50 text-blue-600">
+                                        <Pin className="h-2.5 w-2.5" />
                                         Pinned
                                     </Badge>
                                 )}
@@ -494,82 +525,83 @@ function AnnouncementCard({
                                 {announcement.authorPosition && (
                                     <>
                                         <span>{announcement.authorPosition}</span>
-                                        <span>·</span>
+                                        <span>&middot;</span>
                                     </>
                                 )}
-                                <Badge
-                                    variant="secondary"
-                                    className={`text-[10px] px-1.5 py-0 ${CATEGORY_COLORS[announcement.category] || ''}`}
-                                >
-                                    {formatCategoryLabel(announcement.category)}
-                                </Badge>
-                                <span>·</span>
                                 <span>{formatRelativeTime(announcement.publishedAt)}</span>
                             </div>
                         </div>
                     </div>
 
-                    {canManage && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => onEdit(announcement)}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    Edit
-                                </DropdownMenuItem>
-                                {isAdmin && (
-                                    <DropdownMenuItem onClick={() => onTogglePin(announcement.id)}>
-                                        {announcement.isPinned ? (
-                                            <>
-                                                <PinOff className="mr-2 h-4 w-4" />
-                                                Unpin
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Pin className="mr-2 h-4 w-4" />
-                                                Pin
-                                            </>
-                                        )}
+                    <div className="flex items-center gap-2">
+                        <Badge
+                            variant="outline"
+                            className={`text-[10px] font-medium ${CATEGORY_COLORS[announcement.category] || ''}`}
+                        >
+                            {formatCategoryLabel(announcement.category)}
+                        </Badge>
+                        {canManage && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem onClick={() => onEdit(announcement)}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        Edit
                                     </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem
-                                    onClick={() => onDelete(announcement.id)}
-                                    className="text-red-600 focus:text-red-600"
-                                >
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+                                    {isAdmin && (
+                                        <DropdownMenuItem onClick={() => onTogglePin(announcement.id)}>
+                                            {announcement.isPinned ? (
+                                                <>
+                                                    <PinOff className="mr-2 h-4 w-4" />
+                                                    Unpin
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Pin className="mr-2 h-4 w-4" />
+                                                    Pin
+                                                </>
+                                            )}
+                                        </DropdownMenuItem>
+                                    )}
+                                    <DropdownMenuItem
+                                        onClick={() => onDelete(announcement.id)}
+                                        className="text-red-600 focus:text-red-600"
+                                    >
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
+                    </div>
                 </div>
 
                 {/* Title */}
-                <h3 className="mt-4 text-xl font-bold text-gray-900">{announcement.title}</h3>
+                <h3 className="mt-3 text-base font-semibold text-gray-900">{announcement.title}</h3>
 
                 {/* Body */}
                 <div
-                    className="prose prose-sm mt-3 max-w-none text-gray-700 [&_img]:max-w-full [&_img]:rounded-lg"
+                    className="prose prose-sm mt-2 max-w-none text-gray-600 [&_img]:max-w-full [&_img]:rounded-lg"
                     dangerouslySetInnerHTML={{ __html: announcement.body }}
                 />
 
                 {/* Gallery */}
                 {announcement.images.length > 0 && (
-                    <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+                    <div className="mt-3 flex gap-2 overflow-x-auto">
                         {announcement.images.map((img, i) => (
                             <button
                                 key={img.id}
                                 onClick={() => setLightboxIndex(i)}
-                                className="flex-shrink-0 overflow-hidden rounded-xl transition-transform hover:scale-[1.02]"
+                                className="flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 transition-opacity hover:opacity-90"
                             >
                                 <img
                                     src={img.url}
                                     alt={img.fileName}
-                                    className="h-48 w-auto max-w-[300px] object-cover"
+                                    className="h-40 w-auto max-w-[280px] object-cover"
                                 />
                             </button>
                         ))}
@@ -585,8 +617,8 @@ function AnnouncementCard({
                     />
                 )}
 
-                {/* Reactions */}
-                <div className="mt-4">
+                {/* Actions row: reactions + comments */}
+                <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
                     <ReactionBar
                         announcementId={announcement.id}
                         reactions={announcement.reactions}
@@ -595,12 +627,10 @@ function AnnouncementCard({
                 </div>
 
                 {/* Comments */}
-                <div className="mt-3">
-                    <CommentThread
-                        announcementId={announcement.id}
-                        commentsCount={announcement.commentsCount}
-                    />
-                </div>
+                <CommentThread
+                    announcementId={announcement.id}
+                    commentsCount={announcement.commentsCount}
+                />
             </CardContent>
         </Card>
     );
@@ -664,121 +694,117 @@ export default function AnnouncementList() {
                 <title>Announcements | RP Management</title>
             </Helmet>
 
-            <div className="mx-auto max-w-4xl space-y-6 p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600">
-                            <Megaphone className="h-6 w-6 text-white" />
-                        </div>
+            {/* Page Header — matches Calendar / Users pattern */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="px-4 py-6 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Announcements</h1>
-                            <p className="text-sm text-gray-500">
-                                A space for the team to share updates, wins, and good vibes
+                            <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                                Announcements
+                            </h2>
+                            <p className="mt-1 text-sm text-gray-600">
+                                Stay up to date with company news, events, and team updates.
                             </p>
                         </div>
+                        {can('announcements.create') && (
+                            <Button
+                                onClick={() => setCreateDialogOpen(true)}
+                                size="sm"
+                            >
+                                <Plus className="mr-2 h-4 w-4" />
+                                New Announcement
+                            </Button>
+                        )}
                     </div>
-                    {can('announcements.create') && (
-                        <Button
-                            onClick={() => setCreateDialogOpen(true)}
-                            className="gap-2"
-                        >
-                            <Plus className="h-4 w-4" />
-                            New Post
-                        </Button>
+                </div>
+            </div>
+
+            <div className="py-6">
+                <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+                    {/* Category Filter */}
+                    <div className="mb-6 flex flex-wrap gap-2">
+                        {CATEGORIES.map((cat) => (
+                            <button
+                                key={cat.value}
+                                onClick={() => handleCategoryChange(cat.value)}
+                                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                                    activeCategory === cat.value
+                                        ? 'bg-gray-900 text-white'
+                                        : 'bg-white text-gray-600 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
+                                }`}
+                            >
+                                {cat.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Feed */}
+                    {isLoading ? (
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                                <Card key={i}>
+                                    <CardContent className="p-5">
+                                        <div className="flex items-center gap-3">
+                                            <Skeleton className="h-10 w-10 rounded-full" />
+                                            <div className="space-y-1.5">
+                                                <Skeleton className="h-4 w-32" />
+                                                <Skeleton className="h-3 w-48" />
+                                            </div>
+                                        </div>
+                                        <Skeleton className="mt-3 h-4 w-3/4" />
+                                        <Skeleton className="mt-2 h-16 w-full" />
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : data?.content.length === 0 ? (
+                        <Card>
+                            <CardContent className="flex flex-col items-center justify-center py-16">
+                                <Megaphone className="h-10 w-10 text-gray-300" />
+                                <h3 className="mt-3 text-base font-semibold text-gray-900">No announcements yet</h3>
+                                <p className="mt-1 text-sm text-gray-500">
+                                    {activeCategory
+                                        ? 'No posts in this category. Try another filter.'
+                                        : 'Be the first to share something with the team!'}
+                                </p>
+                                {can('announcements.create') && !activeCategory && (
+                                    <Button
+                                        onClick={() => setCreateDialogOpen(true)}
+                                        className="mt-4"
+                                        size="sm"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Create First Announcement
+                                    </Button>
+                                )}
+                            </CardContent>
+                        </Card>
+                    ) : (
+                        <div className="space-y-4">
+                            {data?.content.map((announcement) => (
+                                <AnnouncementCard
+                                    key={announcement.id}
+                                    announcement={announcement}
+                                    onEdit={(a) => setEditAnnouncement(a)}
+                                    onDelete={handleDelete}
+                                    onTogglePin={(id) => togglePinMutation.mutate(id)}
+                                />
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Load More */}
+                    {data && !data.last && (
+                        <div className="flex justify-center pt-6">
+                            <Button
+                                variant="outline"
+                                onClick={() => setPage((p) => p + 1)}
+                            >
+                                Load More
+                            </Button>
+                        </div>
                     )}
                 </div>
-
-                {/* Category Filter Tabs */}
-                <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map((cat) => (
-                        <button
-                            key={cat.value}
-                            onClick={() => handleCategoryChange(cat.value)}
-                            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
-                                activeCategory === cat.value
-                                    ? 'bg-gray-900 text-white shadow-sm'
-                                    : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-50'
-                            }`}
-                        >
-                            {cat.label}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Feed */}
-                {isLoading ? (
-                    <div className="space-y-4">
-                        {[1, 2, 3].map((i) => (
-                            <Card key={i}>
-                                <CardContent className="p-6">
-                                    <div className="flex items-center gap-3">
-                                        <Skeleton className="h-10 w-10 rounded-full" />
-                                        <div className="space-y-1.5">
-                                            <Skeleton className="h-4 w-32" />
-                                            <Skeleton className="h-3 w-48" />
-                                        </div>
-                                    </div>
-                                    <Skeleton className="mt-4 h-5 w-3/4" />
-                                    <Skeleton className="mt-3 h-20 w-full" />
-                                    <div className="mt-4 flex gap-2">
-                                        <Skeleton className="h-7 w-14 rounded-full" />
-                                        <Skeleton className="h-7 w-14 rounded-full" />
-                                        <Skeleton className="h-7 w-14 rounded-full" />
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-                ) : data?.content.length === 0 ? (
-                    <Card>
-                        <CardContent className="flex flex-col items-center justify-center py-16">
-                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
-                                <Megaphone className="h-8 w-8 text-gray-400" />
-                            </div>
-                            <h3 className="mt-4 text-lg font-semibold text-gray-900">No announcements yet</h3>
-                            <p className="mt-1 text-sm text-gray-500">
-                                {activeCategory
-                                    ? 'No posts in this category. Try another filter.'
-                                    : 'Be the first to share something with the team!'}
-                            </p>
-                            {can('announcements.create') && !activeCategory && (
-                                <Button
-                                    onClick={() => setCreateDialogOpen(true)}
-                                    className="mt-4 gap-2"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                    Create First Post
-                                </Button>
-                            )}
-                        </CardContent>
-                    </Card>
-                ) : (
-                    <div className="space-y-4">
-                        {data?.content.map((announcement) => (
-                            <AnnouncementCard
-                                key={announcement.id}
-                                announcement={announcement}
-                                onEdit={(a) => setEditAnnouncement(a)}
-                                onDelete={handleDelete}
-                                onTogglePin={(id) => togglePinMutation.mutate(id)}
-                            />
-                        ))}
-                    </div>
-                )}
-
-                {/* Load More */}
-                {data && !data.last && (
-                    <div className="flex justify-center pt-2">
-                        <Button
-                            variant="outline"
-                            onClick={() => setPage((p) => p + 1)}
-                            className="px-8"
-                        >
-                            Load More
-                        </Button>
-                    </div>
-                )}
             </div>
 
             {/* Create Dialog */}

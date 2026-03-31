@@ -554,9 +554,9 @@ function AdminDashboardTab({ data, isLoading }: { data?: AdminDashboardResponse;
                             </div>
                         </CardHeader>
                         <CardContent>
-                            {adminDashboard?.recentAnnouncements && adminDashboard.recentAnnouncements.length > 0 ? (
+                            {data?.recentAnnouncements && data.recentAnnouncements.length > 0 ? (
                                 <div className="space-y-3">
-                                    {adminDashboard.recentAnnouncements.map((a) => (
+                                    {data.recentAnnouncements.map((a) => (
                                         <Link
                                             key={a.id}
                                             to="/announcements"

@@ -74,7 +74,7 @@ export default function TiptapEditor({ content, onChange, placeholder = 'Write s
         },
         editorProps: {
             attributes: {
-                class: 'prose prose-sm max-w-none min-h-[200px] px-4 py-3 focus:outline-none',
+                class: 'prose prose-sm max-w-none min-h-[300px] px-4 py-3 focus:outline-none',
             },
         },
     });

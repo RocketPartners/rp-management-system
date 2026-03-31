@@ -137,93 +137,97 @@ export default function CreateEditDialog({ open, onOpenChange, announcement }: C
 
     return (
         <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
+            <DialogContent className="flex max-w-5xl flex-col max-h-[90vh] p-0 gap-0">
+                <DialogHeader className="shrink-0 border-b px-6 py-4">
                     <DialogTitle>{isEdit ? 'Edit Announcement' : 'New Announcement'}</DialogTitle>
                 </DialogHeader>
 
-                <div className="space-y-4 py-2">
-                    <div className="space-y-2">
-                        <Label htmlFor="title">Title</Label>
-                        <Input
-                            id="title"
-                            placeholder="Give your announcement a title..."
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <Select value={category} onValueChange={setCategory}>
-                            <SelectTrigger>
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {CATEGORIES.map((cat) => (
-                                    <SelectItem key={cat.value} value={cat.value}>
-                                        {cat.label}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label>Content</Label>
-                        <TiptapEditor
-                            content={body}
-                            onChange={setBody}
-                            placeholder="Write your announcement..."
-                        />
-                    </div>
-
-                    {/* Gallery Upload (create mode only) */}
-                    {!isEdit && (
-                        <div className="space-y-2">
-                            <Label>Gallery Images</Label>
-                            <div className="flex flex-wrap gap-3">
-                                {galleryPreviews.map((url, i) => (
-                                    <div
-                                        key={i}
-                                        className="group relative h-24 w-24 overflow-hidden rounded-lg border"
-                                    >
-                                        <img
-                                            src={url}
-                                            alt={`Gallery ${i + 1}`}
-                                            className="h-full w-full object-cover"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeGalleryItem(i)}
-                                            className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </button>
-                                    </div>
-                                ))}
-                                <button
-                                    type="button"
-                                    onClick={() => galleryInputRef.current?.click()}
-                                    className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-blue-400 hover:text-blue-500"
-                                >
-                                    <ImagePlus className="h-5 w-5" />
-                                    <span className="text-xs">Add</span>
-                                </button>
+                <div className="flex-1 overflow-y-auto px-6 py-4">
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="title">Title</Label>
+                                <Input
+                                    id="title"
+                                    placeholder="Give your announcement a title..."
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                />
                             </div>
-                            <input
-                                ref={galleryInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/gif,image/webp"
-                                multiple
-                                className="hidden"
-                                onChange={handleGalleryAdd}
+
+                            <div className="space-y-2">
+                                <Label htmlFor="category">Category</Label>
+                                <Select value={category} onValueChange={setCategory}>
+                                    <SelectTrigger>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {CATEGORIES.map((cat) => (
+                                            <SelectItem key={cat.value} value={cat.value}>
+                                                {cat.label}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label>Content</Label>
+                            <TiptapEditor
+                                content={body}
+                                onChange={setBody}
+                                placeholder="Write your announcement..."
                             />
                         </div>
-                    )}
+
+                        {/* Gallery Upload (create mode only) */}
+                        {!isEdit && (
+                            <div className="space-y-2">
+                                <Label>Gallery Images</Label>
+                                <div className="flex flex-wrap gap-3">
+                                    {galleryPreviews.map((url, i) => (
+                                        <div
+                                            key={i}
+                                            className="group relative h-24 w-24 overflow-hidden rounded-lg border"
+                                        >
+                                            <img
+                                                src={url}
+                                                alt={`Gallery ${i + 1}`}
+                                                className="h-full w-full object-cover"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => removeGalleryItem(i)}
+                                                className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                    <button
+                                        type="button"
+                                        onClick={() => galleryInputRef.current?.click()}
+                                        className="flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 text-gray-400 transition-colors hover:border-blue-400 hover:text-blue-500"
+                                    >
+                                        <ImagePlus className="h-5 w-5" />
+                                        <span className="text-xs">Add</span>
+                                    </button>
+                                </div>
+                                <input
+                                    ref={galleryInputRef}
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/gif,image/webp"
+                                    multiple
+                                    className="hidden"
+                                    onChange={handleGalleryAdd}
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="shrink-0 border-t px-6 py-4">
                     <Button variant="outline" onClick={() => handleOpenChange(false)} disabled={isLoading}>
                         Cancel
                     </Button>
