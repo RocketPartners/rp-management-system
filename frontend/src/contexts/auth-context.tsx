@@ -20,8 +20,10 @@ import {
  */
 const ACTION_MAP: Record<string, string[]> = {
     READ: ['view', 'read'],
+    VIEW: ['view', 'read'],
     CREATE: ['create'],
     UPDATE: ['edit', 'update', 'manage'],
+    EDIT: ['edit', 'update'],
     DELETE: ['delete'],
     APPROVE: ['approve'],
     REJECT: ['reject'],
@@ -38,9 +40,10 @@ const RESOURCE_ALIASES: Record<string, string[]> = {
     LEAVE_APPLICATION: ['leaves', 'leave-applications'],
     ATTENDANCE: ['attendance'],
     HOLIDAY: ['holidays'],
+    ASSET: ['assets', 'inventory-items', 'inventory'],
     INVENTORY_ITEM: ['assets', 'inventory-items'],
-    INVENTORY_CATEGORY: ['inventory-categories'],
-    INVENTORY_ASSIGNMENT: ['inventory-assignments'],
+    INVENTORY_CATEGORY: ['inventory-categories', 'asset-categories'],
+    INVENTORY_ASSIGNMENT: ['inventory-assignments', 'asset-assignments'],
     PROJECT: ['projects'],
     PROJECT_ASSIGNMENT: ['project-assignments', 'tasks'],
     ANNOUNCEMENT: ['announcements'],
@@ -50,6 +53,7 @@ const RESOURCE_ALIASES: Record<string, string[]> = {
 const EXTRA_ALIASES: Record<string, string[]> = {
     USER_UPDATE: ['users.approve', 'users.assign-permissions'],
     LEAVE_APPLICATION_READ: ['leaves.view-all'],
+    ASSET_ASSIGN: ['assets.assign', 'assets.check-out', 'assets.check-in'],
 };
 
 function normalizePermissions(backendPerms: string[]): string[] {

@@ -115,12 +115,7 @@ export default function AuthenticatedLayout() {
             return true;
         if (cleanHref === '/leaves' && cleanUrl.startsWith('/leaves/'))
             return true;
-        if (cleanHref === '/inventory' && cleanUrl.startsWith('/inventory/'))
-            return true;
-        if (
-            cleanHref === '/individual-assets' &&
-            cleanUrl.startsWith('/individual-assets/')
-        )
+        if (cleanHref === '/assets' && cleanUrl.startsWith('/assets/'))
             return true;
         if (cleanHref === '/projects' && cleanUrl.startsWith('/projects/'))
             return true;
@@ -337,24 +332,13 @@ export default function AuthenticatedLayout() {
             }
         }
 
-        // INVENTORY MANAGEMENT
+        // ASSET MANAGEMENT
         if (can('assets.view') || can('assets.create') || can('assets.edit')) {
             nav.push({
-                type: 'accordion',
-                name: 'Inventory',
+                type: 'link',
+                name: 'Assets',
+                href: '/assets',
                 icon: Package,
-                items: [
-                    {
-                        name: 'Inventory Items',
-                        href: '/inventory',
-                        icon: Package,
-                    },
-                    {
-                        name: 'Individual Assets',
-                        href: '/individual-assets',
-                        icon: Laptop,
-                    },
-                ],
             });
         }
 
