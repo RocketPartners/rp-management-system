@@ -25,6 +25,7 @@ const ACTION_MAP: Record<string, string[]> = {
     UPDATE: ['edit', 'update', 'manage'],
     EDIT: ['edit', 'update'],
     DELETE: ['delete'],
+    MANAGE: ['manage'],
     APPROVE: ['approve'],
     REJECT: ['reject'],
 };
@@ -47,6 +48,7 @@ const RESOURCE_ALIASES: Record<string, string[]> = {
     PROJECT: ['projects'],
     PROJECT_ASSIGNMENT: ['project-assignments', 'tasks'],
     ANNOUNCEMENT: ['announcements'],
+    TICKET: ['tickets', 'support'],
 };
 
 // Extra dotted aliases that don't follow the generic pattern
