@@ -25,6 +25,9 @@ const TeamCreateEdit = lazy(() => import('@/pages/Teams/CreateEdit'));
 // Phase 7 — Announcements (TSX)
 const AnnouncementList = lazy(() => import('@/pages/Announcements/Index'));
 
+// Phase 8 — Asset & Inventory Management (TSX)
+const AssetList = lazy(() => import('@/pages/Assets/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -126,8 +129,9 @@ export const router = createBrowserRouter([
                             { path: '/leave-types', element: <ComingSoon /> },
                             { path: '/leave-balances', element: <ComingSoon /> },
                             { path: '/holidays', element: <ComingSoon /> },
-                            { path: '/inventory', element: <ComingSoon /> },
-                            { path: '/individual-assets', element: <ComingSoon /> },
+                            { path: '/assets', element: <AssetList /> },
+                            { path: '/inventory', element: <Navigate to="/assets" replace /> },
+                            { path: '/individual-assets', element: <Navigate to="/assets" replace /> },
                             { path: '/projects', element: <ComingSoon /> },
                             { path: '/tasks', element: <ComingSoon /> },
                             { path: '/tasks/kanban', element: <ComingSoon /> },
