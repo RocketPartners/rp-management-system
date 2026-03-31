@@ -43,6 +43,7 @@ const RESOURCE_ALIASES: Record<string, string[]> = {
     INVENTORY_ASSIGNMENT: ['inventory-assignments'],
     PROJECT: ['projects'],
     PROJECT_ASSIGNMENT: ['project-assignments', 'tasks'],
+    ANNOUNCEMENT: ['announcements'],
 };
 
 // Extra dotted aliases that don't follow the generic pattern

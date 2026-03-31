@@ -22,6 +22,9 @@ const TeamList = lazy(() => import('@/pages/Teams/Index'));
 const TeamShow = lazy(() => import('@/pages/Teams/Show'));
 const TeamCreateEdit = lazy(() => import('@/pages/Teams/CreateEdit'));
 
+// Phase 7 — Announcements (TSX)
+const AnnouncementList = lazy(() => import('@/pages/Announcements/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -93,6 +96,7 @@ export const router = createBrowserRouter([
 
                             // Placeholder routes — will be migrated in subsequent phases
                             { path: '/calendar', element: <Calendar /> },
+                            { path: '/announcements', element: <AnnouncementList /> },
                             { path: '/my-assets', element: <ComingSoon /> },
                             { path: '/my-wfh', element: <MyWFH /> },
                             // User Management (migrated)
