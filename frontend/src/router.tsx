@@ -31,6 +31,11 @@ const AssetList = lazy(() => import('@/pages/Assets/Index'));
 // Phase 9 — Support / Tickets (TSX)
 const SupportTickets = lazy(() => import('@/pages/Support/Index'));
 
+// Phase 10 — Onboarding (TSX)
+const OnboardingInvites = lazy(() => import('@/pages/Onboarding/Invites/Index'));
+const OnboardingSubmissions = lazy(() => import('@/pages/Onboarding/Submissions/Index'));
+const OnboardingSubmissionShow = lazy(() => import('@/pages/Onboarding/Submissions/Show'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -124,8 +129,9 @@ export const router = createBrowserRouter([
                             { path: '/positions/:id/edit', element: <PositionCreateEdit /> },
                             { path: '/roles', element: <ComingSoon /> },
                             { path: '/roles/:id', element: <ComingSoon /> },
-                            { path: '/onboarding/invites', element: <ComingSoon /> },
-                            { path: '/onboarding/submissions', element: <ComingSoon /> },
+                            { path: '/onboarding/invites', element: <OnboardingInvites /> },
+                            { path: '/onboarding/submissions', element: <OnboardingSubmissions /> },
+                            { path: '/onboarding/submissions/:id', element: <OnboardingSubmissionShow /> },
                             { path: '/leaves', element: <ComingSoon /> },
                             { path: '/leaves/pending-approvals', element: <ComingSoon /> },
                             { path: '/leaves/:id', element: <ComingSoon /> },
