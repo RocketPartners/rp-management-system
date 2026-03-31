@@ -35,6 +35,7 @@ const SupportTickets = lazy(() => import('@/pages/Support/Index'));
 const OnboardingInvites = lazy(() => import('@/pages/Onboarding/Invites/Index'));
 const OnboardingSubmissions = lazy(() => import('@/pages/Onboarding/Submissions/Index'));
 const OnboardingSubmissionShow = lazy(() => import('@/pages/Onboarding/Submissions/Show'));
+const OnboardingPortal = lazy(() => import('@/pages/Onboarding/Portal/Index'));
 
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
@@ -81,6 +82,9 @@ export const router = createBrowserRouter([
     {
         element: <SuspenseLayout />,
         children: [
+            // Public routes (accessible regardless of auth state)
+            { path: '/onboarding/:token', element: <OnboardingPortal /> },
+
             // Guest routes (no sidebar/nav)
             {
                 element: <GuestRoute />,
