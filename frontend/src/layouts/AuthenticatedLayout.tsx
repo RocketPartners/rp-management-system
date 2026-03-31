@@ -335,10 +335,14 @@ export default function AuthenticatedLayout() {
         // ASSET MANAGEMENT
         if (can('assets.view') || can('assets.create') || can('assets.edit')) {
             nav.push({
-                type: 'link',
-                name: 'Assets',
-                href: '/assets',
-                icon: Package,
+                type: 'items',
+                items: [
+                    {
+                        name: 'Assets',
+                        href: '/assets',
+                        icon: Package,
+                    },
+                ],
             });
         }
 

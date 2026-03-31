@@ -25,6 +25,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
     Table,
@@ -42,18 +43,32 @@ import {
     AlertTriangle,
     Barcode,
     Box,
+    Building2,
+    Calendar,
     ChevronLeft,
     ChevronRight,
+    ClipboardList,
+    DollarSign,
     Edit,
     Eye,
+    FileText,
+    Hash,
+    History,
     Laptop,
+    Loader2,
     LogIn,
     LogOut,
+    MapPin,
     MoreVertical,
     Package,
     Plus,
     Search,
+    Settings2,
+    ShieldCheck,
+    Tag,
     Trash2,
+    User,
+    Wrench,
     X,
 } from 'lucide-react';
 import { useCallback, useState } from 'react';
@@ -214,6 +229,24 @@ function formatCurrency(amount: number | null) {
 }
 
 // ============================================
+// Section Header (reusable within dialogs)
+// ============================================
+
+function SectionHeader({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description?: string }) {
+    return (
+        <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-blue-50 p-2">
+                <Icon className="h-4 w-4 text-blue-600" />
+            </div>
+            <div>
+                <h4 className="text-sm font-semibold text-gray-900">{title}</h4>
+                {description && <p className="text-xs text-gray-500">{description}</p>}
+            </div>
+        </div>
+    );
+}
+
+// ============================================
 // Create / Edit Dialog
 // ============================================
 
@@ -293,117 +326,229 @@ function CreateEditDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="flex max-w-4xl flex-col max-h-[90vh] p-0 gap-0">
                 <DialogHeader className="shrink-0 border-b px-6 py-4">
-                    <DialogTitle>{isEdit ? 'Edit Asset' : 'Add New Asset'}</DialogTitle>
-                    <DialogDescription>
-                        {isEdit ? 'Update asset details' : 'Fill in the details to add a new asset'}
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label>Name *</Label>
-                            <Input value={form.name} onChange={(e) => setField('name', e.target.value)} />
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-blue-100 p-2.5">
+                            {isEdit ? <Edit className="h-5 w-5 text-blue-600" /> : <Plus className="h-5 w-5 text-blue-600" />}
                         </div>
-                        <div className="space-y-1.5">
-                            <Label>Category *</Label>
-                            <Select value={form.categoryId} onValueChange={(v) => setField('categoryId', v)}>
-                                <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
-                                <SelectContent>
-                                    {categories.map((c) => (
-                                        <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        <div>
+                            <DialogTitle className="text-lg">{isEdit ? 'Edit Asset' : 'Add New Asset'}</DialogTitle>
+                            <DialogDescription>
+                                {isEdit
+                                    ? `Editing ${asset?.assetTag} — ${asset?.name}`
+                                    : 'Fill in the details to register a new asset in the system'}
+                            </DialogDescription>
                         </div>
                     </div>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
+                    {/* Tracking Type Selector (create only) */}
                     {!isEdit && (
-                        <div className="space-y-1.5">
-                            <Label>Tracking Type</Label>
-                            <Select value={form.trackingType} onValueChange={(v) => setField('trackingType', v)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="INDIVIDUAL">Individual (tracked item)</SelectItem>
-                                    <SelectItem value="CONSUMABLE">Consumable (quantity-based)</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div className="space-y-3">
+                            <SectionHeader icon={Settings2} title="Asset Type" description="Choose how this asset will be tracked" />
+                            <div className="grid grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setField('trackingType', 'INDIVIDUAL')}
+                                    className={`flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-all ${
+                                        form.trackingType === 'INDIVIDUAL'
+                                            ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-200'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <div className={`rounded-lg p-2 ${form.trackingType === 'INDIVIDUAL' ? 'bg-blue-100' : 'bg-gray-100'}`}>
+                                        <Laptop className={`h-5 w-5 ${form.trackingType === 'INDIVIDUAL' ? 'text-blue-600' : 'text-gray-500'}`} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">Individual</p>
+                                        <p className="text-xs text-gray-500">Unique tracked item (laptop, monitor)</p>
+                                    </div>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setField('trackingType', 'CONSUMABLE')}
+                                    className={`flex items-center gap-3 rounded-lg border-2 p-4 text-left transition-all ${
+                                        form.trackingType === 'CONSUMABLE'
+                                            ? 'border-purple-500 bg-purple-50 ring-1 ring-purple-200'
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
+                                >
+                                    <div className={`rounded-lg p-2 ${form.trackingType === 'CONSUMABLE' ? 'bg-purple-100' : 'bg-gray-100'}`}>
+                                        <Package className={`h-5 w-5 ${form.trackingType === 'CONSUMABLE' ? 'text-purple-600' : 'text-gray-500'}`} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900">Consumable</p>
+                                        <p className="text-xs text-gray-500">Quantity-based (pens, paper, cables)</p>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
                     )}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label>Manufacturer</Label>
-                            <Input value={form.manufacturer} onChange={(e) => setField('manufacturer', e.target.value)} />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Model</Label>
-                            <Input value={form.model} onChange={(e) => setField('model', e.target.value)} />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label>Serial Number</Label>
-                            <Input value={form.serialNumber} onChange={(e) => setField('serialNumber', e.target.value)} />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Barcode</Label>
-                            <Input value={form.barcode} onChange={(e) => setField('barcode', e.target.value)} />
-                        </div>
-                    </div>
-                    {form.trackingType === 'CONSUMABLE' && (
+
+                    {/* Basic Information */}
+                    <div className="space-y-3">
+                        <SectionHeader icon={Tag} title="Basic Information" description="Name, category, and manufacturer details" />
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1.5">
-                                <Label>Quantity</Label>
-                                <Input type="number" min="1" value={form.quantity} onChange={(e) => setField('quantity', e.target.value)} />
+                                <Label>Name <span className="text-red-500">*</span></Label>
+                                <div className="relative">
+                                    <Tag className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input className="pl-10" placeholder="e.g. MacBook Pro 14" value={form.name} onChange={(e) => setField('name', e.target.value)} />
+                                </div>
                             </div>
                             <div className="space-y-1.5">
-                                <Label>Min Quantity (low stock alert)</Label>
-                                <Input type="number" min="0" value={form.minQuantity} onChange={(e) => setField('minQuantity', e.target.value)} />
+                                <Label>Category <span className="text-red-500">*</span></Label>
+                                <Select value={form.categoryId} onValueChange={(v) => setField('categoryId', v)}>
+                                    <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                                    <SelectContent>
+                                        {categories.map((c) => (
+                                            <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                         </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label>Manufacturer</Label>
+                                <div className="relative">
+                                    <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input className="pl-10" placeholder="e.g. Apple" value={form.manufacturer} onChange={(e) => setField('manufacturer', e.target.value)} />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Model</Label>
+                                <div className="relative">
+                                    <Settings2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input className="pl-10" placeholder="e.g. M3 Pro 2024" value={form.model} onChange={(e) => setField('model', e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* Identification */}
+                    <div className="space-y-3">
+                        <SectionHeader icon={Hash} title="Identification" description="Serial number, barcode, and tracking identifiers" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label>Serial Number</Label>
+                                <div className="relative">
+                                    <Hash className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input className="pl-10 font-mono" placeholder="e.g. FVFXM3XQ1P" value={form.serialNumber} onChange={(e) => setField('serialNumber', e.target.value)} />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Barcode</Label>
+                                <div className="relative">
+                                    <Barcode className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input className="pl-10 font-mono" placeholder="e.g. 123456789012" value={form.barcode} onChange={(e) => setField('barcode', e.target.value)} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Stock (consumable only) */}
+                    {form.trackingType === 'CONSUMABLE' && (
+                        <>
+                            <Separator />
+                            <div className="space-y-3">
+                                <SectionHeader icon={Package} title="Stock Levels" description="Set quantity and low-stock alert threshold" />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <Label>Current Quantity</Label>
+                                        <Input type="number" min="1" value={form.quantity} onChange={(e) => setField('quantity', e.target.value)} />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label>Minimum Quantity</Label>
+                                        <Input type="number" min="0" value={form.minQuantity} onChange={(e) => setField('minQuantity', e.target.value)} />
+                                        <p className="text-xs text-gray-500">Alert when stock falls below this level</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
                     )}
-                    <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-1.5">
-                            <Label>Purchase Date</Label>
-                            <Input type="date" value={form.purchaseDate} onChange={(e) => setField('purchaseDate', e.target.value)} />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Purchase Price</Label>
-                            <Input type="number" step="0.01" value={form.purchasePrice} onChange={(e) => setField('purchasePrice', e.target.value)} />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Warranty Expiry</Label>
-                            <Input type="date" value={form.warrantyExpiry} onChange={(e) => setField('warrantyExpiry', e.target.value)} />
+
+                    <Separator />
+
+                    {/* Procurement & Warranty */}
+                    <div className="space-y-3">
+                        <SectionHeader icon={DollarSign} title="Procurement & Warranty" description="Purchase details and warranty information" />
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="space-y-1.5">
+                                <Label>Purchase Date</Label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input type="date" className="pl-10" value={form.purchaseDate} onChange={(e) => setField('purchaseDate', e.target.value)} />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Purchase Price</Label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input type="number" step="0.01" className="pl-10" placeholder="0.00" value={form.purchasePrice} onChange={(e) => setField('purchasePrice', e.target.value)} />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Warranty Expiry</Label>
+                                <div className="relative">
+                                    <ShieldCheck className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input type="date" className="pl-10" value={form.warrantyExpiry} onChange={(e) => setField('warrantyExpiry', e.target.value)} />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label>Condition</Label>
-                            <Select value={form.condition} onValueChange={(v) => setField('condition', v)}>
-                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    {['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED'].map((c) => (
-                                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label>Location</Label>
-                            <Input value={form.location} onChange={(e) => setField('location', e.target.value)} />
+
+                    <Separator />
+
+                    {/* Condition & Location */}
+                    <div className="space-y-3">
+                        <SectionHeader icon={Wrench} title="Condition & Location" />
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label>Condition</Label>
+                                <Select value={form.condition} onValueChange={(v) => setField('condition', v)}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        {['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED'].map((c) => (
+                                            <SelectItem key={c} value={c}>{c}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-1.5">
+                                <Label>Location</Label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                    <Input className="pl-10" placeholder="e.g. Office 3rd Floor" value={form.location} onChange={(e) => setField('location', e.target.value)} />
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="space-y-1.5">
-                        <Label>Description</Label>
-                        <Textarea rows={2} value={form.description} onChange={(e) => setField('description', e.target.value)} />
-                    </div>
-                    <div className="space-y-1.5">
-                        <Label>Notes</Label>
-                        <Textarea rows={2} value={form.notes} onChange={(e) => setField('notes', e.target.value)} />
+
+                    <Separator />
+
+                    {/* Additional Details */}
+                    <div className="space-y-3">
+                        <SectionHeader icon={FileText} title="Additional Details" />
+                        <div className="space-y-1.5">
+                            <Label>Description</Label>
+                            <Textarea rows={2} placeholder="Brief description of the asset..." value={form.description} onChange={(e) => setField('description', e.target.value)} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label>Notes</Label>
+                            <Textarea rows={2} placeholder="Internal notes (not visible to assignees)..." value={form.notes} onChange={(e) => setField('notes', e.target.value)} />
+                        </div>
                     </div>
                 </div>
+
                 <DialogFooter className="shrink-0 border-t px-6 py-4">
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <p className="mr-auto text-xs text-gray-400"><span className="text-red-500">*</span> Required fields</p>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>Cancel</Button>
                     <Button onClick={handleSubmit} disabled={mutation.isPending}>
-                        {mutation.isPending ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+                        {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isEdit ? 'Save Changes' : 'Create Asset'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
@@ -462,61 +607,124 @@ function CheckOutDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Check Out Asset</DialogTitle>
-                    <DialogDescription>
-                        Assign <strong>{asset?.name}</strong> ({asset?.assetTag}) to a user
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-2">
-                    <div className="space-y-1.5">
-                        <Label>Assign to *</Label>
-                        <Select value={userId} onValueChange={setUserId}>
-                            <SelectTrigger><SelectValue placeholder="Select user" /></SelectTrigger>
-                            <SelectContent>
-                                {users?.content?.map((u) => (
-                                    <SelectItem key={u.id} value={u.id.toString()}>
-                                        {u.firstName} {u.lastName}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+            <DialogContent className="flex max-w-lg flex-col max-h-[85vh] p-0 gap-0">
+                <DialogHeader className="shrink-0 border-b px-6 py-4">
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-blue-100 p-2.5">
+                            <LogOut className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                            <DialogTitle className="text-lg">Check Out Asset</DialogTitle>
+                            <DialogDescription>Assign this asset to a team member</DialogDescription>
+                        </div>
                     </div>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                    {/* Asset Preview */}
+                    <div className="flex items-center gap-4 rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+                        <div className="rounded-lg bg-white p-2.5 shadow-sm">
+                            {asset?.trackingType === 'INDIVIDUAL'
+                                ? <Laptop className="h-6 w-6 text-blue-600" />
+                                : <Package className="h-6 w-6 text-purple-600" />
+                            }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 truncate">{asset?.name}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                <span className="font-mono text-xs font-medium text-blue-600">{asset?.assetTag}</span>
+                                {asset?.serialNumber && (
+                                    <>
+                                        <span className="text-gray-300">|</span>
+                                        <span className="font-mono text-xs text-gray-500">{asset.serialNumber}</span>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        <Badge variant="outline" className={CONDITION_STYLES[asset?.condition ?? ''] ?? ''}>
+                            {asset?.condition}
+                        </Badge>
+                    </div>
+
+                    {/* Assign to */}
+                    <div className="space-y-1.5">
+                        <Label>Assign to <span className="text-red-500">*</span></Label>
+                        <div className="relative">
+                            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                            <Select value={userId} onValueChange={setUserId}>
+                                <SelectTrigger className="pl-10"><SelectValue placeholder="Select a team member" /></SelectTrigger>
+                                <SelectContent>
+                                    {users?.content?.map((u) => (
+                                        <SelectItem key={u.id} value={u.id.toString()}>
+                                            {u.firstName} {u.lastName}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {/* Quantity (consumable only) */}
                     {asset?.trackingType === 'CONSUMABLE' && (
                         <div className="space-y-1.5">
-                            <Label>Quantity</Label>
-                            <Input type="number" min="1" value={qty} onChange={(e) => setQty(e.target.value)} />
+                            <Label>Quantity to assign</Label>
+                            <Input type="number" min="1" max={asset.quantity} value={qty} onChange={(e) => setQty(e.target.value)} />
+                            <p className="text-xs text-gray-500">{asset.quantity} currently in stock</p>
                         </div>
                     )}
-                    <div className="space-y-1.5">
-                        <Label>Condition on Checkout</Label>
-                        <Select value={condition} onValueChange={setCondition}>
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED'].map((c) => (
-                                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                            <Label>Condition at Checkout</Label>
+                            <Select value={condition} onValueChange={setCondition}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {['NEW', 'GOOD', 'FAIR', 'POOR', 'DAMAGED'].map((c) => (
+                                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <Label>Expected Return</Label>
+                            <div className="relative">
+                                <Calendar className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                <Input type="date" className="pl-10" value={expectedReturn} onChange={(e) => setExpectedReturn(e.target.value)} />
+                            </div>
+                        </div>
                     </div>
-                    <div className="space-y-1.5">
-                        <Label>Expected Return Date</Label>
-                        <Input type="date" value={expectedReturn} onChange={(e) => setExpectedReturn(e.target.value)} />
-                    </div>
+
                     <div className="space-y-1.5">
                         <Label>Notes</Label>
-                        <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+                        <Textarea rows={2} placeholder="Any notes about this checkout..." value={notes} onChange={(e) => setNotes(e.target.value)} />
                     </div>
                 </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+
+                <DialogFooter className="shrink-0 border-t px-6 py-4">
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={mutation.isPending}>Cancel</Button>
                     <Button onClick={handleSubmit} disabled={mutation.isPending}>
-                        {mutation.isPending ? 'Checking out...' : 'Check Out'}
+                        {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {mutation.isPending ? 'Assigning...' : 'Check Out'}
                     </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+    );
+}
+
+// ============================================
+// Detail Info Row (reusable within detail dialog)
+// ============================================
+
+function DetailRow({ icon: Icon, label, children }: { icon: React.ElementType; label: string; children: React.ReactNode }) {
+    return (
+        <div className="flex items-start gap-3 py-2">
+            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+            <div className="min-w-0">
+                <p className="text-xs font-medium text-gray-500">{label}</p>
+                <div className="mt-0.5 text-sm text-gray-900">{children}</div>
+            </div>
+        </div>
     );
 }
 
@@ -543,78 +751,187 @@ function AssetDetailDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="flex max-w-3xl flex-col max-h-[90vh] p-0 gap-0">
                 <DialogHeader className="shrink-0 border-b px-6 py-4">
-                    <DialogTitle>Asset Details</DialogTitle>
-                    <DialogDescription>{detail?.assetTag} — {detail?.name}</DialogDescription>
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-blue-100 p-2.5">
+                            <Eye className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <DialogTitle className="text-lg">Asset Details</DialogTitle>
+                            <DialogDescription className="truncate">
+                                {detail?.assetTag ? `${detail.assetTag} — ${detail.name}` : 'Loading...'}
+                            </DialogDescription>
+                        </div>
+                        {detail && (
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className={STATUS_STYLES[detail.status] ?? ''}>
+                                    {formatStatus(detail.status)}
+                                </Badge>
+                                <Badge variant="outline" className={CONDITION_STYLES[detail.condition] ?? ''}>
+                                    {detail.condition}
+                                </Badge>
+                            </div>
+                        )}
+                    </div>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto px-6 py-4">
+
+                <div className="flex-1 overflow-y-auto px-6 py-5">
                     {isLoading ? (
-                        <div className="space-y-3">{[1, 2, 3].map((i) => <Skeleton key={i} className="h-6 w-full" />)}</div>
+                        <div className="space-y-4">
+                            <Skeleton className="h-24 w-full rounded-lg" />
+                            <div className="grid grid-cols-2 gap-4">
+                                {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-16 w-full" />)}
+                            </div>
+                        </div>
                     ) : detail ? (
                         <div className="space-y-6">
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div><span className="text-gray-500">Status:</span> <Badge variant="outline" className={STATUS_STYLES[detail.status]}>{formatStatus(detail.status)}</Badge></div>
-                                <div><span className="text-gray-500">Condition:</span> <Badge variant="outline" className={CONDITION_STYLES[detail.condition]}>{detail.condition}</Badge></div>
-                                <div><span className="text-gray-500">Category:</span> {detail.categoryName}</div>
-                                <div><span className="text-gray-500">Type:</span> {detail.trackingType}</div>
-                                <div><span className="text-gray-500">Manufacturer:</span> {detail.manufacturer ?? '-'}</div>
-                                <div><span className="text-gray-500">Model:</span> {detail.model ?? '-'}</div>
-                                <div><span className="text-gray-500">Serial:</span> <span className="font-mono">{detail.serialNumber ?? '-'}</span></div>
-                                <div><span className="text-gray-500">Barcode:</span> <span className="font-mono">{detail.barcode ?? '-'}</span></div>
-                                <div><span className="text-gray-500">Location:</span> {detail.location ?? '-'}</div>
-                                <div><span className="text-gray-500">Purchase Price:</span> {formatCurrency(detail.purchasePrice)}</div>
-                                <div><span className="text-gray-500">Purchase Date:</span> {formatDate(detail.purchaseDate)}</div>
-                                <div><span className="text-gray-500">Warranty Expiry:</span> {formatDate(detail.warrantyExpiry)}</div>
+                            {/* Hero Card */}
+                            <div className="flex items-center gap-4 rounded-lg border bg-gray-50/50 p-4">
+                                <div className="rounded-xl bg-white p-3 shadow-sm">
+                                    {detail.trackingType === 'INDIVIDUAL'
+                                        ? <Laptop className="h-8 w-8 text-blue-600" />
+                                        : <Package className="h-8 w-8 text-purple-600" />
+                                    }
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-lg font-semibold text-gray-900 truncate">{detail.name}</p>
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
+                                        <span className="font-mono text-sm font-medium text-blue-600">{detail.assetTag}</span>
+                                        {detail.serialNumber && (
+                                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                                                <Hash className="h-3 w-3" />
+                                                <span className="font-mono">{detail.serialNumber}</span>
+                                            </span>
+                                        )}
+                                        {detail.barcode && (
+                                            <span className="flex items-center gap-1 text-xs text-gray-500">
+                                                <Barcode className="h-3 w-3" />
+                                                <span className="font-mono">{detail.barcode}</span>
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                    {detail.trackingType === 'INDIVIDUAL' ? 'Individual' : 'Consumable'}
+                                </Badge>
+                            </div>
+
+                            {/* Info Grid */}
+                            <div className="grid grid-cols-2 gap-x-6">
+                                <DetailRow icon={Tag} label="Category">{detail.categoryName}</DetailRow>
+                                <DetailRow icon={Building2} label="Manufacturer">
+                                    {detail.manufacturer ? `${detail.manufacturer}${detail.model ? ` ${detail.model}` : ''}` : '-'}
+                                </DetailRow>
+                                <DetailRow icon={MapPin} label="Location">{detail.location ?? '-'}</DetailRow>
+                                <DetailRow icon={DollarSign} label="Purchase Price">{formatCurrency(detail.purchasePrice)}</DetailRow>
+                                <DetailRow icon={Calendar} label="Purchase Date">{formatDate(detail.purchaseDate)}</DetailRow>
+                                <DetailRow icon={ShieldCheck} label="Warranty Expiry">{formatDate(detail.warrantyExpiry)}</DetailRow>
                                 {detail.trackingType === 'CONSUMABLE' && (
                                     <>
-                                        <div><span className="text-gray-500">Quantity:</span> {detail.quantity}</div>
-                                        <div><span className="text-gray-500">Min Quantity:</span> {detail.minQuantity}</div>
+                                        <DetailRow icon={Package} label="Stock">
+                                            <span className={detail.quantity <= detail.minQuantity && detail.minQuantity > 0 ? 'font-semibold text-red-600' : ''}>
+                                                {detail.quantity}
+                                            </span>
+                                            <span className="text-gray-400"> / {detail.minQuantity} min</span>
+                                        </DetailRow>
                                     </>
                                 )}
+                                {detail.currentAssignee && (
+                                    <DetailRow icon={User} label="Assigned To">
+                                        <span className="font-medium">{detail.currentAssignee.userName}</span>
+                                        <span className="text-gray-500"> since {formatDate(detail.currentAssignee.checkedOutAt)}</span>
+                                    </DetailRow>
+                                )}
                             </div>
+
+                            {/* Specifications */}
                             {detail.specifications && Object.keys(detail.specifications).length > 0 && (
-                                <div>
-                                    <h4 className="mb-2 text-sm font-semibold text-gray-900">Specifications</h4>
-                                    <div className="grid grid-cols-2 gap-2 text-sm">
-                                        {Object.entries(detail.specifications).filter(([, v]) => v).map(([k, v]) => (
-                                            <div key={k}><span className="text-gray-500 capitalize">{k}:</span> {v}</div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                            {detail.notes && <div><h4 className="mb-1 text-sm font-semibold text-gray-900">Notes</h4><p className="text-sm text-gray-600">{detail.notes}</p></div>}
-                            {detail.assignments.length > 0 && (
-                                <div>
-                                    <h4 className="mb-2 text-sm font-semibold text-gray-900">Assignment History</h4>
-                                    <div className="space-y-2">
-                                        {detail.assignments.map((a) => (
-                                            <div key={a.id} className="flex items-center justify-between rounded-md border p-2 text-sm">
-                                                <div>
-                                                    <span className="font-medium">{a.userName}</span>
-                                                    <span className="ml-2 text-gray-500">{formatDate(a.checkedOutAt)}</span>
-                                                    {a.checkedInAt && <span className="ml-2 text-gray-500">→ {formatDate(a.checkedInAt)}</span>}
+                                <>
+                                    <Separator />
+                                    <div className="space-y-3">
+                                        <SectionHeader icon={ClipboardList} title="Specifications" />
+                                        <div className="grid grid-cols-2 gap-2 rounded-lg border bg-gray-50/50 p-4 text-sm">
+                                            {Object.entries(detail.specifications).filter(([, v]) => v).map(([k, v]) => (
+                                                <div key={k} className="flex justify-between border-b border-dashed border-gray-200 py-1.5 last:border-0">
+                                                    <span className="text-gray-500 capitalize">{k}</span>
+                                                    <span className="font-medium text-gray-900">{v}</span>
                                                 </div>
-                                                <Badge variant="outline" className={a.status === 'CHECKED_OUT' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}>
-                                                    {a.status === 'CHECKED_OUT' ? 'Active' : 'Returned'}
-                                                </Badge>
-                                            </div>
-                                        ))}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
+                                </>
                             )}
-                            {detail.history.length > 0 && (
-                                <div>
-                                    <h4 className="mb-2 text-sm font-semibold text-gray-900">Audit Trail</h4>
-                                    <div className="space-y-1.5 text-sm">
-                                        {detail.history.map((h) => (
-                                            <div key={h.id} className="flex items-center gap-2 text-gray-600">
-                                                <span className="text-xs text-gray-400">{formatDate(h.createdAt)}</span>
-                                                <span className="font-medium text-gray-800">{h.action}</span>
-                                                {h.performedByName && <span>by {h.performedByName}</span>}
-                                                {h.notes && <span className="text-gray-400">— {h.notes}</span>}
-                                            </div>
-                                        ))}
+
+                            {/* Notes */}
+                            {detail.notes && (
+                                <>
+                                    <Separator />
+                                    <div className="space-y-2">
+                                        <SectionHeader icon={FileText} title="Notes" />
+                                        <p className="rounded-lg border bg-gray-50/50 p-3 text-sm text-gray-600">{detail.notes}</p>
                                     </div>
-                                </div>
+                                </>
+                            )}
+
+                            {/* Assignment History */}
+                            {detail.assignments.length > 0 && (
+                                <>
+                                    <Separator />
+                                    <div className="space-y-3">
+                                        <SectionHeader icon={User} title="Assignment History" description={`${detail.assignments.length} record(s)`} />
+                                        <div className="space-y-2">
+                                            {detail.assignments.map((a) => (
+                                                <div key={a.id} className="flex items-center gap-3 rounded-lg border p-3">
+                                                    <div className={`rounded-full p-1.5 ${a.status === 'CHECKED_OUT' ? 'bg-blue-100' : 'bg-green-100'}`}>
+                                                        {a.status === 'CHECKED_OUT'
+                                                            ? <LogOut className="h-3.5 w-3.5 text-blue-600" />
+                                                            : <LogIn className="h-3.5 w-3.5 text-green-600" />
+                                                        }
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-sm font-medium text-gray-900">{a.userName}</p>
+                                                        <p className="text-xs text-gray-500">
+                                                            {formatDate(a.checkedOutAt)}
+                                                            {a.checkedInAt && ` → ${formatDate(a.checkedInAt)}`}
+                                                            {a.assignedByName && ` · by ${a.assignedByName}`}
+                                                        </p>
+                                                    </div>
+                                                    <Badge variant="outline" className={a.status === 'CHECKED_OUT' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-green-50 text-green-700 border-green-200'}>
+                                                        {a.status === 'CHECKED_OUT' ? 'Active' : 'Returned'}
+                                                    </Badge>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Audit Trail */}
+                            {detail.history.length > 0 && (
+                                <>
+                                    <Separator />
+                                    <div className="space-y-3">
+                                        <SectionHeader icon={History} title="Audit Trail" description={`${detail.history.length} event(s)`} />
+                                        <div className="rounded-lg border">
+                                            {detail.history.map((h, i) => (
+                                                <div key={h.id} className={`flex items-start gap-3 px-4 py-3 ${i < detail.history.length - 1 ? 'border-b' : ''}`}>
+                                                    <div className="mt-0.5 rounded-full bg-gray-100 p-1">
+                                                        <History className="h-3 w-3 text-gray-500" />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-medium text-gray-900">{h.action}</span>
+                                                            {h.performedByName && (
+                                                                <span className="text-xs text-gray-500">by {h.performedByName}</span>
+                                                            )}
+                                                        </div>
+                                                        {h.notes && <p className="mt-0.5 text-xs text-gray-500">{h.notes}</p>}
+                                                    </div>
+                                                    <span className="shrink-0 text-xs text-gray-400">{formatDate(h.createdAt)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
                             )}
                         </div>
                     ) : null}
