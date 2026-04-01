@@ -357,62 +357,54 @@ export default function CalendarIndex() {
                 <title>Calendar</title>
             </Helmet>
 
-            {/* Header */}
-            <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                                Calendar
-                            </h2>
-                            <p className="mt-1 text-sm text-gray-600">
-                                View team activities, leaves, and events
-                            </p>
+            <div className="space-y-6 p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-blue-100 p-2">
+                            <ChevronRight className="h-6 w-6 text-blue-600" style={{ display: 'none' }} />
+                            <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><line x1="16" y1="2" x2="16" y2="6" strokeWidth="2"/><line x1="8" y1="2" x2="8" y2="6" strokeWidth="2"/><line x1="3" y1="10" x2="21" y2="10" strokeWidth="2"/></svg>
                         </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="default"
-                                size="sm"
-                                onClick={handleOpenWFHModal}
-                            >
-                                <svg
-                                    className="mr-2 h-4 w-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M12 4v16m8-8H4"
-                                    />
-                                </svg>
-                                Schedule WFH
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setShowFilters(true)}
-                            >
-                                <Filter className="mr-2 h-4 w-4" />
-                                Filters
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={handleExport}
-                            >
-                                <Download className="mr-2 h-4 w-4" />
-                                Export
-                            </Button>
+                        <div>
+                            <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
+                            <p className="text-sm text-gray-500">View team activities, leaves, and events</p>
                         </div>
                     </div>
+                    <div className="flex gap-2">
+                        <Button
+                            onClick={handleOpenWFHModal}
+                        >
+                            <svg
+                                className="mr-2 h-4 w-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M12 4v16m8-8H4"
+                                />
+                            </svg>
+                            Schedule WFH
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowFilters(true)}
+                        >
+                            <Filter className="mr-2 h-4 w-4" />
+                            Filters
+                        </Button>
+                        <Button
+                            variant="outline"
+                            onClick={handleExport}
+                        >
+                            <Download className="mr-2 h-4 w-4" />
+                            Export
+                        </Button>
+                    </div>
                 </div>
-            </div>
-
-            <div className="py-6">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Success Message */}
                     {successMessage && (
                         <div className="animate-fade-in mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
@@ -541,7 +533,6 @@ export default function CalendarIndex() {
                             onToggleEventType={handleToggleEventType}
                         />
                     </div>
-                </div>
             </div>
 
             {/* Event Detail Modal */}
