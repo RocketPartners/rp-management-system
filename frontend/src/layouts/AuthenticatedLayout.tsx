@@ -160,10 +160,10 @@ export default function AuthenticatedLayout() {
         });
 
         // USER MANAGEMENT
-        if (can('users.view') || can('teams.view')) {
+        if (can('USER_READ') || can('TEAM_READ')) {
             const userItems: NavItemConfig[] = [];
 
-            if (can('users.view')) {
+            if (can('USER_READ')) {
                 userItems.push({
                     name: 'All Users',
                     href: '/users',
@@ -171,7 +171,7 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('users.approve')) {
+            if (can('USER_UPDATE')) {
                 userItems.push({
                     name: 'Pending Approvals',
                     href: '/users/pending-approvals',
@@ -179,7 +179,7 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('teams.view')) {
+            if (can('TEAM_READ')) {
                 userItems.push({
                     name: 'Teams',
                     href: '/teams',
@@ -195,7 +195,7 @@ export default function AuthenticatedLayout() {
                     items: userItems,
                 });
             }
-        } else if (can('users.approve')) {
+        } else if (can('USER_UPDATE')) {
             nav.push({
                 type: 'items',
                 items: [
@@ -209,7 +209,7 @@ export default function AuthenticatedLayout() {
         }
 
         // ROLE MANAGEMENT
-        if (can('roles.view')) {
+        if (can('ROLE_READ')) {
             nav.push({
                 type: 'accordion',
                 name: 'Role Management',
@@ -225,10 +225,10 @@ export default function AuthenticatedLayout() {
         }
 
         // ORGANIZATION (Departments & Positions)
-        if (can('departments.view') || can('positions.view')) {
+        if (can('DEPARTMENT_READ') || can('POSITION_READ')) {
             const orgItems: NavItemConfig[] = [];
 
-            if (can('departments.view')) {
+            if (can('DEPARTMENT_READ')) {
                 orgItems.push({
                     name: 'Departments',
                     href: '/departments',
@@ -236,7 +236,7 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('positions.view')) {
+            if (can('POSITION_READ')) {
                 orgItems.push({
                     name: 'Positions',
                     href: '/positions',
@@ -255,7 +255,7 @@ export default function AuthenticatedLayout() {
         }
 
         // ONBOARDING MANAGEMENT
-        if (can('onboarding.view') || can('onboarding.manage')) {
+        if (can('ONBOARDING_VIEW') || can('ONBOARDING_MANAGE')) {
             nav.push({
                 type: 'accordion',
                 name: 'Onboarding',
@@ -277,13 +277,13 @@ export default function AuthenticatedLayout() {
 
         // LEAVE MANAGEMENT
         if (
-            can('leaves.approve') ||
-            can('leaves.view-all') ||
-            can('leaves.manage')
+            can('LEAVE_APPLICATION_APPROVE') ||
+            can('LEAVE_APPLICATION_READ') ||
+            can('LEAVE_TYPE_CREATE')
         ) {
             const leaveItems: NavItemConfig[] = [];
 
-            if (can('leaves.approve') && !can('leaves.manage')) {
+            if (can('LEAVE_APPLICATION_APPROVE') && !can('LEAVE_TYPE_CREATE')) {
                 leaveItems.push({
                     name: 'Pending Approvals',
                     href: '/leaves/pending-approvals',
@@ -291,7 +291,7 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('leaves.view-all') || can('leaves.manage')) {
+            if (can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE')) {
                 leaveItems.push({
                     name: 'All Requests',
                     href: '/leaves',
@@ -304,7 +304,7 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('leaves.manage')) {
+            if (can('LEAVE_TYPE_CREATE')) {
                 leaveItems.push({
                     name: 'Leave Types',
                     href: '/leave-types',
@@ -333,7 +333,7 @@ export default function AuthenticatedLayout() {
         }
 
         // ASSET MANAGEMENT
-        if (can('assets.view') || can('assets.create') || can('assets.edit')) {
+        if (can('ASSET_VIEW') || can('ASSET_CREATE') || can('ASSET_EDIT')) {
             nav.push({
                 type: 'items',
                 items: [
@@ -347,7 +347,7 @@ export default function AuthenticatedLayout() {
         }
 
         // PROJECT MANAGEMENT
-        if (can('projects.view') || can('tasks.view')) {
+        if (can('PROJECT_READ') || can('PROJECT_CREATE')) {
             nav.push({
                 type: 'accordion',
                 name: 'Projects',
