@@ -57,6 +57,7 @@ interface NavItemConfig {
 
 interface NavSectionItems {
     type: 'items';
+    label?: string;
     items: NavItemConfig[];
 }
 
@@ -67,7 +68,12 @@ interface NavSectionAccordion {
     items: NavItemConfig[];
 }
 
-type NavSection = NavSectionItems | NavSectionAccordion;
+interface NavSectionDivider {
+    type: 'divider';
+    label?: string;
+}
+
+type NavSection = NavSectionItems | NavSectionAccordion | NavSectionDivider;
 
 export default function AuthenticatedLayout() {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -142,7 +148,7 @@ export default function AuthenticatedLayout() {
     const buildNavigation = (): NavSection[] => {
         const nav: NavSection[] = [];
 
-        // EVERYONE - Personal Dashboard
+        // EVERYONE - Personal
         nav.push({
             type: 'items',
             items: [
@@ -158,6 +164,19 @@ export default function AuthenticatedLayout() {
                 { name: 'My Assets', href: '/my-assets', icon: Laptop },
             ],
         });
+
+        // ADMINISTRATION divider
+        const hasAdminAccess =
+            can('USER_READ') || can('TEAM_READ') || can('ROLE_READ') ||
+            can('DEPARTMENT_READ') || can('POSITION_READ') ||
+            can('ONBOARDING_VIEW') || can('ONBOARDING_MANAGE') ||
+            can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE') ||
+            can('ASSET_VIEW') || can('ASSET_CREATE') ||
+            can('PROJECT_READ') || can('PROJECT_CREATE');
+
+        if (hasAdminAccess) {
+            nav.push({ type: 'divider', label: 'Administration' });
+        }
 
         // USER MANAGEMENT
         if (can('USER_READ') || can('TEAM_READ')) {
@@ -369,6 +388,7 @@ export default function AuthenticatedLayout() {
         }
 
         // SUPPORT & SETTINGS
+        nav.push({ type: 'divider' });
         nav.push({
             type: 'items',
             items: [
@@ -596,8 +616,18 @@ export default function AuthenticatedLayout() {
 
                     <nav className="flex-1 overflow-y-auto px-3 py-4">
                         {navigation.map((section, idx) => (
-                            <div key={idx} className="mb-2">
-                                {section.type === 'items' ? (
+                            <div key={idx} className={section.type === 'divider' ? 'my-3 px-3' : 'mb-1'}>
+                                {section.type === 'divider' ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="h-px flex-1 bg-gray-200" />
+                                        {!sidebarMinimized && section.label && (
+                                            <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                                                {section.label}
+                                            </span>
+                                        )}
+                                        <div className="h-px flex-1 bg-gray-200" />
+                                    </div>
+                                ) : section.type === 'items' ? (
                                     <div className="space-y-1">
                                         {section.items.map((item) => {
                                             const Icon = item.icon;
