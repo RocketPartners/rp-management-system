@@ -51,6 +51,9 @@ const LeaveTypeList = lazy(() => import('@/pages/LeaveTypes/Index'));
 const LeaveBalanceList = lazy(() => import('@/pages/LeaveBalances/Index'));
 const HolidayList = lazy(() => import('@/pages/Holidays/Index'));
 
+// Phase 13 — AI Chat (TSX)
+const AIChat = lazy(() => import('@/pages/AIChat/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -162,6 +165,7 @@ export const router = createBrowserRouter([
                             { path: '/projects', element: <ComingSoon /> },
                             { path: '/tasks', element: <ComingSoon /> },
                             { path: '/tasks/kanban', element: <ComingSoon /> },
+                            { path: '/ai-chat', element: <AIChat /> },
                             { path: '/support', element: <SupportTickets /> },
                             { path: '/settings', element: <ComingSoon /> },
                         ],
