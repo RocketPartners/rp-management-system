@@ -138,7 +138,7 @@ export default function OnboardingSubmissions() {
                 <title>Onboarding Submissions</title>
             </Helmet>
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-6">
                 {/* Header */}
                 <div className="flex items-center gap-3">
                     <div className="rounded-lg bg-blue-100 p-2">
