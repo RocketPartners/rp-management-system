@@ -49,6 +49,7 @@ const RESOURCE_ALIASES: Record<string, string[]> = {
     PROJECT_ASSIGNMENT: ['project-assignments', 'tasks'],
     ANNOUNCEMENT: ['announcements'],
     TICKET: ['tickets', 'support'],
+    ONBOARDING: ['onboarding'],
 };
 
 // Extra dotted aliases that don't follow the generic pattern

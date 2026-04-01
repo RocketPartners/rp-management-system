@@ -1,22 +1,47 @@
 /**
- * Custom hook for managing multi-step onboarding form state
- * Consolidates 4 separate useForm hooks into one unified interface
+ * Custom hook for managing multi-step onboarding form state.
+ * Replaces Inertia useForm with React state + TanStack Query mutations.
+ * Keeps the same external interface (form.data, form.setData, form.processing)
+ * so form components need no changes.
  */
 
-import { GUEST_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
+import { portalDelete, portalPost, portalPostFormData } from '@/lib/api/onboarding-portal';
 import { DEFAULT_COUNTRY } from '@/lib/constants/onboarding/selectOptions';
-import { router, useForm } from '@inertiajs/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 /**
- * Determines the initial step based on submission completion
- * @param {Object} submission - Existing submission data
- * @returns {number} Initial step number (1-4)
+ * Creates a form-like state object that mimics Inertia's useForm interface.
+ */
+function useFormState(initialData) {
+    const [data, setDataState] = useState(initialData);
+
+    return {
+        data,
+        setData: (key, value) => {
+            if (typeof key === 'function') {
+                setDataState(key);
+            } else {
+                setDataState((prev) => ({ ...prev, [key]: value }));
+            }
+        },
+        reset: () => setDataState(initialData),
+    };
+}
+
+/**
+ * Determines the initial step based on submission completion.
+ * Response fields are snake_case from the Spring Boot API.
  */
 function determineInitialStep(submission) {
     if (!submission) return 1;
 
-    // If emergency contact is filled, go to step 4 (documents)
+    // Use current_step from backend if available
+    if (submission.current_step) return submission.current_step;
+
+    // Fallback: check completion
     if (
         submission.emergency_contact?.name &&
         submission.emergency_contact?.phone
@@ -24,18 +49,16 @@ function determineInitialStep(submission) {
         return 4;
     }
 
-    // If government IDs are filled, go to step 3 (emergency contact)
+    // Gov IDs are merged into personal_info in Spring Boot
     if (
-        submission.government_ids &&
-        (submission.government_ids.sss_number ||
-            submission.government_ids.tin_number ||
-            submission.government_ids.hdmf_number ||
-            submission.government_ids.philhealth_number)
+        submission.personal_info?.sss_number ||
+        submission.personal_info?.tin_number ||
+        submission.personal_info?.hdmf_number ||
+        submission.personal_info?.philhealth_number
     ) {
         return 3;
     }
 
-    // If personal info is filled, go to step 2 (government IDs)
     if (
         submission.personal_info?.first_name &&
         submission.personal_info?.last_name &&
@@ -44,122 +67,179 @@ function determineInitialStep(submission) {
         return 2;
     }
 
-    // Default to step 1 (personal info)
     return 1;
 }
 
 /**
- * Manages multi-step onboarding form state
+ * Manages multi-step onboarding form state with TanStack Query mutations.
  *
- * @param {Object} submission - Existing submission data
+ * @param {Object|null} submission - Existing submission data from portal API (snake_case fields)
  * @param {string} inviteToken - Invite token for API calls
- * @returns {Object} Form state and handlers
+ * @returns {Object} Form state and handlers (same interface as Inertia version)
  */
 export function useOnboardingForm(submission, inviteToken) {
+    const queryClient = useQueryClient();
+    const navigate = useNavigate();
+
     const [currentStep, setCurrentStep] = useState(() =>
         determineInitialStep(submission),
     );
 
+    const basePath = `/onboarding/portal/${inviteToken}`;
+
+    // Invalidate portal data after each mutation
+    const invalidatePortal = () => {
+        queryClient.invalidateQueries({ queryKey: ['onboarding-portal', inviteToken] });
+    };
+
+    // ========== Form State (mimics Inertia useForm interface) ==========
+
     // Personal Info Form (Step 1)
-    const personalForm = useForm({
-        first_name: submission?.personal_info?.first_name || '',
-        middle_name: submission?.personal_info?.middle_name || '',
-        last_name: submission?.personal_info?.last_name || '',
-        suffix: submission?.personal_info?.suffix || 'none',
-        birthday: submission?.personal_info?.birthday || '',
-        gender: submission?.personal_info?.gender || '',
-        civil_status: submission?.personal_info?.civil_status || '',
-        phone_number: submission?.personal_info?.phone_number || '',
-        mobile_number: submission?.personal_info?.mobile_number || '',
-        address_line_1: submission?.personal_info?.address_line_1 || '',
-        address_line_2: submission?.personal_info?.address_line_2 || '',
-        city: submission?.personal_info?.city || '',
-        state: submission?.personal_info?.state || '',
-        postal_code: submission?.personal_info?.postal_code || '',
-        country: submission?.personal_info?.country || DEFAULT_COUNTRY,
+    // API response uses snake_case: submission.personal_info
+    const pi = submission?.personal_info;
+    const personalForm = useFormState({
+        first_name: pi?.first_name || '',
+        middle_name: pi?.middle_name || '',
+        last_name: pi?.last_name || '',
+        suffix: pi?.suffix || 'none',
+        birthday: pi?.birthday || '',
+        gender: pi?.gender || '',
+        civil_status: pi?.civil_status || '',
+        phone_number: pi?.phone_number || '',
+        mobile_number: pi?.mobile_number || '',
+        address_line_1: pi?.address_line_1 || '',
+        address_line_2: pi?.address_line_2 || '',
+        city: pi?.city || '',
+        state: pi?.state || '',
+        postal_code: pi?.postal_code || '',
+        country: pi?.country || DEFAULT_COUNTRY,
     });
 
     // Government IDs Form (Step 2)
-    const govIdForm = useForm({
-        sss_number: submission?.government_ids?.sss_number || '',
-        tin_number: submission?.government_ids?.tin_number || '',
-        hdmf_number: submission?.government_ids?.hdmf_number || '',
-        philhealth_number: submission?.government_ids?.philhealth_number || '',
+    // Gov IDs stored in personal_info in Spring Boot
+    const govIdForm = useFormState({
+        sss_number: pi?.sss_number || '',
+        tin_number: pi?.tin_number || '',
+        hdmf_number: pi?.hdmf_number || '',
+        philhealth_number: pi?.philhealth_number || '',
     });
 
     // Emergency Contact Form (Step 3)
-    const emergencyForm = useForm({
-        name: submission?.emergency_contact?.name || '',
-        phone: submission?.emergency_contact?.phone || '',
-        mobile: submission?.emergency_contact?.mobile || '',
-        relationship: submission?.emergency_contact?.relationship || '',
+    const ec = submission?.emergency_contact;
+    const emergencyForm = useFormState({
+        name: ec?.name || '',
+        phone: ec?.phone || '',
+        mobile: ec?.mobile || '',
+        relationship: ec?.relationship || '',
     });
 
     // Document Upload Form (Step 4)
-    const documentForm = useForm({
+    const documentForm = useFormState({
         document_type: '',
         file: null,
         description: '',
     });
 
-    // Step navigation handlers
+    // ========== Mutations ==========
+
+    const personalMutation = useMutation({
+        mutationFn: (data) => portalPost(`${basePath}/personal-info`, data),
+        onSuccess: () => {
+            toast.success('Personal information saved!');
+            invalidatePortal();
+            setCurrentStep(2);
+        },
+        onError: (err) => toast.error(err.message),
+    });
+
+    const govIdMutation = useMutation({
+        mutationFn: (data) => portalPost(`${basePath}/government-ids`, data),
+        onSuccess: () => {
+            toast.success('Government IDs saved!');
+            invalidatePortal();
+            setCurrentStep(3);
+        },
+        onError: (err) => toast.error(err.message),
+    });
+
+    const emergencyMutation = useMutation({
+        mutationFn: (data) => portalPost(`${basePath}/emergency-contact`, data),
+        onSuccess: () => {
+            toast.success('Emergency contact saved!');
+            invalidatePortal();
+            setCurrentStep(4);
+        },
+        onError: (err) => toast.error(err.message),
+    });
+
+    const uploadMutation = useMutation({
+        mutationFn: (formData) => portalPostFormData(`${basePath}/documents`, formData),
+        onSuccess: () => {
+            toast.success('Document uploaded successfully!');
+            invalidatePortal();
+            documentForm.setData('file', null);
+            documentForm.setData('description', '');
+            // Reset file input
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput) fileInput.value = '';
+        },
+        onError: (err) => toast.error('Upload failed: ' + err.message),
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: (documentId) => portalDelete(`${basePath}/documents/${documentId}`),
+        onSuccess: () => {
+            toast.success('Document deleted successfully!');
+            invalidatePortal();
+        },
+        onError: (err) => toast.error(err.message),
+    });
+
+    const submitMutation = useMutation({
+        mutationFn: () => portalPost(`${basePath}/submit`),
+        onSuccess: () => {
+            toast.success('Onboarding submitted successfully!');
+            invalidatePortal();
+            navigate(`/onboarding/${inviteToken}/success`);
+        },
+        onError: (err) => toast.error(err.message),
+    });
+
+    // ========== Handlers ==========
+
     const handleSavePersonalInfo = () => {
-        personalForm.post(
-            route(GUEST_ONBOARDING_ROUTES.UPDATE_PERSONAL_INFO, inviteToken),
-            {
-                preserveScroll: true,
-                onSuccess: () => setCurrentStep(2),
-            },
-        );
+        personalMutation.mutate(personalForm.data);
     };
 
     const handleSaveGovIds = () => {
-        govIdForm.post(
-            route(GUEST_ONBOARDING_ROUTES.UPDATE_GOVERNMENT_IDS, inviteToken),
-            {
-                preserveScroll: true,
-                onSuccess: () => setCurrentStep(3),
-            },
-        );
+        govIdMutation.mutate(govIdForm.data);
     };
 
     const handleSaveEmergency = () => {
-        emergencyForm.post(
-            route(
-                GUEST_ONBOARDING_ROUTES.UPDATE_EMERGENCY_CONTACT,
-                inviteToken,
-            ),
-            {
-                preserveScroll: true,
-                onSuccess: () => setCurrentStep(4),
-            },
-        );
+        emergencyMutation.mutate(emergencyForm.data);
+    };
+
+    const handleUploadDocument = (e) => {
+        if (e) e.preventDefault();
+
+        const formData = new FormData();
+        formData.append('document_type', documentForm.data.document_type);
+        formData.append('file', documentForm.data.file);
+        if (documentForm.data.description) {
+            formData.append('description', documentForm.data.description);
+        }
+
+        uploadMutation.mutate(formData);
     };
 
     const handleDeleteDocument = (documentId) => {
         if (confirm('Are you sure you want to delete this document?')) {
-            router.delete(
-                route(GUEST_ONBOARDING_ROUTES.DELETE_DOCUMENT, [
-                    inviteToken,
-                    documentId,
-                ]),
-                {
-                    preserveScroll: true,
-                },
-            );
+            deleteMutation.mutate(documentId);
         }
     };
 
     const handleFinalSubmit = () => {
-        router.post(
-            route(GUEST_ONBOARDING_ROUTES.SUBMIT, inviteToken),
-            {},
-            {
-                onSuccess: () => {
-                    // Will redirect to checklist page
-                },
-            },
-        );
+        submitMutation.mutate();
     };
 
     const goToStep = (step) => {
@@ -172,26 +252,32 @@ export function useOnboardingForm(submission, inviteToken) {
         }
     };
 
+    // ========== Return compatible interface ==========
+    // Wire mutation.isPending into form.processing for button states
+
     return {
-        // Current step state
         currentStep,
         totalSteps: 4,
 
-        // Form instances
-        personalForm,
-        govIdForm,
-        emergencyForm,
-        documentForm,
+        // Form instances (compatible with Inertia useForm interface)
+        personalForm: { ...personalForm, processing: personalMutation.isPending },
+        govIdForm: { ...govIdForm, processing: govIdMutation.isPending },
+        emergencyForm: { ...emergencyForm, processing: emergencyMutation.isPending },
+        documentForm: { ...documentForm, processing: uploadMutation.isPending },
 
         // Step handlers
         handleSavePersonalInfo,
         handleSaveGovIds,
         handleSaveEmergency,
+        handleUploadDocument,
         handleDeleteDocument,
         handleFinalSubmit,
 
         // Navigation
         goToStep,
         goToPreviousStep,
+
+        // Extra state for submit
+        isSubmitting: submitMutation.isPending,
     };
 }

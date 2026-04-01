@@ -17,7 +17,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { GUEST_ONBOARDING_ROUTES } from '@/lib/constants/onboarding/routes';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
 import {
     countRequiredDocumentTypes,
@@ -42,11 +41,11 @@ import { useState } from 'react';
  * @param {Object} props
  * @param {Object} props.submission - Submission data with documents
  * @param {Object} props.requiredDocuments - Required document types configuration
- * @param {Object} props.documentForm - Inertia form instance for document uploads
- * @param {string} props.inviteToken - Invite token for API calls
+ * @param {Object} props.documentForm - Form state instance for document uploads
  * @param {Object} props.submissionStatus - Submission validation status (can_submit, blocker, missing_documents)
  * @param {Function} props.onBack - Handler for going back to previous step
  * @param {Function} props.onDeleteDocument - Handler for deleting a document
+ * @param {Function} props.onUpload - Handler for uploading a document
  * @param {Function} props.onFinalSubmit - Handler for final submission
  * @returns {JSX.Element}
  */
@@ -54,10 +53,10 @@ export const DocumentUploadForm = ({
     submission,
     requiredDocuments,
     documentForm,
-    inviteToken,
     submissionStatus,
     onBack,
     onDeleteDocument,
+    onUpload,
     onFinalSubmit,
 }) => {
     const [selectedDocType, setSelectedDocType] = useState('');
@@ -71,37 +70,7 @@ export const DocumentUploadForm = ({
 
     const handleUpload = (e) => {
         e.preventDefault();
-
-        const formData = new FormData();
-        formData.append('document_type', documentForm.data.document_type);
-        formData.append('file', documentForm.data.file);
-        formData.append('description', documentForm.data.description || '');
-
-        documentForm.post(
-            route(GUEST_ONBOARDING_ROUTES.UPLOAD_DOCUMENT, inviteToken),
-            {
-                preserveScroll: true,
-                data: formData,
-                forceFormData: true,
-                onSuccess: () => {
-                    // Clear only file and description, keep document_type
-                    documentForm.setData('file', null);
-                    documentForm.setData('description', '');
-                    // Reset file input
-                    const fileInput = document.getElementById('file-upload');
-                    if (fileInput) fileInput.value = '';
-                },
-                onError: (errors) => {
-                    console.error('Upload failed:', errors);
-                    alert(
-                        'Upload failed: ' +
-                            (errors.file ||
-                                errors.document_type ||
-                                'Unknown error'),
-                    );
-                },
-            },
-        );
+        onUpload(e);
     };
 
     const uploadedRequiredCount = countUploadedRequiredTypes(
