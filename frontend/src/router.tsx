@@ -41,6 +41,13 @@ const OnboardingSuccess = lazy(() => import('@/pages/Onboarding/Portal/Success')
 // Phase 11 — Role Management (TSX)
 const RoleList = lazy(() => import('@/pages/Roles/Index'));
 
+// Phase 12 — Leave Management (Admin) (TSX)
+const LeaveRequestList = lazy(() => import('@/pages/Leaves/Index'));
+const LeaveRequestShow = lazy(() => import('@/pages/Leaves/Show'));
+const LeaveTypeList = lazy(() => import('@/pages/LeaveTypes/Index'));
+const LeaveBalanceList = lazy(() => import('@/pages/LeaveBalances/Index'));
+const HolidayList = lazy(() => import('@/pages/Holidays/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -140,12 +147,12 @@ export const router = createBrowserRouter([
                             { path: '/onboarding/invites', element: <OnboardingInvites /> },
                             { path: '/onboarding/submissions', element: <OnboardingSubmissions /> },
                             { path: '/onboarding/submissions/:id', element: <OnboardingSubmissionShow /> },
-                            { path: '/leaves', element: <ComingSoon /> },
-                            { path: '/leaves/pending-approvals', element: <ComingSoon /> },
-                            { path: '/leaves/:id', element: <ComingSoon /> },
-                            { path: '/leave-types', element: <ComingSoon /> },
-                            { path: '/leave-balances', element: <ComingSoon /> },
-                            { path: '/holidays', element: <ComingSoon /> },
+                            { path: '/leaves', element: <LeaveRequestList /> },
+                            { path: '/leaves/pending-approvals', element: <LeaveRequestList /> },
+                            { path: '/leaves/:id', element: <LeaveRequestShow /> },
+                            { path: '/leave-types', element: <LeaveTypeList /> },
+                            { path: '/leave-balances', element: <LeaveBalanceList /> },
+                            { path: '/holidays', element: <HolidayList /> },
                             { path: '/assets', element: <AssetList /> },
                             { path: '/inventory', element: <Navigate to="/assets" replace /> },
                             { path: '/individual-assets', element: <Navigate to="/assets" replace /> },
