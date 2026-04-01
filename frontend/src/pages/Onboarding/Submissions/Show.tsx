@@ -210,7 +210,7 @@ export default function OnboardingSubmissionShow() {
 
     if (isLoading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-6 p-6">
                 <Skeleton className="h-10 w-64" />
                 <div className="grid grid-cols-3 gap-6">
                     <Skeleton className="col-span-2 h-96" />
@@ -257,7 +257,7 @@ export default function OnboardingSubmissionShow() {
                 <title>Review Submission — {submission.applicantName}</title>
             </Helmet>
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-6">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
@@ -563,7 +563,7 @@ export default function OnboardingSubmissionShow() {
                     </div>
 
                     {/* Right Column */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 p-6">
                         {/* Submission Details */}
                         <Card>
                             <CardHeader>
