@@ -41,6 +41,9 @@ const OnboardingSuccess = lazy(() => import('@/pages/Onboarding/Portal/Success')
 // Phase 11 — Role Management (TSX)
 const RoleList = lazy(() => import('@/pages/Roles/Index'));
 
+// Phase 12a — My Assets (TSX)
+const MyAssets = lazy(() => import('@/pages/Employees/Assets/MyAssets'));
+
 // Phase 12 — Leave Management (Admin) (TSX)
 const LeaveRequestList = lazy(() => import('@/pages/Leaves/Index'));
 const LeaveRequestShow = lazy(() => import('@/pages/Leaves/Show'));
@@ -124,7 +127,7 @@ export const router = createBrowserRouter([
                             // Placeholder routes — will be migrated in subsequent phases
                             { path: '/calendar', element: <Calendar /> },
                             { path: '/announcements', element: <AnnouncementList /> },
-                            { path: '/my-assets', element: <ComingSoon /> },
+                            { path: '/my-assets', element: <MyAssets /> },
                             { path: '/my-wfh', element: <MyWFH /> },
                             // User Management (migrated)
                             { path: '/users', element: <UserList /> },
