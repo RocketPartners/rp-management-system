@@ -38,6 +38,9 @@ const OnboardingSubmissionShow = lazy(() => import('@/pages/Onboarding/Submissio
 const OnboardingPortal = lazy(() => import('@/pages/Onboarding/Portal/Index'));
 const OnboardingSuccess = lazy(() => import('@/pages/Onboarding/Portal/Success'));
 
+// Phase 11 — Role Management (TSX)
+const RoleList = lazy(() => import('@/pages/Roles/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -133,8 +136,7 @@ export const router = createBrowserRouter([
                             { path: '/positions', element: <PositionList /> },
                             { path: '/positions/create', element: <PositionCreateEdit /> },
                             { path: '/positions/:id/edit', element: <PositionCreateEdit /> },
-                            { path: '/roles', element: <ComingSoon /> },
-                            { path: '/roles/:id', element: <ComingSoon /> },
+                            { path: '/roles', element: <RoleList /> },
                             { path: '/onboarding/invites', element: <OnboardingInvites /> },
                             { path: '/onboarding/submissions', element: <OnboardingSubmissions /> },
                             { path: '/onboarding/submissions/:id', element: <OnboardingSubmissionShow /> },
