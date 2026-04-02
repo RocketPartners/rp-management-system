@@ -21,8 +21,8 @@ interface LoginErrors {
 }
 
 export default function Login() {
-    const [email, setEmail] = useState<string>('admin@rocketpartners.com');
-    const [password, setPassword] = useState<string>('admin123');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [remember, setRemember] = useState<boolean>(false);
     const [processing, setProcessing] = useState<boolean>(false);
     const [errors, setErrors] = useState<LoginErrors>({});
