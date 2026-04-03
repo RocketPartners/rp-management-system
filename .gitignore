@@ -1,35 +1,18 @@
-/.phpunit.cache
-/bootstrap/ssr
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/resources/js/actions
-/resources/js/routes
-/resources/js/wayfinder
-/storage/*.key
-/storage/pail
-/vendor
-.DS_Store
+# Dependencies
+node_modules
+
+# Environment
 .env
-.env.backup
 .env.local
-.env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-/auth.json
+.env.*.local
+
+# IDE
+.DS_Store
 /.fleet
 /.idea
 /.nova
 /.vscode
 /.zed
 
-# Playwright
-/playwright-report/
-/test-results/
-/playwright/.cache/
-/docs/debugging/
+# Build
+dist
