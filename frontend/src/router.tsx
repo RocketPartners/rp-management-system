@@ -47,6 +47,7 @@ const MyAssets = lazy(() => import('@/pages/Employees/Assets/MyAssets'));
 // Phase 12 — Leave Management (Admin) (TSX)
 const LeaveRequestList = lazy(() => import('@/pages/Leaves/Index'));
 const LeaveRequestShow = lazy(() => import('@/pages/Leaves/Show'));
+const LeavePendingApprovals = lazy(() => import('@/pages/Leaves/PendingApprovals'));
 const LeaveTypeList = lazy(() => import('@/pages/LeaveTypes/Index'));
 const LeaveBalanceList = lazy(() => import('@/pages/LeaveBalances/Index'));
 const HolidayList = lazy(() => import('@/pages/Holidays/Index'));
@@ -151,7 +152,7 @@ export const router = createBrowserRouter([
                             { path: '/onboarding/submissions', element: <OnboardingSubmissions /> },
                             { path: '/onboarding/submissions/:id', element: <OnboardingSubmissionShow /> },
                             { path: '/leaves', element: <LeaveRequestList /> },
-                            { path: '/leaves/pending-approvals', element: <LeaveRequestList /> },
+                            { path: '/leaves/pending-approvals', element: <LeavePendingApprovals /> },
                             { path: '/leaves/:id', element: <LeaveRequestShow /> },
                             { path: '/leave-types', element: <LeaveTypeList /> },
                             { path: '/leave-balances', element: <LeaveBalanceList /> },
