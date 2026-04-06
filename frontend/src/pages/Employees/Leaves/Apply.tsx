@@ -82,7 +82,7 @@ export default function Apply() {
         emergencyContactName: '',
         emergencyContactPhone: '',
         useDefaultEmergencyContact: true,
-        availability: 'reachable',
+        availability: 'REACHABLE',
         managerId: 'auto',
         duration: 'FULL_DAY',
     });
@@ -494,14 +494,14 @@ export default function Apply() {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="reachable">
+                                                <SelectItem value="REACHABLE">
                                                     Reachable - Can respond to
                                                     urgent matters
                                                 </SelectItem>
-                                                <SelectItem value="offline">
+                                                <SelectItem value="OFFLINE">
                                                     Completely Offline
                                                 </SelectItem>
-                                                <SelectItem value="emergency_only">
+                                                <SelectItem value="EMERGENCY_ONLY">
                                                     Emergency Only
                                                 </SelectItem>
                                             </SelectContent>

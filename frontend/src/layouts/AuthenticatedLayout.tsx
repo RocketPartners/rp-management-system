@@ -13,11 +13,9 @@ import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-    Bell,
     Briefcase,
     Building2,
     Calendar,
-    CheckCircle2,
     CheckSquare,
     ChevronDown,
     ChevronRight,
@@ -46,6 +44,7 @@ import {
     X,
     FileCheck,
 } from 'lucide-react';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { type MouseEvent, useState, type LucideIcon } from 'react';
 
 interface NavItemConfig {
@@ -458,33 +457,7 @@ export default function AuthenticatedLayout() {
 
                         <div className="flex items-center space-x-4">
                             {/* Notifications Bell */}
-                            <DropdownMenu modal={false}>
-                                <DropdownMenuTrigger asChild>
-                                    <button className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-                                        <Bell className="h-6 w-6" />
-                                    </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-80"
-                                >
-                                    <DropdownMenuLabel className="flex items-center justify-between">
-                                        <span className="text-base font-semibold">
-                                            Notifications
-                                        </span>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <div className="px-4 py-8 text-center">
-                                        <CheckCircle2 className="mx-auto h-12 w-12 text-gray-300" />
-                                        <p className="mt-2 text-sm font-medium text-gray-900">
-                                            All caught up!
-                                        </p>
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            No pending approvals
-                                        </p>
-                                    </div>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <NotificationDropdown />
 
                             {/* Timezone Selector */}
                             <DropdownMenu>
