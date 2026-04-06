@@ -114,7 +114,7 @@ export default function LeaveShow() {
 
     return (
         <>
-            <Helmet><title>Leave Request #{leave.id} | HRIS</title></Helmet>
+            <Helmet><title>{`Leave Request #${leave.id} | HRIS`}</title></Helmet>
 
             <div className="space-y-6 p-6">
                 {/* Back + Header */}
