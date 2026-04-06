@@ -14,6 +14,7 @@ export default defineConfig({
         host: 'localhost',
         port: 5174,
         strictPort: true,
+        allowedHosts: ['dev-hris.geloflix.com'],
         proxy: {
             '/api': {
                 target: 'http://localhost:8080',
