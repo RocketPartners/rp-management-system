@@ -360,6 +360,17 @@ export interface LeaveBalanceResponse {
     updatedAt: string;
 }
 
+export interface PendingApprovalsSummary {
+    pendingManager: number;
+    pendingHr: number;
+    pendingCancellation: number;
+}
+
+export interface PendingApprovalsResponse {
+    page: PagedResponse<LeaveApplicationResponse>;
+    summary: PendingApprovalsSummary;
+}
+
 export interface LeaveTypeResponse {
     id: number;
     name: string;
