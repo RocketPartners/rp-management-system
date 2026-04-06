@@ -56,7 +56,7 @@ export default function LeaveShow() {
         open: boolean;
         type: 'manager_approve' | 'manager_reject' | 'hr_approve' | 'hr_reject' | 'cancel_approve' | 'cancel_reject' | null;
     }>({ open: false, type: null });
-    const [remarks, setRemarks] = useState('');
+    const [comments, setComments] = useState('');
 
     const { data: leave, isLoading, isError } = useQuery({
         queryKey: ['leave-application', id],
@@ -73,7 +73,7 @@ export default function LeaveShow() {
             queryClient.invalidateQueries({ queryKey: ['leave-application', id] });
             queryClient.invalidateQueries({ queryKey: ['leave-applications'] });
             setActionDialog({ open: false, type: null });
-            setRemarks('');
+            setComments('');
         },
         onError: (err: Error) => toast.error(err.message),
     });
@@ -88,7 +88,7 @@ export default function LeaveShow() {
             cancel_approve: `/leave-applications/${id}/cancellation/approve`,
             cancel_reject: `/leave-applications/${id}/cancellation/reject`,
         };
-        actionMutation.mutate({ endpoint: endpoints[actionDialog.type], body: { remarks } });
+        actionMutation.mutate({ endpoint: endpoints[actionDialog.type], body: { comments } });
     };
 
     const formatDate = (date: string) => date ? new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
@@ -209,30 +209,30 @@ export default function LeaveShow() {
                                 <CardContent className="space-y-2">
                                     {leave.status === 'pending_manager' && (
                                         <>
-                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setRemarks(''); setActionDialog({ open: true, type: 'manager_approve' }); }}>
+                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'manager_approve' }); }}>
                                                 <CheckCircle2 className="mr-2 h-4 w-4" />Manager Approve
                                             </Button>
-                                            <Button variant="destructive" className="w-full" onClick={() => { setRemarks(''); setActionDialog({ open: true, type: 'manager_reject' }); }}>
+                                            <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'manager_reject' }); }}>
                                                 <XCircle className="mr-2 h-4 w-4" />Manager Reject
                                             </Button>
                                         </>
                                     )}
                                     {leave.status === 'pending_hr' && (
                                         <>
-                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setRemarks(''); setActionDialog({ open: true, type: 'hr_approve' }); }}>
+                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'hr_approve' }); }}>
                                                 <CheckCircle2 className="mr-2 h-4 w-4" />HR Approve
                                             </Button>
-                                            <Button variant="destructive" className="w-full" onClick={() => { setRemarks(''); setActionDialog({ open: true, type: 'hr_reject' }); }}>
+                                            <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'hr_reject' }); }}>
                                                 <XCircle className="mr-2 h-4 w-4" />HR Reject
                                             </Button>
                                         </>
                                     )}
                                     {leave.status === 'pending_cancellation' && (
                                         <>
-                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setRemarks(''); setActionDialog({ open: true, type: 'cancel_approve' }); }}>
+                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'cancel_approve' }); }}>
                                                 <CheckCircle2 className="mr-2 h-4 w-4" />Approve Cancellation
                                             </Button>
-                                            <Button variant="destructive" className="w-full" onClick={() => { setRemarks(''); setActionDialog({ open: true, type: 'cancel_reject' }); }}>
+                                            <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'cancel_reject' }); }}>
                                                 <XCircle className="mr-2 h-4 w-4" />Reject Cancellation
                                             </Button>
                                         </>
@@ -262,13 +262,13 @@ export default function LeaveShow() {
                     </DialogHeader>
                     <div className="py-4">
                         <Label>{actionDialog.type?.includes('reject') ? 'Reason *' : 'Comments (optional)'}</Label>
-                        <Textarea value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="Enter remarks..." rows={3} className="mt-2" />
+                        <Textarea value={comments} onChange={(e) => setComments(e.target.value)} placeholder="Enter comments..." rows={3} className="mt-2" />
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setActionDialog({ open: false, type: null })}>Cancel</Button>
                         <Button
                             onClick={handleAction}
-                            disabled={actionMutation.isPending || (actionDialog.type?.includes('reject') && !remarks.trim())}
+                            disabled={actionMutation.isPending || (actionDialog.type?.includes('reject') && !comments.trim())}
                             className={actionDialog.type?.includes('approve') ? 'bg-green-600 hover:bg-green-700' : ''}
                             variant={actionDialog.type?.includes('reject') ? 'destructive' : 'default'}
                         >
