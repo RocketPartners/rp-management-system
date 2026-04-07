@@ -35,7 +35,7 @@ export function GlassPill() {
     const unreadCount = unreadData?.count ?? 0;
 
     return (
-        <nav className={cn('flex flex-1 items-center justify-around rounded-full px-1 py-1 h-14', glassClasses)}>
+        <nav className={cn('flex flex-1 items-center justify-around rounded-full px-1 py-1 h-16', glassClasses)}>
             {tabs.map((tab) => {
                 const active = isTabActive(tab.href, pathname);
                 const Icon = tab.icon;
@@ -44,12 +44,12 @@ export function GlassPill() {
                         key={tab.name}
                         to={tab.href}
                         className={cn(
-                            'relative flex flex-col items-center gap-0.5 rounded-full px-4 py-1.5 transition-all duration-200',
+                            'relative flex flex-col items-center gap-0.5 rounded-full px-5 py-2 transition-all duration-200',
                             active && activeTabBg,
                         )}
                     >
                         <Icon
-                            className={cn('h-[22px] w-[22px]', active ? activeIconClass : inactiveIconClass)}
+                            className={cn('h-6 w-6', active ? activeIconClass : inactiveIconClass)}
                             fill={active ? 'currentColor' : 'none'}
                             strokeWidth={active ? 0 : 1.8}
                         />

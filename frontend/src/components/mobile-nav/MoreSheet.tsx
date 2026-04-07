@@ -91,10 +91,10 @@ export function MoreSheet() {
         <>
             <button
                 onClick={() => setOpen(true)}
-                className={cn('flex h-14 w-14 items-center justify-center rounded-full', glassClasses)}
+                className={cn('flex h-16 w-16 items-center justify-center rounded-full', glassClasses)}
                 aria-label="More navigation"
             >
-                <MoreHorizontal className="h-[22px] w-[22px] text-black/30 dark:text-white/40" strokeWidth={2.5} />
+                <MoreHorizontal className="h-6 w-6 text-black/30" strokeWidth={2.5} />
             </button>
 
             <Sheet open={open} onOpenChange={setOpen}>
@@ -103,24 +103,24 @@ export function MoreSheet() {
                     className={cn(
                         'max-h-[85vh] rounded-t-3xl border-t-0 p-0',
                         'bg-white/75 backdrop-blur-[50px] backdrop-saturate-[1.8]',
-                        'dark:bg-[rgba(40,40,65,0.75)] dark:backdrop-saturate-150',
+                        '[&>[data-slot=sheet-close]]:hidden',
                     )}
                 >
                     <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
 
                     <div className="flex justify-center pt-3 pb-1">
-                        <div className="h-1 w-9 rounded-full bg-black/15 dark:bg-white/20" />
+                        <div className="h-1 w-9 rounded-full bg-black/15" />
                     </div>
 
-                    <div className="flex items-center gap-3 border-b border-black/[0.06] dark:border-white/[0.06] px-5 pb-3 pt-2">
+                    <div className="flex items-center gap-3 border-b border-black/[0.06] px-5 pb-3 pt-2">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600">
                             <span className="text-sm font-semibold text-white">
                                 {(user?.name || 'U').charAt(0).toUpperCase()}
                             </span>
                         </div>
                         <div className="min-w-0">
-                            <div className="truncate text-sm font-semibold text-slate-900 dark:text-white">{user?.name}</div>
-                            <div className="truncate text-xs text-slate-500 dark:text-white/50">{user?.position || user?.email}</div>
+                            <div className="truncate text-sm font-semibold text-slate-900">{user?.name}</div>
+                            <div className="truncate text-xs text-slate-500">{user?.position || user?.email}</div>
                         </div>
                     </div>
 
@@ -130,14 +130,14 @@ export function MoreSheet() {
                                 {section.type === 'divider' ? (
                                     section.label ? (
                                         <div className="flex items-center gap-2 px-3 pt-4 pb-2">
-                                            <div className="h-px flex-1 bg-black/[0.06] dark:bg-white/[0.06]" />
-                                            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 dark:text-white/30">
+                                            <div className="h-px flex-1 bg-black/[0.06]" />
+                                            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
                                                 {section.label}
                                             </span>
-                                            <div className="h-px flex-1 bg-black/[0.06] dark:bg-white/[0.06]" />
+                                            <div className="h-px flex-1 bg-black/[0.06]" />
                                         </div>
                                     ) : (
-                                        <div className="mx-3 my-2 h-px bg-black/[0.06] dark:bg-white/[0.06]" />
+                                        <div className="mx-3 my-2 h-px bg-black/[0.06]" />
                                     )
                                 ) : section.type === 'items' ? (
                                     <div className="space-y-0.5">
@@ -152,7 +152,7 @@ export function MoreSheet() {
                         ))}
                     </div>
 
-                    <div className="border-t border-black/[0.06] dark:border-white/[0.06] px-3 py-3">
+                    <div className="border-t border-black/[0.06] px-3 py-3">
                         <button
                             onClick={handleLogout}
                             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/[0.06]"

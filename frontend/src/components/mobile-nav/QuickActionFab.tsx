@@ -30,7 +30,7 @@ export function QuickActionFab() {
             <div className="relative z-50">
                 <div
                     className={cn(
-                        'absolute bottom-[58px] right-0 flex flex-col gap-2 transition-all duration-200',
+                        'absolute bottom-[60px] right-0 flex flex-col gap-2 transition-all duration-200',
                         open
                             ? 'translate-y-0 scale-100 opacity-100'
                             : 'pointer-events-none translate-y-2 scale-95 opacity-0',
@@ -44,12 +44,12 @@ export function QuickActionFab() {
                                 onClick={() => handleAction(action.href)}
                                 className={cn(
                                     'flex items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2.5 text-[13px] font-medium',
-                                    'text-black/70 dark:text-white/80',
+                                    'text-black/70',
                                     'transition-transform hover:-translate-x-1',
                                     glassClasses,
                                 )}
                             >
-                                <Icon className="h-[18px] w-[18px] text-black/50 dark:text-white/60" />
+                                <Icon className="h-[18px] w-[18px] text-black/50" />
                                 {action.name}
                             </button>
                         );
@@ -66,7 +66,7 @@ export function QuickActionFab() {
                 >
                     <Plus
                         className={cn(
-                            'h-6 w-6 text-black/50 dark:text-white/70 transition-transform duration-300',
+                            'h-6 w-6 text-black/50 transition-transform duration-300',
                             open && 'rotate-45',
                         )}
                         strokeWidth={2.2}
