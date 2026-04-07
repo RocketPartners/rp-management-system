@@ -31,6 +31,8 @@ const AssetList = lazy(() => import('@/pages/Assets/Index'));
 // Phase 9 — Support / Tickets (TSX)
 const SupportTickets = lazy(() => import('@/pages/Support/Index'));
 
+const NotificationsPage = lazy(() => import('@/pages/Notifications/Index'));
+
 // Phase 10 — Onboarding (TSX)
 const OnboardingInvites = lazy(() => import('@/pages/Onboarding/Invites/Index'));
 const OnboardingSubmissions = lazy(() => import('@/pages/Onboarding/Submissions/Index'));
@@ -164,6 +166,7 @@ export const router = createBrowserRouter([
                             { path: '/tasks', element: <ComingSoon /> },
                             { path: '/tasks/kanban', element: <ComingSoon /> },
                             { path: '/support', element: <SupportTickets /> },
+                            { path: '/notifications', element: <NotificationsPage /> },
                             { path: '/settings', element: <ComingSoon /> },
                         ],
                     },
