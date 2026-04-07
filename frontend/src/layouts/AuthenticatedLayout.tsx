@@ -26,11 +26,11 @@ import {
     X,
 } from 'lucide-react';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
+import { BottomNav } from '@/components/mobile-nav/BottomNav';
 import { buildNavigation, type NavSection, type NavItemConfig } from '@/lib/navigation';
 import { type MouseEvent, useState } from 'react';
 
 export default function AuthenticatedLayout() {
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [sidebarMinimized, setSidebarMinimized] = useState<boolean>(false);
     const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
     const { user, logout } = useAuth();
@@ -121,16 +121,6 @@ export default function AuthenticatedLayout() {
                 <div className="px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex items-center">
-                            <button
-                                onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 lg:hidden"
-                            >
-                                {sidebarOpen ? (
-                                    <X className="h-6 w-6" />
-                                ) : (
-                                    <Menu className="h-6 w-6" />
-                                )}
-                            </button>
                             <Link
                                 to="/dashboard"
                                 className="group ml-4 flex items-center lg:ml-0"
@@ -258,17 +248,9 @@ export default function AuthenticatedLayout() {
                 </div>
             </nav>
 
-            {/* Mobile sidebar overlay */}
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
-
             {/* Sidebar */}
             <aside
-                className={`fixed left-0 z-20 transform border-r border-gray-200 bg-white transition-all duration-300 ${sidebarMinimized ? 'w-20' : 'w-64'} lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+                className={`fixed left-0 z-20 transform border-r border-gray-200 bg-white transition-all duration-300 ${sidebarMinimized ? 'w-20' : 'w-64'} hidden lg:block`}
                 style={{ top: '64px', height: 'calc(100vh - 64px)' }}
             >
                 <div className="flex h-full flex-col">
@@ -454,10 +436,11 @@ export default function AuthenticatedLayout() {
 
             {/* Main Content */}
             <main
-                className={`flex-1 transition-all duration-300 ${sidebarMinimized ? 'lg:ml-20' : 'lg:ml-64'} pt-16`}
+                className={`flex-1 transition-all duration-300 ${sidebarMinimized ? 'lg:ml-20' : 'lg:ml-64'} pt-16 pb-28 lg:pb-0`}
             >
                 <Outlet />
             </main>
+            <BottomNav />
         </div>
     );
 }
