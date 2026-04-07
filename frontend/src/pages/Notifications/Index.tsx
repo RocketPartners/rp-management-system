@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
-import { Bell, CheckCheck } from 'lucide-react';
+import { Bell, CheckCheck, Loader2 } from 'lucide-react';
 import { useHaptics } from '@/hooks/use-haptics';
 import { apiGet, apiPatch } from '@/lib/spring-boot-api';
 import type { PagedResponse } from '@/types';
@@ -44,11 +44,24 @@ function getIconBg(colorClass: string): string {
     return 'bg-gray-500/10';
 }
 
+const PULL_THRESHOLD = 80;
+
 export default function NotificationsPage() {
     const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { tap, success } = useHaptics();
+    const { tap, success, buzz } = useHaptics();
+
+    // Track known notification IDs to detect new arrivals
+    const knownIds = useRef<Set<number>>(new Set());
+    const [newIds, setNewIds] = useState<Set<number>>(new Set());
+
+    // Pull-to-refresh state
+    const [pullY, setPullY] = useState(0);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const pullStartY = useRef(0);
+    const isPulling = useRef(false);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const { data: unreadData } = useQuery({
         queryKey: ['notifications', 'unread-count'],
@@ -66,8 +79,7 @@ export default function NotificationsPage() {
     });
     const notifications = notificationsData?.content ?? [];
 
-    // Refetch list when unread count changes (detects new notifications
-    // even if WebSocket didn't update the list cache)
+    // Refetch list when unread count changes
     const prevUnread = useRef(unreadCount);
     useEffect(() => {
         if (unreadCount !== prevUnread.current) {
@@ -75,6 +87,31 @@ export default function NotificationsPage() {
             refetch();
         }
     }, [unreadCount, refetch]);
+
+    // Detect new notifications and trigger animation
+    useEffect(() => {
+        if (notifications.length === 0) return;
+        const currentIds = new Set(notifications.map((n) => n.id));
+        if (knownIds.current.size === 0) {
+            // First load — seed known IDs, no animation
+            knownIds.current = currentIds;
+            return;
+        }
+        const fresh = new Set<number>();
+        for (const id of currentIds) {
+            if (!knownIds.current.has(id)) {
+                fresh.add(id);
+            }
+        }
+        if (fresh.size > 0) {
+            buzz();
+            setNewIds(fresh);
+            knownIds.current = currentIds;
+            // Clear animation class after it plays
+            setTimeout(() => setNewIds(new Set()), 600);
+        }
+    }, [notifications, buzz]);
+
     const filtered = filterNotifications(notifications, activeFilter);
 
     const markReadMutation = useMutation({
@@ -122,6 +159,41 @@ export default function NotificationsPage() {
         if (route) navigate(route);
     }
 
+    // Pull-to-refresh handlers
+    const onTouchStart = useCallback((e: React.TouchEvent) => {
+        const el = scrollContainerRef.current;
+        if (el && el.scrollTop <= 0 && !isRefreshing) {
+            pullStartY.current = e.touches[0].clientY;
+            isPulling.current = true;
+        }
+    }, [isRefreshing]);
+
+    const onTouchMove = useCallback((e: React.TouchEvent) => {
+        if (!isPulling.current) return;
+        const dy = e.touches[0].clientY - pullStartY.current;
+        if (dy > 0) {
+            e.preventDefault();
+            // Rubber band: diminishing returns past threshold
+            setPullY(Math.min(dy * 0.5, 120));
+        } else {
+            isPulling.current = false;
+            setPullY(0);
+        }
+    }, []);
+
+    const onTouchEnd = useCallback(async () => {
+        if (!isPulling.current) return;
+        isPulling.current = false;
+        if (pullY > PULL_THRESHOLD) {
+            setIsRefreshing(true);
+            buzz();
+            setPullY(50); // Hold at spinner position
+            await refetch();
+            setIsRefreshing(false);
+        }
+        setPullY(0);
+    }, [pullY, refetch, buzz]);
+
     return (
         <>
         {/* Header — white bg strip */}
@@ -149,8 +221,31 @@ export default function NotificationsPage() {
             </div>
         </div>
 
-        <div className="mx-auto max-w-2xl px-4 py-4 lg:py-6">
-            {/* Filter tabs — pill style with sliding background */}
+        <div
+            ref={scrollContainerRef}
+            className="mx-auto max-w-2xl px-4 py-4 lg:py-6"
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+        >
+            {/* Pull-to-refresh indicator */}
+            <div
+                className={cn(
+                    'flex items-center justify-center overflow-hidden transition-all',
+                    pullY > 0 || isRefreshing ? 'mb-3' : '',
+                )}
+                style={{ height: pullY > 0 || isRefreshing ? Math.max(pullY, isRefreshing ? 40 : 0) : 0 }}
+            >
+                {isRefreshing ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+                ) : pullY > PULL_THRESHOLD ? (
+                    <p className="text-xs font-medium text-blue-500">Release to refresh</p>
+                ) : pullY > 10 ? (
+                    <p className="text-xs text-gray-400">Pull to refresh</p>
+                ) : null}
+            </div>
+
+            {/* Filter tabs */}
             <div className="flex gap-1.5 rounded-xl bg-gray-100/80 p-1 mb-4">
                 {FILTER_TABS.map((tab) => (
                     <button
@@ -197,6 +292,7 @@ export default function NotificationsPage() {
                         const meta = getNotificationMeta(notification.type);
                         const Icon = meta.icon;
                         const isUnread = !notification.isRead;
+                        const isNew = newIds.has(notification.id);
                         return (
                             <button
                                 key={notification.id}
@@ -206,6 +302,7 @@ export default function NotificationsPage() {
                                     isUnread
                                         ? 'bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_0_0_1px_rgba(37,99,235,0.08)] border border-blue-100/60'
                                         : 'bg-white/60 border border-gray-100',
+                                    isNew && 'animate-[slideInDown_0.4s_ease-out]',
                                 )}
                             >
                                 {/* Icon */}
