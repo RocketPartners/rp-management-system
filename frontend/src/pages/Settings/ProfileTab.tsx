@@ -153,11 +153,11 @@ export default function ProfileTab() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Profile Header with Avatar */}
             {profile && (
                 <Card>
-                    <CardContent className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center">
+                    <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
                         <div className="relative">
                             <Avatar className="h-20 w-20">
                                 <AvatarImage src={profile.profileImageUrl || ''} />
@@ -217,11 +217,11 @@ export default function ProfileTab() {
 
             {/* Personal Info Form */}
             <Card>
-                <CardContent className="p-6">
-                    <h2 className="mb-4 text-lg font-semibold">Personal Information</h2>
+                <CardContent className="p-5">
+                    <h2 className="mb-3 text-lg font-semibold">Personal Information</h2>
                     <form
                         onSubmit={form.handleSubmit((data) => updateProfile.mutate(data))}
-                        className="space-y-6"
+                        className="space-y-4"
                     >
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                             <div className="space-y-2">
