@@ -70,20 +70,21 @@ function AccordionSection({ section, pathname, onNavigate }: {
     );
 }
 
+const DISMISS_THRESHOLD = 150; // px — intentionally large to prevent accidental dismiss
+
 export function MoreSheet() {
     const [open, setOpen] = useState(false);
     const [visible, setVisible] = useState(false);
     const [dragY, setDragY] = useState(0);
     const dragStartY = useRef(0);
     const isDragging = useRef(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
     const { user, logout } = useAuth();
     const { can } = usePermission();
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const navigation = buildNavigation(can);
 
-    // Two-phase open: mount first (open), then animate in (visible)
-    // Also lock body scroll when sheet is open
     useEffect(() => {
         if (open) {
             document.body.style.overflow = 'hidden';
@@ -108,26 +109,59 @@ export function MoreSheet() {
         setTimeout(() => setOpen(false), 350);
     }, []);
 
-    // Swipe-to-dismiss handlers for the drag handle area
-    const onTouchStart = useCallback((e: React.TouchEvent) => {
+    // --- Drag handlers for the fixed header zone (handle + user info) ---
+    // Always initiates a drag regardless of scroll position.
+    const onHeaderTouchStart = useCallback((e: React.TouchEvent) => {
         dragStartY.current = e.touches[0].clientY;
         isDragging.current = true;
     }, []);
 
-    const onTouchMove = useCallback((e: React.TouchEvent) => {
+    const onHeaderTouchMove = useCallback((e: React.TouchEvent) => {
         if (!isDragging.current) return;
         const dy = e.touches[0].clientY - dragStartY.current;
-        // Only allow dragging downward
         setDragY(Math.max(0, dy));
     }, []);
 
-    const onTouchEnd = useCallback(() => {
+    const onHeaderTouchEnd = useCallback(() => {
         isDragging.current = false;
-        if (dragY > 100) {
-            // Dragged far enough — dismiss
+        if (dragY > DISMISS_THRESHOLD) {
             handleClose();
         } else {
-            // Snap back
+            setDragY(0);
+        }
+    }, [dragY, handleClose]);
+
+    // --- Drag handlers for the scrollable content area ---
+    // Only initiates a drag when scroll is at the top (scrollTop === 0).
+    // If content is scrolled down, let normal scroll happen.
+    const onScrollTouchStart = useCallback((e: React.TouchEvent) => {
+        const scrollEl = scrollRef.current;
+        if (scrollEl && scrollEl.scrollTop <= 0) {
+            dragStartY.current = e.touches[0].clientY;
+            isDragging.current = true;
+        }
+    }, []);
+
+    const onScrollTouchMove = useCallback((e: React.TouchEvent) => {
+        if (!isDragging.current) return;
+        const dy = e.touches[0].clientY - dragStartY.current;
+        if (dy > 0) {
+            // Dragging down — prevent scroll, move sheet instead
+            e.preventDefault();
+            setDragY(dy);
+        } else {
+            // Dragging up — cancel drag, let scroll take over
+            isDragging.current = false;
+            setDragY(0);
+        }
+    }, []);
+
+    const onScrollTouchEnd = useCallback(() => {
+        if (!isDragging.current) return;
+        isDragging.current = false;
+        if (dragY > DISMISS_THRESHOLD) {
+            handleClose();
+        } else {
             setDragY(0);
         }
     }, [dragY, handleClose]);
@@ -154,7 +188,7 @@ export function MoreSheet() {
             {/* Custom bottom sheet portal */}
             {open && (
                 <div className="fixed inset-0 z-50">
-                    {/* Scrim overlay — light, blocks touch passthrough */}
+                    {/* Scrim overlay */}
                     <div
                         className={cn(
                             'absolute inset-0 bg-black/20 transition-opacity duration-300 touch-none',
@@ -163,7 +197,7 @@ export function MoreSheet() {
                         onClick={handleClose}
                     />
 
-                    {/* Sheet panel — slides up from bottom, draggable to dismiss */}
+                    {/* Sheet panel */}
                     <div
                         className={cn(
                             'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col',
@@ -178,32 +212,43 @@ export function MoreSheet() {
                                 : 'translateY(100%)',
                         }}
                     >
-                        {/* Drag handle — tap to close, swipe down to dismiss */}
+                        {/* ===== Fixed header zone: drag handle + user info ===== */}
+                        {/* Always acts as swipe target, regardless of scroll */}
                         <div
-                            className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
-                            onClick={handleClose}
-                            onTouchStart={onTouchStart}
-                            onTouchMove={onTouchMove}
-                            onTouchEnd={onTouchEnd}
+                            onTouchStart={onHeaderTouchStart}
+                            onTouchMove={onHeaderTouchMove}
+                            onTouchEnd={onHeaderTouchEnd}
                         >
-                            <div className="h-1.5 w-10 rounded-full bg-black/20" />
+                            {/* Drag handle */}
+                            <div
+                                className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
+                                onClick={handleClose}
+                            >
+                                <div className="h-1.5 w-10 rounded-full bg-black/20" />
+                            </div>
+
+                            {/* User header */}
+                            <div className="flex items-center gap-3 border-b border-black/[0.06] px-5 pb-3 pt-2">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600">
+                                    <span className="text-sm font-semibold text-white">
+                                        {(user?.name || 'U').charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="truncate text-sm font-semibold text-slate-900">{user?.name}</div>
+                                    <div className="truncate text-xs text-slate-500">{user?.position || user?.email}</div>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* User header */}
-                        <div className="flex items-center gap-3 border-b border-black/[0.06] px-5 pb-3 pt-2">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600">
-                                <span className="text-sm font-semibold text-white">
-                                    {(user?.name || 'U').charAt(0).toUpperCase()}
-                                </span>
-                            </div>
-                            <div className="min-w-0">
-                                <div className="truncate text-sm font-semibold text-slate-900">{user?.name}</div>
-                                <div className="truncate text-xs text-slate-500">{user?.position || user?.email}</div>
-                            </div>
-                        </div>
-
-                        {/* Scrollable navigation — overscroll-contain prevents scroll chaining to body */}
-                        <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-2">
+                        {/* ===== Scrollable content: swipe-to-dismiss when at scroll top ===== */}
+                        <div
+                            ref={scrollRef}
+                            className="flex-1 overflow-y-auto overscroll-contain px-3 py-2"
+                            onTouchStart={onScrollTouchStart}
+                            onTouchMove={onScrollTouchMove}
+                            onTouchEnd={onScrollTouchEnd}
+                        >
                             {navigation.map((section: NavSection, idx: number) => (
                                 <div key={idx}>
                                     {section.type === 'divider' ? (
