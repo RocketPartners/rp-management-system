@@ -61,6 +61,8 @@ export default function NotificationsPage() {
     const { data: notificationsData, isLoading } = useQuery({
         queryKey: ['notifications', 'list'],
         queryFn: () => apiGet<PagedResponse<NotificationResponse>>('/notifications?page=0&size=15'),
+        refetchInterval: 30_000,
+        refetchIntervalInBackground: false,
     });
     const notifications = notificationsData?.content ?? [];
     const filtered = filterNotifications(notifications, activeFilter);
