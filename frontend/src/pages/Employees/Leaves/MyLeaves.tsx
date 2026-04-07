@@ -252,6 +252,12 @@ export default function MyLeaves() {
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
+                            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 lg:size-default">
+                                <Link to="/my-leaves/apply">
+                                    <Plus className="mr-1.5 h-4 w-4" />
+                                    Apply
+                                </Link>
+                            </Button>
                             {isMobile && (
                                 <Button
                                     variant="outline"
@@ -259,16 +265,9 @@ export default function MyLeaves() {
                                     onClick={() => setShowMobileFilters(true)}
                                     className={hasFilters ? 'border-blue-200 bg-blue-50 text-blue-600' : ''}
                                 >
-                                    <Filter className="mr-1.5 h-4 w-4" />
-                                    Filter
+                                    <Filter className="h-4 w-4" />
                                 </Button>
                             )}
-                            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 lg:size-default">
-                                <Link to="/my-leaves/apply">
-                                    <Plus className="mr-1.5 h-4 w-4" />
-                                    Apply
-                                </Link>
-                            </Button>
                         </div>
                     </div>
                 </div>
