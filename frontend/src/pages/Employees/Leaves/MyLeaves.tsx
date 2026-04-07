@@ -25,6 +25,8 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { MobileBottomSheet } from '@/components/mobile-nav/MobileBottomSheet';
+import { useIsBottomNav } from '@/hooks/use-bottom-nav';
 import { apiFetch } from '@/lib/spring-boot-api';
 import type {
     LeaveApplicationResponse,
@@ -41,6 +43,7 @@ import {
     Download,
     Edit2,
     Eye,
+    Filter,
     MoreVertical,
     Plus,
     X,
@@ -116,6 +119,8 @@ export default function MyLeaves() {
     const [totalElements, setTotalElements] = useState<number>(0);
     const [successMsg, setSuccessMsg] = useState<string>('');
     const [errorMsg, setErrorMsg] = useState<string>('');
+    const [showMobileFilters, setShowMobileFilters] = useState(false);
+    const isMobile = useIsBottomNav();
 
     const currentYear = new Date().getFullYear();
     const availableYears = Array.from({ length: 5 }, (_, i) => currentYear - i);
@@ -238,14 +243,33 @@ export default function MyLeaves() {
                                 <p className="hidden mt-1 text-gray-600 lg:block">
                                     View and manage your leave requests
                                 </p>
+                                {isMobile && (
+                                    <p className="text-xs text-gray-500 mt-0.5">
+                                        {totalElements} {totalElements === 1 ? 'request' : 'requests'}
+                                        {hasFilters && ' (filtered)'}
+                                    </p>
+                                )}
                             </div>
                         </div>
-                        <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 lg:size-default">
-                            <Link to="/my-leaves/apply">
-                                <Plus className="mr-1.5 h-4 w-4" />
-                                Apply
-                            </Link>
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            {isMobile && (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowMobileFilters(true)}
+                                    className={hasFilters ? 'border-blue-200 bg-blue-50 text-blue-600' : ''}
+                                >
+                                    <Filter className="mr-1.5 h-4 w-4" />
+                                    Filter
+                                </Button>
+                            )}
+                            <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 lg:size-default">
+                                <Link to="/my-leaves/apply">
+                                    <Plus className="mr-1.5 h-4 w-4" />
+                                    Apply
+                                </Link>
+                            </Button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -319,8 +343,8 @@ export default function MyLeaves() {
                     </>
                 )}
 
-                {/* Filters */}
-                <Card className="animate-fade-in animation-delay-100 shadow-sm">
+                {/* Filters — hidden on mobile (moved to bottom sheet) */}
+                <Card className="hidden animate-fade-in animation-delay-100 shadow-sm lg:block">
                     <CardContent className="p-3 lg:pt-6 lg:p-6">
                         <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
                             <div className="flex gap-2 lg:min-w-[200px] lg:flex-1">
@@ -768,6 +792,64 @@ export default function MyLeaves() {
                     )}
                 </Card>
             </div>
+
+            {/* Mobile filter bottom sheet */}
+            <MobileBottomSheet
+                open={showMobileFilters}
+                onOpenChange={setShowMobileFilters}
+                header={
+                    <div className="px-5 pb-3 pt-1">
+                        <h2 className="text-base font-semibold text-slate-900">Filter Leaves</h2>
+                        <p className="text-xs text-gray-500">Narrow down your leave requests</p>
+                    </div>
+                }
+            >
+                <div className="px-5 pb-6 space-y-5">
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700">Year</label>
+                        <Select value={year.toString()} onValueChange={(v) => setYear(parseInt(v))}>
+                            <SelectTrigger className="h-12 text-base"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {availableYears.map((y) => (
+                                    <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-sm font-medium text-gray-700">Status</label>
+                        <Select value={status} onValueChange={setStatus}>
+                            <SelectTrigger className="h-12 text-base"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="PENDING_MANAGER">Pending Review</SelectItem>
+                                <SelectItem value="PENDING_HR">Pending HR</SelectItem>
+                                <SelectItem value="APPROVED">Approved</SelectItem>
+                                <SelectItem value="REJECTED_BY_MANAGER">Rejected</SelectItem>
+                                <SelectItem value="REJECTED_BY_HR">Rejected by HR</SelectItem>
+                                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                        {hasFilters && (
+                            <Button
+                                variant="outline"
+                                className="flex-1 h-12 text-base"
+                                onClick={() => { handleReset(); setShowMobileFilters(false); }}
+                            >
+                                Reset
+                            </Button>
+                        )}
+                        <Button
+                            className="flex-1 h-12 text-base bg-blue-600 hover:bg-blue-700"
+                            onClick={() => { handleFilter(); setShowMobileFilters(false); }}
+                        >
+                            Apply Filters
+                        </Button>
+                    </div>
+                </div>
+            </MobileBottomSheet>
         </>
     );
 }
