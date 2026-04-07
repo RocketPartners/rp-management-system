@@ -64,7 +64,7 @@ const UserCreate = lazy(() => import('@/pages/Users/Create'));
 const UserEdit = lazy(() => import('@/pages/Users/Edit'));
 const UserShow = lazy(() => import('@/pages/Users/Show'));
 const UserPendingApprovals = lazy(() => import('@/pages/Users/PendingApprovals'));
-const Profile = lazy(() => import('@/pages/Profile/Index'));
+const Settings = lazy(() => import('@/pages/Settings/Index'));
 
 // Placeholder for unmigrated pages
 function ComingSoon() {
@@ -136,7 +136,7 @@ export const router = createBrowserRouter([
                             { path: '/users/pending-approvals', element: <UserPendingApprovals /> },
                             { path: '/users/:id', element: <UserShow /> },
                             { path: '/users/:id/edit', element: <UserEdit /> },
-                            { path: '/profile', element: <Profile /> },
+                            { path: '/profile', element: <Navigate to="/settings" replace /> },
                             { path: '/teams', element: <TeamList /> },
                             { path: '/teams/create', element: <TeamCreateEdit /> },
                             { path: '/teams/:id', element: <TeamShow /> },
@@ -164,7 +164,7 @@ export const router = createBrowserRouter([
                             { path: '/tasks', element: <ComingSoon /> },
                             { path: '/tasks/kanban', element: <ComingSoon /> },
                             { path: '/support', element: <SupportTickets /> },
-                            { path: '/settings', element: <ComingSoon /> },
+                            { path: '/settings', element: <Settings /> },
                         ],
                     },
                 ],
