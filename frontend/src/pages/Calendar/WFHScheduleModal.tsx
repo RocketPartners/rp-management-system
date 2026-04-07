@@ -8,6 +8,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { useIsBottomNav } from '@/hooks/use-bottom-nav';
 import { apiFetch } from '@/lib/spring-boot-api';
 import type { WFHWeeklyUsage } from '@/types';
 import { Loader2 } from 'lucide-react';
@@ -80,6 +81,7 @@ export default function WFHScheduleModal({
     const [recurringMonth, setRecurringMonth] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const isMobile = useIsBottomNav();
 
     const handleDateSelect = (dateStr: string) => {
         if (isWeekend(dateStr)) {
@@ -188,19 +190,30 @@ export default function WFHScheduleModal({
                 else onOpenChange(true);
             }}
         >
-            <DialogContent className="sm:max-w-[700px]">
+            <DialogContent
+                className={isMobile
+                    ? 'fixed inset-x-0 bottom-0 top-auto max-h-[92vh] translate-x-0 translate-y-0 left-0 rounded-t-2xl rounded-b-none border-t border-x-0 border-b-0 p-4 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom sm:max-w-full'
+                    : 'sm:max-w-[700px]'
+                }
+                showCloseButton={!isMobile}
+            >
+                {isMobile && (
+                    <div className="flex justify-center pb-2">
+                        <div className="h-1.5 w-10 rounded-full bg-black/15" />
+                    </div>
+                )}
                 <DialogHeader>
-                    <DialogTitle>Schedule Work From Home</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-left">Schedule Work From Home</DialogTitle>
+                    <DialogDescription className="text-left">
                         Schedule specific dates or set up a recurring weekly
                         pattern. Weekends are not allowed.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="grid gap-6">
+                <div className="grid gap-4 lg:gap-6 overflow-y-auto max-h-[70vh] lg:max-h-none">
                     {/* Weekly Usage */}
                     {weeklyUsage && (
-                        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-4">
+                        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-3 lg:p-4">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h4 className="text-sm font-semibold text-blue-900">
@@ -267,8 +280,8 @@ export default function WFHScheduleModal({
                         </div>
                     )}
 
-                    {/* Two Column Layout */}
-                    <div className="grid gap-6 md:grid-cols-2">
+                    {/* Single column on mobile, two on desktop */}
+                    <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
                         {/* Left Column - Date Selection */}
                         <div className="space-y-4">
                             {mode === 'one-time' ? (

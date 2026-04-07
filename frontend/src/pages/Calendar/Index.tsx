@@ -378,7 +378,7 @@ export default function CalendarIndex() {
                             onClick={handleOpenWFHModal}
                         >
                             <svg
-                                className="h-4 w-4 lg:mr-2"
+                                className="mr-1.5 h-4 w-4 lg:mr-2"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -390,6 +390,7 @@ export default function CalendarIndex() {
                                     d="M12 4v16m8-8H4"
                                 />
                             </svg>
+                            <span className="lg:hidden">WFH</span>
                             <span className="hidden lg:inline">Schedule WFH</span>
                         </Button>
                         <Button
