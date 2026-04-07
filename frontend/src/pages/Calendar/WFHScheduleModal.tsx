@@ -211,10 +211,10 @@ export default function WFHScheduleModal({
                     )}
 
                     {/* Mode Toggle */}
-                    <div className="flex gap-2 rounded-lg bg-gray-100 p-1">
+                    <div className="flex gap-2 rounded-xl bg-gray-100 p-1.5">
                         <button
                             onClick={() => setMode('one-time')}
-                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                            className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
                                 mode === 'one-time'
                                     ? 'bg-white text-blue-700 shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900'
@@ -224,7 +224,7 @@ export default function WFHScheduleModal({
                         </button>
                         <button
                             onClick={() => setMode('recurring')}
-                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                            className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
                                 mode === 'recurring'
                                     ? 'bg-white text-blue-700 shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900'
@@ -411,12 +411,12 @@ export default function WFHScheduleModal({
     );
 
     const footerContent = (
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-3 mt-5">
             <Button
                 variant="outline"
                 onClick={handleClose}
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 h-12 text-base"
             >
                 Cancel
             </Button>
@@ -427,7 +427,7 @@ export default function WFHScheduleModal({
                     (mode === 'one-time' && selectedDates.length === 0) ||
                     (mode === 'recurring' && (!recurringMonth || recurringDays.length === 0))
                 }
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
+                className="flex-1 h-12 text-base bg-blue-600 hover:bg-blue-700"
             >
                 {loading ? (
                     <>
@@ -463,7 +463,7 @@ export default function WFHScheduleModal({
                     </div>
                 }
             >
-                <div className="px-4 pb-4">
+                <div className="overflow-hidden px-5 pb-6">
                     {formContent}
                     {footerContent}
                 </div>

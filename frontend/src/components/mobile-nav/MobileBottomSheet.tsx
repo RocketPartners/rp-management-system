@@ -154,15 +154,18 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
                     {header}
                 </div>
 
-                {/* Scrollable content — swipe when at scroll top */}
+                {/* Scrollable content — always scrollable with rubber band bounce */}
                 <div
                     ref={scrollRef}
-                    className="flex-1 overflow-y-auto overscroll-contain"
+                    className="flex-1 overflow-y-scroll overscroll-contain"
+                    style={{ WebkitOverflowScrolling: 'touch' }}
                     onTouchStart={onScrollTouchStart}
                     onTouchMove={onScrollTouchMove}
                     onTouchEnd={onScrollTouchEnd}
                 >
                     {children}
+                    {/* Bottom safe area spacer */}
+                    <div style={{ height: 'env(safe-area-inset-bottom, 16px)', minHeight: '16px' }} />
                 </div>
             </div>
         </div>
