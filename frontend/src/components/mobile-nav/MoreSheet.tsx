@@ -1,7 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LogOut, MoreHorizontal } from 'lucide-react';
-import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { usePermission } from '@/hooks/usePermission';
@@ -73,22 +72,42 @@ function AccordionSection({ section, pathname, onNavigate }: {
 
 export function MoreSheet() {
     const [open, setOpen] = useState(false);
+    const [visible, setVisible] = useState(false);
     const { user, logout } = useAuth();
     const { can } = usePermission();
     const { pathname } = useLocation();
     const navigate = useNavigate();
     const navigation = buildNavigation(can);
 
-    const handleNavigate = () => setOpen(false);
+    // Two-phase open: mount first (open), then animate in (visible)
+    useEffect(() => {
+        if (open) {
+            // Mount the portal, then trigger CSS transition on next frame
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setVisible(true));
+            });
+        } else {
+            setVisible(false);
+        }
+    }, [open]);
+
+    const handleClose = useCallback(() => {
+        setVisible(false);
+        // Wait for animation to finish before unmounting
+        setTimeout(() => setOpen(false), 350);
+    }, []);
+
+    const handleNavigate = () => handleClose();
 
     const handleLogout = async () => {
-        setOpen(false);
+        handleClose();
         await logout();
         navigate('/login');
     };
 
     return (
         <>
+            {/* More blob trigger */}
             <button
                 onClick={() => setOpen(true)}
                 className={cn('flex h-16 w-16 items-center justify-center rounded-full', glassClasses)}
@@ -97,72 +116,89 @@ export function MoreSheet() {
                 <MoreHorizontal className="h-6 w-6 text-black/30" strokeWidth={2.5} />
             </button>
 
-            <Sheet open={open} onOpenChange={setOpen}>
-                <SheetContent
-                    side="bottom"
-                    className={cn(
-                        'max-h-[85vh] rounded-t-3xl border-t-0 p-0',
-                        'bg-white/75 backdrop-blur-[50px] backdrop-saturate-[1.8]',
-                        '[&>[data-slot=sheet-close]]:hidden',
-                    )}
-                >
-                    <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            {/* Custom bottom sheet portal */}
+            {open && (
+                <div className="fixed inset-0 z-50">
+                    {/* Scrim overlay — light, not dark */}
+                    <div
+                        className={cn(
+                            'absolute inset-0 bg-black/20 transition-opacity duration-300',
+                            visible ? 'opacity-100' : 'opacity-0',
+                        )}
+                        onClick={handleClose}
+                    />
 
-                    <div className="flex justify-center pt-3 pb-1">
-                        <div className="h-1 w-9 rounded-full bg-black/15" />
-                    </div>
-
-                    <div className="flex items-center gap-3 border-b border-black/[0.06] px-5 pb-3 pt-2">
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600">
-                            <span className="text-sm font-semibold text-white">
-                                {(user?.name || 'U').charAt(0).toUpperCase()}
-                            </span>
+                    {/* Sheet panel — slides up from bottom */}
+                    <div
+                        className={cn(
+                            'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col',
+                            'rounded-t-3xl border-t border-white/70',
+                            'bg-white/80 backdrop-blur-[50px] backdrop-saturate-[1.8]',
+                            'shadow-[0_-16px_48px_rgba(0,0,0,0.1)]',
+                            'transition-transform duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                            visible ? 'translate-y-0' : 'translate-y-full',
+                        )}
+                    >
+                        {/* Drag handle */}
+                        <div className="flex justify-center pt-3 pb-1">
+                            <div className="h-1 w-9 rounded-full bg-black/15" />
                         </div>
-                        <div className="min-w-0">
-                            <div className="truncate text-sm font-semibold text-slate-900">{user?.name}</div>
-                            <div className="truncate text-xs text-slate-500">{user?.position || user?.email}</div>
-                        </div>
-                    </div>
 
-                    <div className="flex-1 overflow-y-auto px-3 py-2">
-                        {navigation.map((section: NavSection, idx: number) => (
-                            <div key={idx}>
-                                {section.type === 'divider' ? (
-                                    section.label ? (
-                                        <div className="flex items-center gap-2 px-3 pt-4 pb-2">
-                                            <div className="h-px flex-1 bg-black/[0.06]" />
-                                            <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
-                                                {section.label}
-                                            </span>
-                                            <div className="h-px flex-1 bg-black/[0.06]" />
+                        {/* User header */}
+                        <div className="flex items-center gap-3 border-b border-black/[0.06] px-5 pb-3 pt-2">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600">
+                                <span className="text-sm font-semibold text-white">
+                                    {(user?.name || 'U').charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                            <div className="min-w-0">
+                                <div className="truncate text-sm font-semibold text-slate-900">{user?.name}</div>
+                                <div className="truncate text-xs text-slate-500">{user?.position || user?.email}</div>
+                            </div>
+                        </div>
+
+                        {/* Scrollable navigation */}
+                        <div className="flex-1 overflow-y-auto px-3 py-2">
+                            {navigation.map((section: NavSection, idx: number) => (
+                                <div key={idx}>
+                                    {section.type === 'divider' ? (
+                                        section.label ? (
+                                            <div className="flex items-center gap-2 px-3 pt-4 pb-2">
+                                                <div className="h-px flex-1 bg-black/[0.06]" />
+                                                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">
+                                                    {section.label}
+                                                </span>
+                                                <div className="h-px flex-1 bg-black/[0.06]" />
+                                            </div>
+                                        ) : (
+                                            <div className="mx-3 my-2 h-px bg-black/[0.06]" />
+                                        )
+                                    ) : section.type === 'items' ? (
+                                        <div className="space-y-0.5">
+                                            {section.items.map((item) => (
+                                                <NavItem key={item.name} item={item} pathname={pathname} onNavigate={handleNavigate} />
+                                            ))}
                                         </div>
                                     ) : (
-                                        <div className="mx-3 my-2 h-px bg-black/[0.06]" />
-                                    )
-                                ) : section.type === 'items' ? (
-                                    <div className="space-y-0.5">
-                                        {section.items.map((item) => (
-                                            <NavItem key={item.name} item={item} pathname={pathname} onNavigate={handleNavigate} />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <AccordionSection section={section} pathname={pathname} onNavigate={handleNavigate} />
-                                )}
-                            </div>
-                        ))}
-                    </div>
+                                        <AccordionSection section={section} pathname={pathname} onNavigate={handleNavigate} />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
 
-                    <div className="border-t border-black/[0.06] px-3 py-3">
-                        <button
-                            onClick={handleLogout}
-                            className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/[0.06]"
-                        >
-                            <LogOut className="h-5 w-5" />
-                            Log Out
-                        </button>
+                        {/* Footer - Logout */}
+                        <div className="border-t border-black/[0.06] px-3 py-3">
+                            <button
+                                onClick={handleLogout}
+                                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/[0.06]"
+                            >
+                                <LogOut className="h-5 w-5" />
+                                Log Out
+                            </button>
+                        </div>
                     </div>
-                </SheetContent>
-            </Sheet>
+                </div>
+            )}
         </>
     );
 }
