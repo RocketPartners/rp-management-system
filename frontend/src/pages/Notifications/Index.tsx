@@ -111,9 +111,10 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-2xl px-4 py-4 lg:py-6">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-3">
+        <>
+        {/* Header — white bg strip */}
+        <div className="border-b border-gray-200 bg-white">
+            <div className="mx-auto max-w-2xl flex items-center justify-between px-4 py-4 lg:py-6">
                 <div>
                     <h1 className="text-xl font-bold text-gray-900 lg:text-2xl">Notifications</h1>
                     {unreadCount > 0 && (
@@ -134,7 +135,9 @@ export default function NotificationsPage() {
                     Mark all read
                 </button>
             </div>
+        </div>
 
+        <div className="mx-auto max-w-2xl px-4 py-4 lg:py-6">
             {/* Filter tabs — pill style with sliding background */}
             <div className="flex gap-1.5 rounded-xl bg-gray-100/80 p-1 mb-4">
                 {FILTER_TABS.map((tab) => (
@@ -227,5 +230,6 @@ export default function NotificationsPage() {
                 </div>
             )}
         </div>
+        </>
     );
 }

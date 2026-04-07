@@ -325,11 +325,11 @@ export default function Show() {
                     </Alert>
                 )}
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-3">
                     {/* Main Content */}
-                    <div className="space-y-6 lg:col-span-2">
-                        {/* Leave Details */}
-                        <Card className="animate-fade-in">
+                    <div className="flex flex-col gap-4 lg:gap-6 lg:col-span-2">
+                        {/* Leave Details — order-2 on mobile (after timeline) */}
+                        <Card className="animate-fade-in order-2 lg:order-1">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Calendar className="h-5 w-5" />
@@ -466,8 +466,8 @@ export default function Show() {
                             </CardContent>
                         </Card>
 
-                        {/* Approval Timeline */}
-                        <Card className="animate-fade-in animation-delay-200">
+                        {/* Approval Timeline — order-1 on mobile (shown first) */}
+                        <Card className="animate-fade-in animation-delay-200 order-1 lg:order-2">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Clock className="h-5 w-5" />
@@ -642,8 +642,8 @@ export default function Show() {
                         </Card>
                     </div>
 
-                    {/* Sidebar */}
-                    <div className="space-y-6">
+                    {/* Sidebar — order-3 on mobile (after details) */}
+                    <div className="order-3 space-y-4 lg:space-y-6">
                         {/* Request Info Card */}
                         <Card className="animate-fade-in animation-delay-100">
                             <CardHeader>

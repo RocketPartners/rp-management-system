@@ -360,9 +360,9 @@ export default function CalendarIndex() {
                 <title>Calendar</title>
             </Helmet>
 
-            <div className="space-y-4 p-3 lg:space-y-6 lg:p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
+            {/* Header — white bg strip */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
                     <div className="flex items-center gap-3">
                         <div className="hidden rounded-lg bg-blue-100 p-2 lg:block">
                             <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><line x1="16" y1="2" x2="16" y2="6" strokeWidth="2"/><line x1="8" y1="2" x2="8" y2="6" strokeWidth="2"/><line x1="3" y1="10" x2="21" y2="10" strokeWidth="2"/></svg>
@@ -411,6 +411,9 @@ export default function CalendarIndex() {
                         </Button>
                     </div>
                 </div>
+            </div>
+
+            <div className="space-y-4 p-3 lg:space-y-6 lg:p-6">
                     {/* Success Message */}
                     {successMessage && (
                         <div className="animate-fade-in mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
