@@ -328,7 +328,7 @@ export default function Login() {
                         </Card>
 
                         <p className="animate-fade-in animation-delay-900 mt-8 text-center text-sm text-gray-500">
-                            © 2024 Rocket Partners. All rights reserved.
+                            © 2025 Rocket Partners. All rights reserved.
                         </p>
                     </div>
                 </div>
