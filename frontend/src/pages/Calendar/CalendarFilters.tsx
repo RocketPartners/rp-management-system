@@ -10,6 +10,8 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet';
+import { useIsBottomNav } from '@/hooks/use-bottom-nav';
+import { cn } from '@/lib/utils';
 import type { CalendarEventTypeConfig, CalendarManagerOption } from '@/types';
 import { type ChangeEvent, useState } from 'react';
 
@@ -52,6 +54,7 @@ export default function CalendarFilters({
     usStates = [],
     managers = [],
 }: CalendarFiltersProps) {
+    const isMobile = useIsBottomNav();
     const [tempFilters, setTempFilters] = useState<TempFilters>({
         event_types: filters.event_types,
         country_codes: filters.country_codes,
@@ -110,15 +113,28 @@ export default function CalendarFilters({
 
     return (
         <Sheet open={open} onOpenChange={handleOpenChange}>
-            <SheetContent className="w-full sm:max-w-md">
-                <SheetHeader>
-                    <SheetTitle>Calendar Filters</SheetTitle>
-                    <SheetDescription>
-                        Choose what to display on your calendar
-                    </SheetDescription>
-                </SheetHeader>
+            <SheetContent
+                side={isMobile ? 'bottom' : 'right'}
+                className={isMobile
+                    ? 'max-h-[85vh] rounded-t-2xl border-t-0 p-0 [&>[data-slot=sheet-close]]:hidden'
+                    : 'w-full sm:max-w-md'
+                }
+            >
+                {isMobile && (
+                    <div className="flex justify-center pt-3 pb-1">
+                        <div className="h-1.5 w-10 rounded-full bg-black/15" />
+                    </div>
+                )}
+                <div className={isMobile ? 'px-4' : ''}>
+                    <SheetHeader>
+                        <SheetTitle>Calendar Filters</SheetTitle>
+                        <SheetDescription>
+                            Choose what to display on your calendar
+                        </SheetDescription>
+                    </SheetHeader>
+                </div>
 
-                <div className="mt-6 space-y-6">
+                <div className={cn('space-y-6', isMobile ? 'overflow-y-auto max-h-[60vh] px-4 pt-4' : 'mt-6')}>
                     {/* Event Types */}
                     <div>
                         <h3 className="mb-3 text-sm font-semibold">
@@ -274,7 +290,7 @@ export default function CalendarFilters({
                     )}
                 </div>
 
-                <SheetFooter className="mt-6">
+                <SheetFooter className={cn('mt-6', isMobile && 'px-4 pb-4')}>
                     <div className="flex w-full gap-2">
                         <Button
                             variant="outline"

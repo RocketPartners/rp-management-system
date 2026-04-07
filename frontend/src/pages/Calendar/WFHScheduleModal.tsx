@@ -192,7 +192,7 @@ export default function WFHScheduleModal({
         >
             <DialogContent
                 className={isMobile
-                    ? 'fixed inset-x-0 bottom-0 top-auto max-h-[92vh] translate-x-0 translate-y-0 left-0 rounded-t-2xl rounded-b-none border-t border-x-0 border-b-0 p-4 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom sm:max-w-full'
+                    ? 'fixed !inset-x-0 !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 max-h-[90vh] w-full max-w-full rounded-t-2xl rounded-b-none border-t border-x-0 border-b-0 p-4 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom'
                     : 'sm:max-w-[700px]'
                 }
                 showCloseButton={!isMobile}
@@ -408,7 +408,7 @@ export default function WFHScheduleModal({
                                 </Label>
                                 <textarea
                                     id="wfh-reason"
-                                    rows={4}
+                                    rows={isMobile ? 2 : 4}
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
                                     className="mt-2 w-full resize-none rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"

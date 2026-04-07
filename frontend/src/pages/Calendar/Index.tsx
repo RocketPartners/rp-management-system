@@ -374,11 +374,11 @@ export default function CalendarIndex() {
                     </div>
                     <div className="flex gap-2">
                         <Button
-                            size={isMobile ? 'sm' : 'default'}
+                            size="sm"
                             onClick={handleOpenWFHModal}
                         >
                             <svg
-                                className="mr-1.5 h-4 w-4 lg:mr-2"
+                                className="mr-1.5 h-4 w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -390,8 +390,7 @@ export default function CalendarIndex() {
                                     d="M12 4v16m8-8H4"
                                 />
                             </svg>
-                            <span className="lg:hidden">WFH</span>
-                            <span className="hidden lg:inline">Schedule WFH</span>
+                            Schedule WFH
                         </Button>
                         <Button
                             variant="outline"
@@ -418,6 +417,26 @@ export default function CalendarIndex() {
                             <p className="text-sm font-medium text-green-800">
                                 {successMessage}
                             </p>
+                        </div>
+                    )}
+
+                    {/* Mobile overview — compact stats row */}
+                    {statistics && (
+                        <div className="flex gap-3 lg:hidden">
+                            <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                                <span className="text-lg font-bold text-gray-900">{statistics.totalEvents}</span>
+                                <span className="text-xs text-gray-500">Events</span>
+                            </div>
+                            <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                                <span className="text-lg font-bold text-gray-900">{statistics.usersOnLeaveToday}</span>
+                                <span className="text-xs text-gray-500">On Leave</span>
+                            </div>
+                            {usersOnLeaveToday.length > 0 && (
+                                <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                                    <span className="text-lg font-bold text-gray-900">{usersOnLeaveToday.length}</span>
+                                    <span className="text-xs text-gray-500">WFH Today</span>
+                                </div>
+                            )}
                         </div>
                     )}
 
