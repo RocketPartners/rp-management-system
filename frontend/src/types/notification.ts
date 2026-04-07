@@ -40,6 +40,9 @@ export const NOTIFICATION_META: Record<string, NotificationMeta> = {
     LEAVE_CANCELLATION_APPROVED: { icon: CheckCircle2, color: 'text-green-500', label: 'Cancellation Approved' },
     LEAVE_CANCELLATION_REJECTED: { icon: XCircle, color: 'text-red-500', label: 'Cancellation Rejected' },
     USER_APPROVAL: { icon: UserCheck, color: 'text-green-500', label: 'User Approval' },
+    ONBOARDING_SUBMITTED: { icon: UserCheck, color: 'text-blue-500', label: 'Onboarding Submitted' },
+    ONBOARDING_APPROVED: { icon: CheckCircle2, color: 'text-green-500', label: 'Onboarding Approved' },
+    ONBOARDING_REJECTED: { icon: XCircle, color: 'text-red-500', label: 'Onboarding Rejected' },
     ONBOARDING_UPDATE: { icon: UserCheck, color: 'text-teal-500', label: 'Onboarding' },
 };
 
@@ -59,6 +62,8 @@ export function getNotificationRoute(referenceType: string | null, referenceId: 
             return `/my-leaves/${referenceId}`;
         case 'USER':
             return `/users/${referenceId}`;
+        case 'ONBOARDING':
+            return `/onboarding/submissions/${referenceId}`;
         default:
             return null;
     }
