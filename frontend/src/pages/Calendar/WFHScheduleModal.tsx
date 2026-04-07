@@ -184,7 +184,7 @@ export default function WFHScheduleModal({
         mode === 'one-time' ? selectedDates.length : previewDates.length;
 
     const formContent = (
-                <div className="grid gap-4 lg:gap-6">
+                <div className="grid gap-4 lg:gap-6 min-w-0">
                     {/* Weekly Usage */}
                     {weeklyUsage && (
                         <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-3 lg:p-4">
@@ -272,7 +272,7 @@ export default function WFHScheduleModal({
                                     <input
                                         type="date"
                                         id="wfh-date"
-                                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                        className="w-full max-w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                         min={
                                             new Date()
                                                 .toISOString()
@@ -310,7 +310,7 @@ export default function WFHScheduleModal({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                            className="w-full max-w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                             min={new Date()
                                                 .toISOString()
                                                 .slice(0, 7)}
@@ -385,7 +385,7 @@ export default function WFHScheduleModal({
                                     rows={isMobile ? 2 : 4}
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
-                                    className="mt-2 w-full resize-none rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    className="mt-2 w-full max-w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     placeholder="e.g., Doctor's appointment, Home maintenance, Focus work..."
                                 />
                             </div>
