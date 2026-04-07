@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LogOut, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -73,6 +73,9 @@ function AccordionSection({ section, pathname, onNavigate }: {
 export function MoreSheet() {
     const [open, setOpen] = useState(false);
     const [visible, setVisible] = useState(false);
+    const [dragY, setDragY] = useState(0);
+    const dragStartY = useRef(0);
+    const isDragging = useRef(false);
     const { user, logout } = useAuth();
     const { can } = usePermission();
     const { pathname } = useLocation();
@@ -100,10 +103,34 @@ export function MoreSheet() {
     }, [open]);
 
     const handleClose = useCallback(() => {
+        setDragY(0);
         setVisible(false);
-        // Wait for animation to finish before unmounting
         setTimeout(() => setOpen(false), 350);
     }, []);
+
+    // Swipe-to-dismiss handlers for the drag handle area
+    const onTouchStart = useCallback((e: React.TouchEvent) => {
+        dragStartY.current = e.touches[0].clientY;
+        isDragging.current = true;
+    }, []);
+
+    const onTouchMove = useCallback((e: React.TouchEvent) => {
+        if (!isDragging.current) return;
+        const dy = e.touches[0].clientY - dragStartY.current;
+        // Only allow dragging downward
+        setDragY(Math.max(0, dy));
+    }, []);
+
+    const onTouchEnd = useCallback(() => {
+        isDragging.current = false;
+        if (dragY > 100) {
+            // Dragged far enough — dismiss
+            handleClose();
+        } else {
+            // Snap back
+            setDragY(0);
+        }
+    }, [dragY, handleClose]);
 
     const handleNavigate = () => handleClose();
 
@@ -136,20 +163,30 @@ export function MoreSheet() {
                         onClick={handleClose}
                     />
 
-                    {/* Sheet panel — slides up from bottom */}
+                    {/* Sheet panel — slides up from bottom, draggable to dismiss */}
                     <div
                         className={cn(
                             'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col',
                             'rounded-t-3xl border-t border-white/70',
                             'bg-white/80 backdrop-blur-[50px] backdrop-saturate-[1.8]',
                             'shadow-[0_-16px_48px_rgba(0,0,0,0.1)]',
-                            'transition-transform duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]',
-                            visible ? 'translate-y-0' : 'translate-y-full',
+                            !isDragging.current && 'transition-transform duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]',
                         )}
+                        style={{
+                            transform: visible
+                                ? `translateY(${dragY}px)`
+                                : 'translateY(100%)',
+                        }}
                     >
-                        {/* Drag handle */}
-                        <div className="flex justify-center pt-3 pb-1">
-                            <div className="h-1 w-9 rounded-full bg-black/15" />
+                        {/* Drag handle — tap to close, swipe down to dismiss */}
+                        <div
+                            className="flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
+                            onClick={handleClose}
+                            onTouchStart={onTouchStart}
+                            onTouchMove={onTouchMove}
+                            onTouchEnd={onTouchEnd}
+                        >
+                            <div className="h-1.5 w-10 rounded-full bg-black/20" />
                         </div>
 
                         {/* User header */}
