@@ -10,6 +10,7 @@ import {
     getAccessToken,
     isAuthenticated as checkAuth,
     login as apiLogin,
+    loginWithGoogle as apiLoginWithGoogle,
     logout as apiLogout,
     apiFetch,
 } from '@/lib/spring-boot-api';
@@ -120,6 +121,7 @@ interface AuthContextType {
     isLoading: boolean;
     isAuthenticated: boolean;
     login: (email: string, password: string) => Promise<void>;
+    loginWithGoogle: (idToken: string) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
 }
@@ -184,6 +186,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         [fetchUser],
     );
 
+    const loginWithGoogle = useCallback(
+        async (idToken: string) => {
+            const data = await apiLoginWithGoogle(idToken);
+            localStorage.setItem('accessToken', data.accessToken);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            await fetchUser();
+        },
+        [fetchUser],
+    );
+
     const logout = useCallback(async () => {
         await apiLogout();
         localStorage.removeItem('accessToken');
@@ -198,6 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isLoading,
                 isAuthenticated: !!user,
                 login,
+                loginWithGoogle,
                 logout,
                 refreshUser: fetchUser,
             }}

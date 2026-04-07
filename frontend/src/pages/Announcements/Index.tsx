@@ -47,6 +47,7 @@ import {
     SmilePlus,
     X,
 } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import { useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
@@ -586,7 +587,7 @@ function AnnouncementCard({
                 {/* Body */}
                 <div
                     className="prose prose-sm mt-2 max-w-none text-gray-600 [&_img]:max-w-full [&_img]:rounded-lg"
-                    dangerouslySetInnerHTML={{ __html: announcement.body }}
+                    dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(announcement.body) }}
                 />
 
                 {/* Gallery */}

@@ -306,7 +306,7 @@ export default function AuthenticatedLayout() {
         ) {
             const leaveItems: NavItemConfig[] = [];
 
-            if (can('LEAVE_APPLICATION_APPROVE') && !can('LEAVE_TYPE_CREATE')) {
+            if (can('LEAVE_APPLICATION_APPROVE')) {
                 leaveItems.push({
                     name: 'Pending Approvals',
                     href: '/leaves/pending-approvals',
@@ -319,11 +319,6 @@ export default function AuthenticatedLayout() {
                     name: 'All Requests',
                     href: '/leaves',
                     icon: ClipboardList,
-                });
-                leaveItems.push({
-                    name: 'Pending HR Approval',
-                    href: '/leaves?status=pending_hr',
-                    icon: CheckSquare,
                 });
             }
 

@@ -40,6 +40,27 @@ export async function login(email: string, password: string) {
     return json.data;
 }
 
+export async function loginWithGoogle(idToken: string) {
+    const res = await fetch(`${API_URL}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok || json.status !== 'success') {
+        throw new Error(json.message || 'Google login failed');
+    }
+
+    accessToken = json.data.accessToken;
+    refreshToken = json.data.refreshToken;
+    tokenExpiry = Date.now() + json.data.expiresIn - 30000;
+    persistTokens();
+
+    return json.data;
+}
+
 export async function refreshAccessToken() {
     if (!refreshToken) throw new Error('No refresh token');
 

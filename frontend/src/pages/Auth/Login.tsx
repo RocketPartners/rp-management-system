@@ -11,9 +11,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/auth-context';
 import { AlertCircle, Lock, Mail } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate } from 'react-router-dom';
+
+declare global {
+    interface Window {
+        google?: {
+            accounts: {
+                id: {
+                    initialize: (config: {
+                        client_id: string;
+                        callback: (response: { credential: string }) => void;
+                    }) => void;
+                    renderButton: (parent: HTMLElement, config: Record<string, unknown>) => void;
+                };
+            };
+        };
+    }
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
 interface LoginErrors {
     email?: string;
@@ -21,13 +39,56 @@ interface LoginErrors {
 }
 
 export default function Login() {
-    const [email, setEmail] = useState<string>('admin@rocketpartners.com');
-    const [password, setPassword] = useState<string>('admin123');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
     const [remember, setRemember] = useState<boolean>(false);
     const [processing, setProcessing] = useState<boolean>(false);
     const [errors, setErrors] = useState<LoginErrors>({});
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
     const navigate = useNavigate();
+    const gisLoadedRef = useRef(false);
+    const googleButtonRef = useRef<HTMLDivElement>(null);
+
+    const handleGoogleResponse = useCallback(
+        async (response: { credential: string }) => {
+            setErrors({});
+            try {
+                await loginWithGoogle(response.credential);
+                navigate('/dashboard', { replace: true });
+            } catch (err) {
+                const message = err instanceof Error ? err.message : 'Google login failed';
+                setErrors({ email: message });
+            }
+        },
+        [loginWithGoogle, navigate],
+    );
+
+    useEffect(() => {
+        if (!GOOGLE_CLIENT_ID || gisLoadedRef.current) return;
+        gisLoadedRef.current = true;
+
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+            window.google?.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleGoogleResponse,
+            });
+            // Render Google's standard button
+            if (googleButtonRef.current) {
+                window.google?.accounts.id.renderButton(googleButtonRef.current, {
+                    type: 'standard',
+                    theme: 'outline',
+                    size: 'large',
+                    text: 'signin_with',
+                    width: googleButtonRef.current.offsetWidth || 400,
+                });
+            }
+        };
+        document.head.appendChild(script);
+    }, [handleGoogleResponse]);
 
     const submit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -236,6 +297,22 @@ export default function Login() {
                                     </Button>
                                 </form>
 
+                                {/* Divider */}
+                                {GOOGLE_CLIENT_ID && (
+                                    <div className="animate-fade-in animation-delay-750 mt-6">
+                                        <div className="relative">
+                                            <div className="absolute inset-0 flex items-center">
+                                                <div className="w-full border-t border-gray-300" />
+                                            </div>
+                                            <div className="relative flex justify-center text-sm">
+                                                <span className="bg-white px-4 text-gray-500">or</span>
+                                            </div>
+                                        </div>
+
+                                        <div ref={googleButtonRef} className="mt-4 flex justify-center" />
+                                    </div>
+                                )}
+
                                 <div className="animate-fade-in animation-delay-800 mt-6 text-center">
                                     <p className="text-sm text-gray-600">
                                         Don't have an account?{' '}
@@ -251,7 +328,7 @@ export default function Login() {
                         </Card>
 
                         <p className="animate-fade-in animation-delay-900 mt-8 text-center text-sm text-gray-500">
-                            © 2024 Rocket Partners. All rights reserved.
+                            © 2025 Rocket Partners. All rights reserved.
                         </p>
                     </div>
                 </div>
