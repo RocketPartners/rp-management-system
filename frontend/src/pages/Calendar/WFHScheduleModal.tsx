@@ -8,6 +8,7 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { MobileBottomSheet } from '@/components/mobile-nav/MobileBottomSheet';
 import { useIsBottomNav } from '@/hooks/use-bottom-nav';
 import { apiFetch } from '@/lib/spring-boot-api';
 import type { WFHWeeklyUsage } from '@/types';
@@ -182,35 +183,8 @@ export default function WFHScheduleModal({
     const scheduleDateCount =
         mode === 'one-time' ? selectedDates.length : previewDates.length;
 
-    return (
-        <Dialog
-            open={open}
-            onOpenChange={(isOpen) => {
-                if (!isOpen) handleClose();
-                else onOpenChange(true);
-            }}
-        >
-            <DialogContent
-                className={isMobile
-                    ? 'fixed !inset-x-0 !bottom-0 !top-auto !left-0 !translate-x-0 !translate-y-0 max-h-[90vh] w-full max-w-full rounded-t-2xl rounded-b-none border-t border-x-0 border-b-0 p-4 data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom'
-                    : 'sm:max-w-[700px]'
-                }
-                showCloseButton={!isMobile}
-            >
-                {isMobile && (
-                    <div className="flex justify-center pb-2">
-                        <div className="h-1.5 w-10 rounded-full bg-black/15" />
-                    </div>
-                )}
-                <DialogHeader>
-                    <DialogTitle className="text-left">Schedule Work From Home</DialogTitle>
-                    <DialogDescription className="text-left">
-                        Schedule specific dates or set up a recurring weekly
-                        pattern. Weekends are not allowed.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid gap-4 lg:gap-6 overflow-y-auto max-h-[70vh] lg:max-h-none">
+    const formContent = (
+                <div className="grid gap-4 lg:gap-6">
                     {/* Weekly Usage */}
                     {weeklyUsage && (
                         <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-3 lg:p-4">
@@ -434,55 +408,87 @@ export default function WFHScheduleModal({
                         </div>
                     </div>
                 </div>
+    );
 
+    const footerContent = (
+        <div className="flex gap-2 mt-4">
+            <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={loading}
+                className="flex-1"
+            >
+                Cancel
+            </Button>
+            <Button
+                onClick={handleSubmit}
+                disabled={
+                    loading ||
+                    (mode === 'one-time' && selectedDates.length === 0) ||
+                    (mode === 'recurring' && (!recurringMonth || recurringDays.length === 0))
+                }
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+                {loading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Scheduling...
+                    </>
+                ) : (
+                    <>
+                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {scheduleDateCount > 0
+                            ? `Schedule (${scheduleDateCount} ${scheduleDateCount === 1 ? 'day' : 'days'})`
+                            : mode === 'one-time' ? 'Schedule WFH' : 'Schedule Pattern'}
+                    </>
+                )}
+            </Button>
+        </div>
+    );
+
+    if (isMobile) {
+        return (
+            <MobileBottomSheet
+                open={open}
+                onOpenChange={(isOpen) => {
+                    if (!isOpen) handleClose();
+                    else onOpenChange(true);
+                }}
+                header={
+                    <div className="px-5 pb-3 pt-1">
+                        <h2 className="text-base font-semibold text-slate-900">Schedule Work From Home</h2>
+                        <p className="text-xs text-gray-500">Schedule dates or set up a recurring pattern</p>
+                    </div>
+                }
+            >
+                <div className="px-4 pb-4">
+                    {formContent}
+                    {footerContent}
+                </div>
+            </MobileBottomSheet>
+        );
+    }
+
+    return (
+        <Dialog
+            open={open}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) handleClose();
+                else onOpenChange(true);
+            }}
+        >
+            <DialogContent className="sm:max-w-[700px]">
+                <DialogHeader>
+                    <DialogTitle>Schedule Work From Home</DialogTitle>
+                    <DialogDescription>
+                        Schedule specific dates or set up a recurring weekly pattern. Weekends are not allowed.
+                    </DialogDescription>
+                </DialogHeader>
+                {formContent}
                 <DialogFooter className="mt-6 gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={handleClose}
-                        disabled={loading}
-                        className="flex-1 sm:flex-none"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={
-                            loading ||
-                            (mode === 'one-time' &&
-                                selectedDates.length === 0) ||
-                            (mode === 'recurring' &&
-                                (!recurringMonth || recurringDays.length === 0))
-                        }
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 sm:flex-none"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Scheduling...
-                            </>
-                        ) : (
-                            <>
-                                <svg
-                                    className="mr-2 h-4 w-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                                {scheduleDateCount > 0
-                                    ? `Schedule (${scheduleDateCount} ${scheduleDateCount === 1 ? 'day' : 'days'})`
-                                    : mode === 'one-time'
-                                      ? 'Schedule WFH'
-                                      : 'Schedule Pattern'}
-                            </>
-                        )}
-                    </Button>
+                    {footerContent}
                 </DialogFooter>
             </DialogContent>
         </Dialog>
