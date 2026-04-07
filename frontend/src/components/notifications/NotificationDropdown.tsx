@@ -49,8 +49,9 @@ export function NotificationDropdown() {
     const notifications = notificationsData?.content ?? [];
 
     const markReadMutation = useMutation({
-        mutationFn: (id: number) => apiPatch<NotificationResponse>(`/notifications/${id}/read`),
-        onMutate: async (id) => {
+        mutationFn: ({ id }: { id: number; wasUnread: boolean }) =>
+            apiPatch<NotificationResponse>(`/notifications/${id}/read`),
+        onMutate: async ({ id, wasUnread }) => {
             await queryClient.cancelQueries({ queryKey: ['notifications'] });
             queryClient.setQueryData<PagedResponse<NotificationResponse>>(
                 ['notifications', 'list'],
@@ -64,10 +65,12 @@ export function NotificationDropdown() {
                     };
                 },
             );
-            queryClient.setQueryData<{ count: number }>(
-                ['notifications', 'unread-count'],
-                (old) => (old ? { count: Math.max(0, old.count - 1) } : old),
-            );
+            if (wasUnread) {
+                queryClient.setQueryData<{ count: number }>(
+                    ['notifications', 'unread-count'],
+                    (old) => (old ? { count: Math.max(0, old.count - 1) } : old),
+                );
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -100,7 +103,7 @@ export function NotificationDropdown() {
 
     function handleNotificationClick(notification: NotificationResponse) {
         if (!notification.isRead) {
-            markReadMutation.mutate(notification.id);
+            markReadMutation.mutate({ id: notification.id, wasUnread: true });
         }
         const route = getNotificationRoute(notification.referenceType, notification.referenceId);
         if (route) {
@@ -121,7 +124,7 @@ export function NotificationDropdown() {
                     )}
                 </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-96">
+            <DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-96">
                 <DropdownMenuLabel className="flex items-center justify-between">
                     <span className="text-base font-semibold">Notifications</span>
                     {unreadCount > 0 && (

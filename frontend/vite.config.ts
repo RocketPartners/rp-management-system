@@ -11,14 +11,9 @@ export default defineConfig({
         },
     },
     server: {
-        host: '0.0.0.0',
+        host: 'localhost',
         port: 5174,
         strictPort: true,
-        allowedHosts: ['dev-hris.geloflix.com'],
-        hmr: {
-            host: 'dev-hris.geloflix.com',
-            protocol: 'wss',
-        },
         proxy: {
             '/api': {
                 target: 'http://localhost:8080',

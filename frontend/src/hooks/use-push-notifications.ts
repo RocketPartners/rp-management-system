@@ -15,47 +15,48 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 
 export function usePushNotifications() {
     const { user } = useAuth();
-    const subscribedRef = useRef(false);
+    const lastUserId = useRef<number | null>(null);
 
     useEffect(() => {
-        if (!user?.id || subscribedRef.current) return;
+        if (!user?.id) return;
+        if (user.id === lastUserId.current) return;
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+        lastUserId.current = user.id;
 
         const setup = async () => {
             try {
-                // Register service worker
                 const registration = await navigator.serviceWorker.register('/sw.js');
                 await navigator.serviceWorker.ready;
 
-                // Check if already subscribed
                 const existing = await registration.pushManager.getSubscription();
                 if (existing) {
-                    subscribedRef.current = true;
+                    // Always re-register with backend for current user (handles user switch)
+                    const subJson = existing.toJSON();
+                    await apiPost('/notifications/push/subscribe', {
+                        endpoint: subJson.endpoint,
+                        keys: subJson.keys,
+                    });
                     return;
                 }
 
-                // Request permission
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') return;
 
-                // Get VAPID key from backend
                 const { publicKey } = await apiGet<{ publicKey: string }>('/notifications/push/vapid-key');
 
-                // Subscribe to push
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(publicKey),
                 });
 
-                // Send subscription to backend
                 const subJson = subscription.toJSON();
                 await apiPost('/notifications/push/subscribe', {
                     endpoint: subJson.endpoint,
                     keys: subJson.keys,
                 });
-
-                subscribedRef.current = true;
             } catch (err) {
+                if (err instanceof Error && err.message.includes('PushManager')) return;
                 console.warn('Push notification setup failed:', err);
             }
         };

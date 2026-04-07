@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client/dist/sockjs';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/auth-context';
 import { getAccessToken } from '@/lib/spring-boot-api';
 import type { PagedResponse } from '@/types';
 import type { NotificationResponse } from '@/types/notification';
-
-const WS_URL = (import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1')
-    .replace(/^http/, 'ws') + '/ws';
 
 const SOCKJS_URL = (import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1') + '/ws';
 
@@ -20,13 +18,11 @@ export function useNotificationSocket() {
         if (!user?.id) return;
 
         const client = new Client({
-            // Use SockJS transport via the HTTP URL
-            webSocketFactory: () => {
-                // SockJS connects over HTTP and upgrades
-                return new WebSocket(WS_URL + '/websocket');
-            },
-            connectHeaders: {
-                Authorization: `Bearer ${getAccessToken()}`,
+            webSocketFactory: () => new SockJS(SOCKJS_URL),
+            beforeConnect: () => {
+                client.connectHeaders = {
+                    Authorization: `Bearer ${getAccessToken()}`,
+                };
             },
             reconnectDelay: 5000,
             onConnect: () => {
@@ -34,7 +30,6 @@ export function useNotificationSocket() {
                     try {
                         const notification: NotificationResponse = JSON.parse(message.body);
 
-                        // Prepend to notification list cache
                         queryClient.setQueryData<PagedResponse<NotificationResponse>>(
                             ['notifications', 'list'],
                             (old) => {
@@ -47,7 +42,6 @@ export function useNotificationSocket() {
                             },
                         );
 
-                        // Increment unread count
                         queryClient.setQueryData<{ count: number }>(
                             ['notifications', 'unread-count'],
                             (old) => ({ count: (old?.count ?? 0) + 1 }),
