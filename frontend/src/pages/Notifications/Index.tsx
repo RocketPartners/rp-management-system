@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, CheckCheck } from 'lucide-react';
+import { useHaptics } from '@/hooks/use-haptics';
 import { apiGet, apiPatch } from '@/lib/spring-boot-api';
 import type { PagedResponse } from '@/types';
 import {
@@ -47,6 +48,7 @@ export default function NotificationsPage() {
     const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { tap, success } = useHaptics();
 
     const { data: unreadData } = useQuery({
         queryKey: ['notifications', 'unread-count'],
@@ -102,6 +104,7 @@ export default function NotificationsPage() {
     });
 
     function handleClick(notification: NotificationResponse) {
+        tap();
         if (!notification.isRead) markReadMutation.mutate(notification.id);
         const route = getNotificationRoute(notification.referenceType, notification.referenceId);
         if (route) navigate(route);
@@ -119,7 +122,7 @@ export default function NotificationsPage() {
                 </div>
                 {unreadCount > 0 && (
                     <button
-                        onClick={() => markAllReadMutation.mutate()}
+                        onClick={() => { success(); markAllReadMutation.mutate(); }}
                         className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3.5 py-2 text-xs font-medium text-blue-600 transition-colors active:bg-blue-100"
                     >
                         <CheckCheck className="h-3.5 w-3.5" />
@@ -133,7 +136,7 @@ export default function NotificationsPage() {
                 {FILTER_TABS.map((tab) => (
                     <button
                         key={tab.key}
-                        onClick={() => setActiveFilter(tab.key)}
+                        onClick={() => { tap(); setActiveFilter(tab.key); }}
                         className={cn(
                             'flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all',
                             activeFilter === tab.key

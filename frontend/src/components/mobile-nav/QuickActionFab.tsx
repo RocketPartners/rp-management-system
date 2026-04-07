@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ClipboardList, Home, HelpCircle, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useHaptics } from '@/hooks/use-haptics';
 import { glassClasses, scrimClass } from './glass-styles';
 
 const actions = [
@@ -13,8 +14,10 @@ const actions = [
 export function QuickActionFab() {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const { buzz, tap } = useHaptics();
 
     function handleAction(href: string) {
+        tap();
         setOpen(false);
         navigate(href);
     }
@@ -56,7 +59,7 @@ export function QuickActionFab() {
                     })}
                 </div>
                 <button
-                    onClick={() => setOpen(!open)}
+                    onClick={() => { buzz(); setOpen(!open); }}
                     className={cn(
                         'flex h-16 w-16 items-center justify-center rounded-full transition-transform duration-300',
                         glassClasses,

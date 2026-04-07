@@ -4,6 +4,7 @@ import { ChevronRight, LogOut, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { usePermission } from '@/hooks/usePermission';
+import { useHaptics } from '@/hooks/use-haptics';
 import { buildNavigation, type NavSection, type NavItemConfig } from '@/lib/navigation';
 import { glassClasses } from './glass-styles';
 import { MobileBottomSheet } from './MobileBottomSheet';
@@ -76,6 +77,7 @@ export function MoreSheet() {
     const { user, logout } = useAuth();
     const { can } = usePermission();
     const { pathname } = useLocation();
+    const { buzz } = useHaptics();
     const navigate = useNavigate();
     const navigation = buildNavigation(can);
 
@@ -90,7 +92,7 @@ export function MoreSheet() {
     return (
         <>
             <button
-                onClick={() => setOpen(true)}
+                onClick={() => { buzz(); setOpen(true); }}
                 className={cn('flex h-16 w-16 items-center justify-center rounded-full', glassClasses)}
                 aria-label="More navigation"
             >

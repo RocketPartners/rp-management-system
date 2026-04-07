@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useHaptics } from '@/hooks/use-haptics';
 import { useQuery } from '@tanstack/react-query';
 import { LayoutDashboard, Calendar, ClipboardList, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ function isTabActive(href: string, pathname: string): boolean {
 
 export function GlassPill() {
     const { pathname } = useLocation();
+    const { tap } = useHaptics();
     const navRef = useRef<HTMLElement>(null);
     const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const [indicator, setIndicator] = useState({ left: 0, width: 0 });
@@ -83,6 +85,7 @@ export function GlassPill() {
                         key={tab.name}
                         ref={(el) => { tabRefs.current[index] = el; }}
                         to={tab.href}
+                        onClick={tap}
                         className={cn(
                             'relative z-[1] flex flex-col items-center gap-0.5 rounded-full px-5 py-2',
                         )}
