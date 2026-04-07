@@ -80,15 +80,23 @@ export function MoreSheet() {
     const navigation = buildNavigation(can);
 
     // Two-phase open: mount first (open), then animate in (visible)
+    // Also lock body scroll when sheet is open
     useEffect(() => {
         if (open) {
-            // Mount the portal, then trigger CSS transition on next frame
+            document.body.style.overflow = 'hidden';
+            document.body.style.touchAction = 'none';
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => setVisible(true));
             });
         } else {
             setVisible(false);
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
         }
+        return () => {
+            document.body.style.overflow = '';
+            document.body.style.touchAction = '';
+        };
     }, [open]);
 
     const handleClose = useCallback(() => {
@@ -119,10 +127,10 @@ export function MoreSheet() {
             {/* Custom bottom sheet portal */}
             {open && (
                 <div className="fixed inset-0 z-50">
-                    {/* Scrim overlay — light, not dark */}
+                    {/* Scrim overlay — light, blocks touch passthrough */}
                     <div
                         className={cn(
-                            'absolute inset-0 bg-black/20 transition-opacity duration-300',
+                            'absolute inset-0 bg-black/20 transition-opacity duration-300 touch-none',
                             visible ? 'opacity-100' : 'opacity-0',
                         )}
                         onClick={handleClose}
@@ -157,8 +165,8 @@ export function MoreSheet() {
                             </div>
                         </div>
 
-                        {/* Scrollable navigation */}
-                        <div className="flex-1 overflow-y-auto px-3 py-2">
+                        {/* Scrollable navigation — overscroll-contain prevents scroll chaining to body */}
+                        <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-2">
                             {navigation.map((section: NavSection, idx: number) => (
                                 <div key={idx}>
                                     {section.type === 'divider' ? (

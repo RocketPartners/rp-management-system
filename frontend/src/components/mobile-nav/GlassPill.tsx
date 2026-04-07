@@ -50,8 +50,8 @@ export function GlassPill() {
                     >
                         <Icon
                             className={cn('h-6 w-6', active ? activeIconClass : inactiveIconClass)}
-                            fill={active ? 'currentColor' : 'none'}
-                            strokeWidth={active ? 0 : 1.8}
+                            fill={tab.name === 'Calendar' ? 'none' : active ? 'currentColor' : 'none'}
+                            strokeWidth={active ? (tab.name === 'Calendar' ? 2.5 : 0) : 1.8}
                         />
                         <span className={active ? activeLabelClass : inactiveLabelClass}>
                             {tab.name}
