@@ -118,16 +118,16 @@ function StatCard({
     };
     return (
         <Card>
-            <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
+            <CardContent className="p-3 lg:pt-6 lg:p-6">
+                <div className="flex items-center gap-3 lg:justify-between">
+                    <div className={`rounded-lg p-2 lg:order-2 lg:p-3 ${bgMap[color] ?? 'bg-gray-100'}`}>
+                        <Icon className={`h-5 w-5 lg:h-6 lg:w-6 ${textMap[color] ?? 'text-gray-600'}`} />
+                    </div>
                     <div>
-                        <p className="text-sm font-medium text-gray-600">{label}</p>
-                        <p className={`mt-2 text-3xl font-bold ${textMap[color] ?? 'text-gray-900'}`}>
+                        <p className="text-xs font-medium text-gray-600 lg:text-sm">{label}</p>
+                        <p className={`mt-0.5 text-xl font-bold lg:mt-2 lg:text-3xl ${textMap[color] ?? 'text-gray-900'}`}>
                             {value}
                         </p>
-                    </div>
-                    <div className={`rounded-lg p-3 ${bgMap[color] ?? 'bg-gray-100'}`}>
-                        <Icon className={`h-6 w-6 ${textMap[color] ?? 'text-gray-600'}`} />
                     </div>
                 </div>
             </CardContent>
@@ -195,9 +195,9 @@ function MyDashboardTab({ data, isLoading }: { data?: MyDashboardResponse; isLoa
     }
 
     return (
-        <div className="space-y-6">
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+        <div className="space-y-4 lg:space-y-6">
+            {/* Quick Stats — 2x2 on mobile, 4-col on desktop */}
+            <div className="grid grid-cols-2 gap-3 lg:gap-6 lg:grid-cols-4">
                 <StatCard label="Assigned Assets" value={data?.assignedAssetsCount ?? 0} icon={Laptop} color="blue" />
                 <StatCard label="Upcoming Leaves" value={data?.upcomingLeavesCount ?? 0} icon={Calendar} color="purple" />
                 <StatCard label="Pending Requests" value={data?.pendingLeavesCount ?? 0} icon={Clock} color="yellow" />
@@ -205,80 +205,161 @@ function MyDashboardTab({ data, isLoading }: { data?: MyDashboardResponse; isLoa
             </div>
 
             {/* Main Content Grid */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                {/* Left Column */}
-                <div className="space-y-6 lg:col-span-2">
-                    {/* Leave Balances */}
-                    <Card>
-                        <CardHeader>
+            <div className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-3">
+                {/* Left Column — on mobile this is the ONLY column, reordered */}
+                <div className="space-y-4 lg:space-y-6 lg:col-span-2">
+                    {/* Pending Leave Requests — shown FIRST on mobile (actionable) */}
+                    {data?.pendingLeaves && data.pendingLeaves.length > 0 && (
+                        <Card className="order-1 lg:order-3">
+                            <CardHeader className="px-4 py-3 lg:px-6 lg:py-4">
+                                <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
+                                    <Clock className="h-5 w-5 text-yellow-600" />
+                                    Pending Leave Requests
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="px-4 pb-4 lg:px-6 lg:pb-6">
+                                <div className="space-y-2 lg:space-y-3">
+                                    {data.pendingLeaves.map((leave) => (
+                                        <LeaveItemCard key={leave.id} leave={leave} variant="pending" />
+                                    ))}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {/* Upcoming Leaves */}
+                    <Card className="order-2">
+                        <CardHeader className="px-4 py-3 lg:px-6 lg:py-4">
+                            <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
+                                <Calendar className="h-5 w-5" />
+                                Upcoming Leaves
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="px-4 pb-4 lg:px-6 lg:pb-6">
+                            {data?.upcomingLeaves && data.upcomingLeaves.length > 0 ? (
+                                <div className="space-y-2 lg:space-y-3">
+                                    {data.upcomingLeaves.map((leave) => (
+                                        <LeaveItemCard key={leave.id} leave={leave} variant="upcoming" />
+                                    ))}
+                                    <Button asChild variant="outline" className="w-full">
+                                        <Link to="/my-leaves">View All Leaves</Link>
+                                    </Button>
+                                </div>
+                            ) : (
+                                <p className="py-4 text-sm text-gray-500">No upcoming leaves</p>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Leave Balances — horizontal scroll on mobile, grid on desktop */}
+                    <Card className="order-3 lg:order-1">
+                        <CardHeader className="px-4 py-3 lg:px-6 lg:py-4">
                             <div className="flex items-center justify-between">
-                                <CardTitle className="flex items-center gap-2">
+                                <CardTitle className="flex items-center gap-2 text-base lg:text-lg">
                                     <Calendar className="h-5 w-5" />
-                                    My Leave Balances ({new Date().getFullYear()})
+                                    Leave Balances
                                 </CardTitle>
                                 <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
                                     <Link to="/my-leaves/apply">
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Apply for Leave
+                                        <Plus className="mr-1 h-3.5 w-3.5 lg:mr-2 lg:h-4 lg:w-4" />
+                                        <span className="hidden sm:inline">Apply for Leave</span>
+                                        <span className="sm:hidden">Apply</span>
                                     </Link>
                                 </Button>
                             </div>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="px-4 pb-4 lg:px-6 lg:pb-6">
                             {data?.leaveBalances && data.leaveBalances.length > 0 ? (
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                    {data.leaveBalances.map((balance) => (
-                                        <div
-                                            key={balance.id}
-                                            className="rounded-lg border-2 p-4 transition-shadow hover:shadow-md"
-                                            style={{ borderColor: balance.leaveType.color + '40' }}
-                                        >
-                                            <div className="mb-3 flex items-center justify-between">
-                                                <div className="flex items-center gap-2">
+                                <>
+                                    {/* Mobile: horizontal scroll chips */}
+                                    <div className="flex gap-3 overflow-x-auto pb-2 lg:hidden" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+                                        {data.leaveBalances.map((balance) => (
+                                            <div
+                                                key={balance.id}
+                                                className="flex-shrink-0 rounded-xl border-2 p-3"
+                                                style={{ borderColor: balance.leaveType.color + '40', width: '140px' }}
+                                            >
+                                                <div className="mb-1.5 flex items-center gap-1.5">
                                                     <div
-                                                        className="h-3 w-3 rounded-full"
+                                                        className="h-2.5 w-2.5 rounded-full"
                                                         style={{ backgroundColor: balance.leaveType.color }}
                                                     />
-                                                    <span className="font-medium text-gray-900">
+                                                    <span className="truncate text-xs font-medium text-gray-700">
                                                         {balance.leaveType.name}
                                                     </span>
                                                 </div>
-                                                <Badge
-                                                    variant="outline"
-                                                    className="text-xs"
-                                                    style={{
-                                                        borderColor: balance.leaveType.color + '40',
-                                                        color: balance.leaveType.color,
-                                                    }}
-                                                >
-                                                    {balance.leaveType.code}
-                                                </Badge>
-                                            </div>
-                                            <div className="mb-2 flex items-baseline gap-2">
-                                                <span className={`text-3xl font-bold ${getLeaveBalanceColor(balance)}`}>
-                                                    {balance.remainingDays}
-                                                </span>
-                                                <span className="text-gray-500">/ {balance.totalDays} days</span>
-                                            </div>
-                                            <Progress
-                                                value={
-                                                    balance.totalDays > 0
-                                                        ? (balance.remainingDays / balance.totalDays) * 100
-                                                        : 0
-                                                }
-                                                className="mb-3 h-2"
-                                            />
-                                            <div className="flex justify-between text-xs text-gray-600">
-                                                <span>Used: {balance.usedDays}</span>
-                                                {balance.carriedOverDays > 0 && (
-                                                    <span className="text-blue-600">
-                                                        +{balance.carriedOverDays} carried over
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className={`text-xl font-bold ${getLeaveBalanceColor(balance)}`}>
+                                                        {balance.remainingDays}
                                                     </span>
-                                                )}
+                                                    <span className="text-xs text-gray-400">/ {balance.totalDays}</span>
+                                                </div>
+                                                <Progress
+                                                    value={
+                                                        balance.totalDays > 0
+                                                            ? (balance.remainingDays / balance.totalDays) * 100
+                                                            : 0
+                                                    }
+                                                    className="mt-2 h-1.5"
+                                                />
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                        ))}
+                                    </div>
+                                    {/* Desktop: existing grid layout */}
+                                    <div className="hidden gap-4 md:grid-cols-2 lg:grid">
+                                        {data.leaveBalances.map((balance) => (
+                                            <div
+                                                key={balance.id}
+                                                className="rounded-lg border-2 p-4 transition-shadow hover:shadow-md"
+                                                style={{ borderColor: balance.leaveType.color + '40' }}
+                                            >
+                                                <div className="mb-3 flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <div
+                                                            className="h-3 w-3 rounded-full"
+                                                            style={{ backgroundColor: balance.leaveType.color }}
+                                                        />
+                                                        <span className="font-medium text-gray-900">
+                                                            {balance.leaveType.name}
+                                                        </span>
+                                                    </div>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                        style={{
+                                                            borderColor: balance.leaveType.color + '40',
+                                                            color: balance.leaveType.color,
+                                                        }}
+                                                    >
+                                                        {balance.leaveType.code}
+                                                    </Badge>
+                                                </div>
+                                                <div className="mb-2 flex items-baseline gap-2">
+                                                    <span className={`text-3xl font-bold ${getLeaveBalanceColor(balance)}`}>
+                                                        {balance.remainingDays}
+                                                    </span>
+                                                    <span className="text-gray-500">/ {balance.totalDays} days</span>
+                                                </div>
+                                                <Progress
+                                                    value={
+                                                        balance.totalDays > 0
+                                                            ? (balance.remainingDays / balance.totalDays) * 100
+                                                            : 0
+                                                    }
+                                                    className="mb-3 h-2"
+                                                />
+                                                <div className="flex justify-between text-xs text-gray-600">
+                                                    <span>Used: {balance.usedDays}</span>
+                                                    {balance.carriedOverDays > 0 && (
+                                                        <span className="text-blue-600">
+                                                            +{balance.carriedOverDays} carried over
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
                             ) : (
                                 <Alert className="border-yellow-200 bg-yellow-50">
                                     <AlertCircle className="h-4 w-4 text-yellow-600" />
@@ -289,56 +370,10 @@ function MyDashboardTab({ data, isLoading }: { data?: MyDashboardResponse; isLoa
                             )}
                         </CardContent>
                     </Card>
-
-                    {/* Upcoming Leaves */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Calendar className="h-5 w-5" />
-                                Upcoming Leaves
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {data?.upcomingLeaves && data.upcomingLeaves.length > 0 ? (
-                                <div className="space-y-3">
-                                    {data.upcomingLeaves.map((leave) => (
-                                        <LeaveItemCard key={leave.id} leave={leave} variant="upcoming" />
-                                    ))}
-                                    <Button asChild variant="outline" className="w-full">
-                                        <Link to="/my-leaves">View All Leaves</Link>
-                                    </Button>
-                                </div>
-                            ) : (
-                                <div className="py-8 text-center text-gray-500">
-                                    <Calendar className="mx-auto mb-2 h-12 w-12 text-gray-400" />
-                                    <p>No upcoming leaves</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    {/* Pending Leave Requests */}
-                    {data?.pendingLeaves && data.pendingLeaves.length > 0 && (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2">
-                                    <Clock className="h-5 w-5 text-yellow-600" />
-                                    Pending Leave Requests
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-3">
-                                    {data.pendingLeaves.map((leave) => (
-                                        <LeaveItemCard key={leave.id} leave={leave} variant="pending" />
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
                 </div>
 
-                {/* Right Sidebar */}
-                <div className="space-y-6">
+                {/* Right Sidebar — hidden on mobile, visible on desktop */}
+                <div className="hidden space-y-6 lg:block">
                     {/* My Profile */}
                     <Card>
                         <CardHeader>
@@ -823,16 +858,16 @@ export default function Dashboard() {
 
             {/* Header */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
+                <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-blue-100 p-2">
+                        <div className="hidden rounded-lg bg-blue-100 p-2 lg:block">
                             <LayoutDashboard className="h-6 w-6 text-blue-600" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold text-gray-900">
+                            <h2 className="text-2xl font-bold text-gray-900 lg:text-3xl">
                                 Welcome back, {user?.firstName || user?.name}!
                             </h2>
-                            <p className="mt-1 text-gray-600">
+                            <p className="mt-0.5 text-sm text-gray-600 lg:mt-1 lg:text-base">
                                 Here's what's happening with your account
                             </p>
                         </div>
