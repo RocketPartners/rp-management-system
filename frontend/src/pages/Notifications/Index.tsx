@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -53,18 +53,28 @@ export default function NotificationsPage() {
     const { data: unreadData } = useQuery({
         queryKey: ['notifications', 'unread-count'],
         queryFn: () => apiGet<{ count: number }>('/notifications/unread-count'),
-        refetchInterval: 30_000,
+        refetchInterval: 10_000,
         refetchIntervalInBackground: false,
     });
     const unreadCount = unreadData?.count ?? 0;
 
-    const { data: notificationsData, isLoading } = useQuery({
+    const { data: notificationsData, isLoading, refetch } = useQuery({
         queryKey: ['notifications', 'list'],
         queryFn: () => apiGet<PagedResponse<NotificationResponse>>('/notifications?page=0&size=15'),
         staleTime: 0,
         refetchOnWindowFocus: true,
     });
     const notifications = notificationsData?.content ?? [];
+
+    // Refetch list when unread count changes (detects new notifications
+    // even if WebSocket didn't update the list cache)
+    const prevUnread = useRef(unreadCount);
+    useEffect(() => {
+        if (unreadCount !== prevUnread.current) {
+            prevUnread.current = unreadCount;
+            refetch();
+        }
+    }, [unreadCount, refetch]);
     const filtered = filterNotifications(notifications, activeFilter);
 
     const markReadMutation = useMutation({
