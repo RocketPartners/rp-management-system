@@ -225,32 +225,32 @@ export default function MyLeaves() {
 
             {/* Header */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
+                <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-blue-100 p-2">
+                            <div className="hidden rounded-lg bg-blue-100 p-2 lg:block">
                                 <Calendar className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">
-                                    My Leave Requests
+                                <h2 className="text-xl font-bold text-gray-900 lg:text-3xl">
+                                    My Leaves
                                 </h2>
-                                <p className="mt-1 text-gray-600">
+                                <p className="hidden mt-1 text-gray-600 lg:block">
                                     View and manage your leave requests
                                 </p>
                             </div>
                         </div>
-                        <Button asChild className="bg-blue-600 hover:bg-blue-700">
+                        <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700 lg:size-default">
                             <Link to="/my-leaves/apply">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Apply for Leave
+                                <Plus className="mr-1.5 h-4 w-4" />
+                                Apply
                             </Link>
                         </Button>
                     </div>
                 </div>
             </div>
 
-            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:px-6 lg:space-y-6 lg:py-8 lg:px-8">
                 {/* Flash Messages */}
                 {successMsg && (
                     <Alert className="animate-fade-in border-green-200 bg-green-50">
@@ -269,153 +269,197 @@ export default function MyLeaves() {
                     </Alert>
                 )}
 
-                {/* Leave Balance Summary */}
+                {/* Leave Balance Summary — horizontal scroll on mobile, grid on desktop */}
                 {balances.length > 0 && (
-                    <div className="animate-fade-in grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        {balances.map((balance) => (
-                            <Card key={balance.id}>
-                                <CardContent className="pt-6">
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <Badge
-                                                variant="outline"
-                                                className="text-xs"
-                                            >
-                                                {balance.leaveTypeCode}
-                                            </Badge>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-600">
-                                                {balance.leaveTypeName}
-                                            </p>
-                                            <div className="mt-1 flex items-baseline gap-2">
-                                                <span
-                                                    className={`text-3xl font-bold ${balance.remainingDays < 3 ? 'text-red-600' : 'text-gray-900'}`}
-                                                >
-                                                    {balance.remainingDays}
-                                                </span>
-                                                <span className="text-gray-500">
-                                                    / {balance.totalDays}
-                                                </span>
-                                            </div>
-                                            <p className="mt-1 text-xs text-gray-500">
-                                                days remaining
-                                            </p>
-                                        </div>
-                                        <Progress
-                                            value={
-                                                (balance.remainingDays /
-                                                    balance.totalDays) *
-                                                100
-                                            }
-                                            className="h-2"
-                                        />
+                    <>
+                        {/* Mobile: horizontal scroll */}
+                        <div className="flex gap-3 overflow-x-auto pb-1 lg:hidden" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
+                            {balances.map((balance) => (
+                                <div
+                                    key={balance.id}
+                                    className="flex-shrink-0 rounded-xl border border-gray-200 bg-white p-3"
+                                    style={{ width: '140px' }}
+                                >
+                                    <p className="truncate text-xs font-medium text-gray-600">{balance.leaveTypeName}</p>
+                                    <div className="mt-1 flex items-baseline gap-1">
+                                        <span className={`text-xl font-bold ${balance.remainingDays < 3 ? 'text-red-600' : 'text-gray-900'}`}>
+                                            {balance.remainingDays}
+                                        </span>
+                                        <span className="text-xs text-gray-400">/ {balance.totalDays}</span>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
+                                    <Progress value={(balance.remainingDays / balance.totalDays) * 100} className="mt-2 h-1.5" />
+                                </div>
+                            ))}
+                        </div>
+                        {/* Desktop: grid */}
+                        <div className="hidden animate-fade-in gap-6 md:grid-cols-2 lg:grid lg:grid-cols-4">
+                            {balances.map((balance) => (
+                                <Card key={balance.id}>
+                                    <CardContent className="pt-6">
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <Badge variant="outline" className="text-xs">{balance.leaveTypeCode}</Badge>
+                                            </div>
+                                            <div>
+                                                <p className="text-sm text-gray-600">{balance.leaveTypeName}</p>
+                                                <div className="mt-1 flex items-baseline gap-2">
+                                                    <span className={`text-3xl font-bold ${balance.remainingDays < 3 ? 'text-red-600' : 'text-gray-900'}`}>
+                                                        {balance.remainingDays}
+                                                    </span>
+                                                    <span className="text-gray-500">/ {balance.totalDays}</span>
+                                                </div>
+                                                <p className="mt-1 text-xs text-gray-500">days remaining</p>
+                                            </div>
+                                            <Progress value={(balance.remainingDays / balance.totalDays) * 100} className="h-2" />
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
+                    </>
                 )}
 
                 {/* Filters */}
                 <Card className="animate-fade-in animation-delay-100 shadow-sm">
-                    <CardContent className="pt-6">
-                        <div className="flex flex-wrap items-end gap-3">
-                            <div className="min-w-[200px] flex-1 space-y-1.5">
-                                <label className="text-sm font-medium text-gray-700">
-                                    Year
-                                </label>
-                                <Select
-                                    value={year.toString()}
-                                    onValueChange={(value) =>
-                                        setYear(parseInt(value))
-                                    }
-                                >
-                                    <SelectTrigger className="h-10">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {availableYears.map((y) => (
-                                            <SelectItem
-                                                key={y}
-                                                value={y.toString()}
-                                            >
-                                                {y}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="min-w-[200px] flex-1 space-y-1.5">
-                                <label className="text-sm font-medium text-gray-700">
-                                    Status
-                                </label>
-                                <Select
-                                    value={status}
-                                    onValueChange={setStatus}
-                                >
-                                    <SelectTrigger className="h-10">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">
-                                            All Status
-                                        </SelectItem>
-                                        <SelectItem value="PENDING_MANAGER">
-                                            Pending Review
-                                        </SelectItem>
-                                        <SelectItem value="PENDING_HR">
-                                            Pending HR
-                                        </SelectItem>
-                                        <SelectItem value="APPROVED">
-                                            Approved
-                                        </SelectItem>
-                                        <SelectItem value="REJECTED_BY_MANAGER">
-                                            Rejected
-                                        </SelectItem>
-                                        <SelectItem value="REJECTED_BY_HR">
-                                            Rejected by HR
-                                        </SelectItem>
-                                        <SelectItem value="CANCELLED">
-                                            Cancelled
-                                        </SelectItem>
-                                    </SelectContent>
-                                </Select>
+                    <CardContent className="p-3 lg:pt-6 lg:p-6">
+                        <div className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end">
+                            <div className="flex gap-2 lg:min-w-[200px] lg:flex-1">
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs font-medium text-gray-700 lg:text-sm">Year</label>
+                                    <Select value={year.toString()} onValueChange={(value) => setYear(parseInt(value))}>
+                                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            {availableYears.map((y) => (
+                                                <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <label className="text-xs font-medium text-gray-700 lg:text-sm">Status</label>
+                                    <Select value={status} onValueChange={setStatus}>
+                                        <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Status</SelectItem>
+                                            <SelectItem value="PENDING_MANAGER">Pending Review</SelectItem>
+                                            <SelectItem value="PENDING_HR">Pending HR</SelectItem>
+                                            <SelectItem value="APPROVED">Approved</SelectItem>
+                                            <SelectItem value="REJECTED_BY_MANAGER">Rejected</SelectItem>
+                                            <SelectItem value="REJECTED_BY_HR">Rejected by HR</SelectItem>
+                                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
 
                             <div className="flex gap-2">
-                                <Button
-                                    onClick={handleFilter}
-                                    className="h-10 bg-blue-600 hover:bg-blue-700"
-                                >
-                                    Apply Filters
+                                <Button onClick={handleFilter} className="h-10 flex-1 bg-blue-600 hover:bg-blue-700 lg:flex-none">
+                                    Apply
                                 </Button>
                                 {hasFilters && (
-                                    <Button
-                                        variant="outline"
-                                        onClick={handleReset}
-                                        className="h-10"
-                                    >
-                                        <X className="mr-2 h-4 w-4" />
-                                        Reset
+                                    <Button variant="outline" onClick={handleReset} className="h-10">
+                                        <X className="h-4 w-4 lg:mr-2" />
+                                        <span className="hidden lg:inline">Reset</span>
                                     </Button>
                                 )}
                             </div>
                         </div>
 
-                        <div className="mt-4 border-t pt-4 text-sm text-gray-600">
+                        <div className="mt-3 border-t pt-3 text-xs text-gray-600 lg:mt-4 lg:pt-4 lg:text-sm">
                             Showing{' '}
-                            <span className="font-semibold text-gray-900">
-                                {totalElements}
-                            </span>{' '}
+                            <span className="font-semibold text-gray-900">{totalElements}</span>{' '}
                             {totalElements === 1 ? 'request' : 'requests'}
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Leave Requests Table */}
-                <Card className="animate-fade-in animation-delay-200 shadow-sm">
+                {/* Leave Requests — cards on mobile, table on desktop */}
+
+                {/* Mobile card list */}
+                <div className="space-y-2 lg:hidden">
+                    {leaves.length > 0 ? (
+                        leaves.map((leave) => {
+                            const statusStyle = getStatusStyle(leave.status);
+                            const StatusIcon = statusStyle.icon;
+                            return (
+                                <Link
+                                    key={leave.id}
+                                    to={`/my-leaves/${leave.id}`}
+                                    className="block rounded-2xl border border-gray-100 bg-white p-4 transition-all active:scale-[0.98]"
+                                >
+                                    <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-2.5">
+                                            <div
+                                                className="h-3 w-3 rounded-full"
+                                                style={{ backgroundColor: leave.leaveTypeColor || '#3B82F6' }}
+                                            />
+                                            <span className="text-sm font-semibold text-gray-900">{leave.leaveTypeName}</span>
+                                        </div>
+                                        <Badge className={`${statusStyle.bg} ${statusStyle.text} ${statusStyle.border} flex items-center gap-1 border text-[11px]`}>
+                                            <StatusIcon className="h-3 w-3" />
+                                            {leave.statusLabel || formatStatusLabel(leave.status)}
+                                        </Badge>
+                                    </div>
+                                    <div className="mt-2.5 flex items-center gap-3 text-xs text-gray-500">
+                                        <span>
+                                            {new Date(leave.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                            {leave.startDate !== leave.endDate && (
+                                                <> – {new Date(leave.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</>
+                                            )}
+                                        </span>
+                                        <span className="text-gray-300">·</span>
+                                        <span>{leave.totalDays} {leave.totalDays === 1 ? 'day' : 'days'}</span>
+                                    </div>
+                                </Link>
+                            );
+                        })
+                    ) : (
+                        <div className="py-12 text-center">
+                            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+                                <Calendar className="h-6 w-6 text-gray-400" />
+                            </div>
+                            <p className="text-sm font-medium text-gray-900">
+                                {hasFilters ? 'No matching requests' : 'No leave requests yet'}
+                            </p>
+                            <Button asChild size="sm" className="mt-3 bg-blue-600 hover:bg-blue-700">
+                                <Link to="/my-leaves/apply">
+                                    <Plus className="mr-1.5 h-4 w-4" />
+                                    Apply for Leave
+                                </Link>
+                            </Button>
+                        </div>
+                    )}
+                </div>
+
+                {/* Mobile pagination */}
+                {leaves.length > 0 && totalPages > 1 && (
+                    <div className="flex items-center justify-between py-2 lg:hidden">
+                        <p className="text-xs text-gray-500">
+                            Page {page + 1} of {totalPages}
+                        </p>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                                disabled={page === 0}
+                            >
+                                <ChevronLeft className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                                disabled={page >= totalPages - 1}
+                            >
+                                <ChevronRight className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Desktop table */}
+                <Card className="hidden animate-fade-in animation-delay-200 shadow-sm lg:block">
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>

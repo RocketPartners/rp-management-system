@@ -120,15 +120,19 @@ export default function NotificationsPage() {
                         <p className="text-xs text-gray-500 mt-0.5">{unreadCount} unread</p>
                     )}
                 </div>
-                {unreadCount > 0 && (
-                    <button
-                        onClick={() => { success(); markAllReadMutation.mutate(); }}
-                        className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3.5 py-2 text-xs font-medium text-blue-600 transition-colors active:bg-blue-100"
-                    >
-                        <CheckCheck className="h-3.5 w-3.5" />
-                        Mark all read
-                    </button>
-                )}
+                <button
+                    onClick={() => { success(); markAllReadMutation.mutate(); }}
+                    disabled={unreadCount === 0}
+                    className={cn(
+                        'flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium transition-colors',
+                        unreadCount > 0
+                            ? 'bg-blue-50 text-blue-600 active:bg-blue-100'
+                            : 'bg-gray-50 text-gray-400',
+                    )}
+                >
+                    <CheckCheck className="h-3.5 w-3.5" />
+                    Mark all read
+                </button>
             </div>
 
             {/* Filter tabs — pill style with sliding background */}
