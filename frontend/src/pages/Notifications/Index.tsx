@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
+import { Bell, CheckCheck } from 'lucide-react';
 import { apiGet, apiPatch } from '@/lib/spring-boot-api';
 import type { PagedResponse } from '@/types';
 import {
@@ -31,6 +32,15 @@ function filterNotifications(notifications: NotificationResponse[], filter: Filt
         default:
             return notifications;
     }
+}
+
+function getIconBg(colorClass: string): string {
+    if (colorClass.includes('green')) return 'bg-emerald-500/10';
+    if (colorClass.includes('blue')) return 'bg-blue-500/10';
+    if (colorClass.includes('yellow') || colorClass.includes('orange')) return 'bg-amber-500/10';
+    if (colorClass.includes('red')) return 'bg-red-500/10';
+    if (colorClass.includes('indigo') || colorClass.includes('teal')) return 'bg-indigo-500/10';
+    return 'bg-gray-500/10';
 }
 
 export default function NotificationsPage() {
@@ -98,29 +108,37 @@ export default function NotificationsPage() {
     }
 
     return (
-        <div className="mx-auto max-w-2xl px-4 py-6">
-            <div className="flex items-center justify-between mb-4">
-                <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
+        <div className="mx-auto max-w-2xl px-4 py-4 lg:py-6">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+                <div>
+                    <h1 className="text-xl font-bold text-gray-900 lg:text-2xl">Notifications</h1>
+                    {unreadCount > 0 && (
+                        <p className="text-xs text-gray-500 mt-0.5">{unreadCount} unread</p>
+                    )}
+                </div>
                 {unreadCount > 0 && (
                     <button
                         onClick={() => markAllReadMutation.mutate()}
-                        className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                        className="flex items-center gap-1.5 rounded-full bg-blue-50 px-3.5 py-2 text-xs font-medium text-blue-600 transition-colors active:bg-blue-100"
                     >
-                        Mark all as read
+                        <CheckCheck className="h-3.5 w-3.5" />
+                        Mark all read
                     </button>
                 )}
             </div>
 
-            <div className="flex gap-2 mb-4">
+            {/* Filter tabs — pill style with sliding background */}
+            <div className="flex gap-1.5 rounded-xl bg-gray-100/80 p-1 mb-4">
                 {FILTER_TABS.map((tab) => (
                     <button
                         key={tab.key}
                         onClick={() => setActiveFilter(tab.key)}
                         className={cn(
-                            'rounded-full px-3 py-1.5 text-xs font-medium transition-colors',
+                            'flex-1 rounded-lg px-3 py-2 text-xs font-medium transition-all',
                             activeFilter === tab.key
-                                ? 'bg-gray-900 text-white'
-                                : 'text-gray-500 hover:bg-gray-100',
+                                ? 'bg-white text-gray-900 shadow-sm'
+                                : 'text-gray-500 active:bg-white/50',
                         )}
                     >
                         {tab.label}
@@ -128,48 +146,74 @@ export default function NotificationsPage() {
                 ))}
             </div>
 
+            {/* Notification list */}
             {isLoading ? (
-                <p className="text-sm text-gray-500 py-8">Loading...</p>
+                <div className="space-y-3 py-4">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex gap-3 rounded-2xl bg-white p-4 animate-pulse">
+                            <div className="h-10 w-10 rounded-xl bg-gray-100" />
+                            <div className="flex-1 space-y-2">
+                                <div className="h-4 w-3/4 rounded bg-gray-100" />
+                                <div className="h-3 w-1/2 rounded bg-gray-100" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : filtered.length === 0 ? (
-                <p className="text-sm text-gray-500 py-8">No notifications</p>
+                <div className="py-16 text-center">
+                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
+                        <Bell className="h-6 w-6 text-gray-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">All caught up</p>
+                    <p className="mt-1 text-xs text-gray-500">
+                        {activeFilter === 'all' ? 'No notifications yet' : `No ${activeFilter} notifications`}
+                    </p>
+                </div>
             ) : (
-                <div>
+                <div className="space-y-2">
                     {filtered.map((notification) => {
                         const meta = getNotificationMeta(notification.type);
                         const Icon = meta.icon;
+                        const isUnread = !notification.isRead;
                         return (
                             <button
                                 key={notification.id}
                                 onClick={() => handleClick(notification)}
                                 className={cn(
-                                    'flex w-full items-start gap-3 rounded-xl px-3 py-3.5 text-left transition-colors hover:bg-gray-50',
-                                    !notification.isRead && 'bg-blue-50/50',
+                                    'flex w-full items-start gap-3 rounded-2xl p-4 text-left transition-all active:scale-[0.98]',
+                                    isUnread
+                                        ? 'bg-white shadow-[0_1px_3px_rgba(0,0,0,0.06),0_0_0_1px_rgba(37,99,235,0.08)] border border-blue-100/60'
+                                        : 'bg-white/60 border border-gray-100',
                                 )}
                             >
-                                <div className={cn('mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]', {
-                                    'bg-green-100': meta.color.includes('green'),
-                                    'bg-blue-100': meta.color.includes('blue'),
-                                    'bg-yellow-100': meta.color.includes('yellow') || meta.color.includes('orange'),
-                                    'bg-red-100': meta.color.includes('red'),
-                                    'bg-indigo-100': meta.color.includes('indigo') || meta.color.includes('teal'),
-                                    'bg-gray-100': meta.color.includes('gray'),
-                                })}>
-                                    <Icon className={cn('h-[18px] w-[18px]', meta.color)} />
+                                {/* Icon */}
+                                <div className={cn(
+                                    'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                                    getIconBg(meta.color),
+                                )}>
+                                    <Icon className={cn('h-5 w-5', meta.color)} />
                                 </div>
+
+                                {/* Content */}
                                 <div className="min-w-0 flex-1">
-                                    <p className={cn('text-sm text-gray-900', !notification.isRead ? 'font-semibold' : 'font-medium')}>
-                                        {notification.title}
-                                    </p>
-                                    <p className="mt-0.5 line-clamp-2 text-xs text-gray-500">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <p className={cn(
+                                            'text-sm text-gray-900 leading-snug',
+                                            isUnread ? 'font-semibold' : 'font-medium',
+                                        )}>
+                                            {notification.title}
+                                        </p>
+                                        {isUnread && (
+                                            <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                                        )}
+                                    </div>
+                                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-gray-500">
                                         {notification.message}
                                     </p>
-                                    <p className="mt-1 text-xs text-gray-400">
+                                    <p className="mt-1.5 text-[11px] text-gray-400">
                                         {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                                     </p>
                                 </div>
-                                {!notification.isRead && (
-                                    <div className="mt-2 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
-                                )}
                             </button>
                         );
                     })}
