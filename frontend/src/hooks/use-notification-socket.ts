@@ -9,8 +9,6 @@ import type { NotificationResponse } from '@/types/notification';
 const WS_URL = (import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1')
     .replace(/^http/, 'ws') + '/ws';
 
-const SOCKJS_URL = (import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1') + '/ws';
-
 export function useNotificationSocket() {
     const { user } = useAuth();
     const queryClient = useQueryClient();
