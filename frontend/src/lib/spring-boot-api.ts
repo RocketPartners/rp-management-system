@@ -1,14 +1,31 @@
 const API_URL = import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1';
 
-let accessToken: string | null = localStorage.getItem('accessToken');
-let refreshToken: string | null = localStorage.getItem('refreshToken');
+const REMEMBER_ME_KEY = 'rememberMe';
+
+// Get the remember me preference (defaults to true for backwards compatibility)
+function getRememberMePreference(): boolean {
+    const value = localStorage.getItem(REMEMBER_ME_KEY);
+    return value !== 'false'; // defaults to true
+}
+
+export function setRememberMe(remember: boolean) {
+    localStorage.setItem(REMEMBER_ME_KEY, String(remember));
+}
+
+function getStorage(): Storage {
+    return getRememberMePreference() ? localStorage : sessionStorage;
+}
+
+let accessToken: string | null = getStorage().getItem('accessToken');
+let refreshToken: string | null = getStorage().getItem('refreshToken');
 let tokenExpiry: number | null = null;
 
 function persistTokens() {
-    if (accessToken) localStorage.setItem('accessToken', accessToken);
-    else localStorage.removeItem('accessToken');
-    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
-    else localStorage.removeItem('refreshToken');
+    const storage = getStorage();
+    if (accessToken) storage.setItem('accessToken', accessToken);
+    else storage.removeItem('accessToken');
+    if (refreshToken) storage.setItem('refreshToken', refreshToken);
+    else storage.removeItem('refreshToken');
 }
 
 export function getAccessToken() {
@@ -100,7 +117,12 @@ export async function logout() {
     accessToken = null;
     refreshToken = null;
     tokenExpiry = null;
-    persistTokens();
+
+    // Clear tokens from both storages to ensure clean logout
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}) {

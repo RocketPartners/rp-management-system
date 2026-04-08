@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/auth-context';
+import { setRememberMe } from '@/lib/spring-boot-api';
 import { AlertCircle, Lock, Mail } from 'lucide-react';
 import { type FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -53,6 +54,7 @@ export default function Login() {
         async (response: { credential: string }) => {
             setErrors({});
             try {
+                setRememberMe(true); // Google login always uses localStorage
                 await loginWithGoogle(response.credential);
                 navigate('/dashboard', { replace: true });
             } catch (err) {
@@ -96,6 +98,7 @@ export default function Login() {
         setErrors({});
 
         try {
+            setRememberMe(remember);
             await login(email, password);
             navigate('/dashboard', { replace: true });
         } catch (err) {
