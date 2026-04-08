@@ -27,6 +27,7 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
     const dragStartY = useRef(0);
     const isDragging = useRef(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         if (open) {
@@ -50,11 +51,17 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
     const handleClose = useCallback(() => {
         setDragY(0);
         setVisible(false);
-        setTimeout(() => {
+        closeTimerRef.current = setTimeout(() => {
             setMounted(false);
             onOpenChange(false);
         }, 350);
     }, [onOpenChange]);
+
+    useEffect(() => {
+        return () => {
+            if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+        };
+    }, []);
 
     // Header zone drag — always initiates
     const onHeaderTouchStart = useCallback((e: React.TouchEvent) => {
@@ -86,17 +93,24 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
         }
     }, []);
 
-    const onScrollTouchMove = useCallback((e: React.TouchEvent) => {
-        if (!isDragging.current) return;
-        const dy = e.touches[0].clientY - dragStartY.current;
-        if (dy > 0) {
-            e.preventDefault();
-            setDragY(dy);
-        } else {
-            isDragging.current = false;
-            setDragY(0);
-        }
-    }, []);
+    // Native touchmove for scroll area — must be non-passive to preventDefault
+    useEffect(() => {
+        const el = scrollRef.current;
+        if (!el || !mounted) return;
+        const handler = (e: TouchEvent) => {
+            if (!isDragging.current) return;
+            const dy = e.touches[0].clientY - dragStartY.current;
+            if (dy > 0) {
+                e.preventDefault();
+                setDragY(dy);
+            } else {
+                isDragging.current = false;
+                setDragY(0);
+            }
+        };
+        el.addEventListener('touchmove', handler, { passive: false });
+        return () => el.removeEventListener('touchmove', handler);
+    }, [mounted]);
 
     const onScrollTouchEnd = useCallback(() => {
         if (!isDragging.current) return;
@@ -114,6 +128,7 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
         <div className="fixed inset-0 z-50">
             {/* Scrim */}
             <div
+                aria-hidden="true"
                 className={cn(
                     'absolute inset-0 bg-black/20 transition-opacity duration-300 touch-none',
                     visible ? 'opacity-100' : 'opacity-0',
@@ -123,6 +138,8 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
 
             {/* Sheet panel */}
             <div
+                role="dialog"
+                aria-modal="true"
                 className={cn(
                     'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col',
                     'rounded-t-3xl border-t border-white/70',
@@ -160,7 +177,6 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
                     className="flex-1 overflow-y-scroll overscroll-contain"
                     style={{ WebkitOverflowScrolling: 'touch' }}
                     onTouchStart={onScrollTouchStart}
-                    onTouchMove={onScrollTouchMove}
                     onTouchEnd={onScrollTouchEnd}
                 >
                     {children}

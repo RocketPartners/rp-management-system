@@ -58,6 +58,7 @@ export default function NotificationsPage() {
 
     // Pull-to-refresh state
     const [pullY, setPullY] = useState(0);
+    const pullYRef = useRef(0);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const pullStartY = useRef(0);
     const isPulling = useRef(false);
@@ -168,31 +169,43 @@ export default function NotificationsPage() {
         }
     }, [isRefreshing]);
 
-    const onTouchMove = useCallback((e: React.TouchEvent) => {
-        if (!isPulling.current) return;
-        const dy = e.touches[0].clientY - pullStartY.current;
-        if (dy > 0) {
-            e.preventDefault();
-            // Rubber band: diminishing returns past threshold
-            setPullY(Math.min(dy * 0.5, 120));
-        } else {
-            isPulling.current = false;
-            setPullY(0);
-        }
+    // Native touchmove for pull-to-refresh — must be non-passive to preventDefault
+    useEffect(() => {
+        const el = scrollContainerRef.current;
+        if (!el) return;
+        const handler = (e: TouchEvent) => {
+            if (!isPulling.current) return;
+            const dy = e.touches[0].clientY - pullStartY.current;
+            if (dy > 0) {
+                e.preventDefault();
+                // Rubber band: diminishing returns past threshold
+                const val = Math.min(dy * 0.5, 120);
+                pullYRef.current = val;
+                setPullY(val);
+            } else {
+                isPulling.current = false;
+                pullYRef.current = 0;
+                setPullY(0);
+            }
+        };
+        el.addEventListener('touchmove', handler, { passive: false });
+        return () => el.removeEventListener('touchmove', handler);
     }, []);
 
     const onTouchEnd = useCallback(async () => {
         if (!isPulling.current) return;
         isPulling.current = false;
-        if (pullY > PULL_THRESHOLD) {
+        if (pullYRef.current > PULL_THRESHOLD) {
             setIsRefreshing(true);
             buzz();
+            pullYRef.current = 50;
             setPullY(50); // Hold at spinner position
             await refetch();
             setIsRefreshing(false);
         }
+        pullYRef.current = 0;
         setPullY(0);
-    }, [pullY, refetch, buzz]);
+    }, [refetch, buzz]);
 
     return (
         <>
@@ -225,7 +238,6 @@ export default function NotificationsPage() {
             ref={scrollContainerRef}
             className="mx-auto max-w-2xl px-4 py-4 lg:py-6"
             onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
         >
             {/* Pull-to-refresh indicator */}

@@ -64,6 +64,7 @@ export function GlassPill() {
     return (
         <nav
             ref={navRef}
+            aria-label="Main navigation"
             className={cn('relative flex flex-1 items-center justify-around rounded-full px-1 py-1 h-16', glassClasses)}
         >
             {/* Sliding active indicator */}
@@ -86,6 +87,7 @@ export function GlassPill() {
                         ref={(el) => { tabRefs.current[index] = el; }}
                         to={tab.href}
                         onClick={buzz}
+                        aria-current={active ? 'page' : undefined}
                         className={cn(
                             'relative z-[1] flex flex-col items-center gap-0.5 rounded-full px-5 py-2',
                         )}

@@ -306,7 +306,7 @@ function MyDashboardTab({ data, isLoading }: { data?: MyDashboardResponse; isLoa
                                         ))}
                                     </div>
                                     {/* Desktop: existing grid layout */}
-                                    <div className="hidden gap-4 md:grid-cols-2 lg:grid">
+                                    <div className="hidden gap-4 lg:grid lg:grid-cols-2">
                                         {data.leaveBalances.map((balance) => (
                                             <div
                                                 key={balance.id}
