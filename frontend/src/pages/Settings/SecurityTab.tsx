@@ -3,9 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Loader2, Shield } from 'lucide-react';
+import { Loader2, KeyRound, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { apiPut } from '@/lib/spring-boot-api';
@@ -25,17 +24,13 @@ type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 function FieldError({ message }: { message?: string }) {
     if (!message) return null;
-    return <p className="text-sm text-destructive">{message}</p>;
+    return <p className="text-sm text-red-600">{message}</p>;
 }
 
 export default function SecurityTab() {
     const form = useForm<PasswordFormValues>({
         resolver: zodResolver(passwordSchema),
-        defaultValues: {
-            currentPassword: '',
-            newPassword: '',
-            confirmPassword: '',
-        },
+        defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
     });
 
     const changePassword = useMutation({
@@ -53,53 +48,53 @@ export default function SecurityTab() {
 
     return (
         <div className="space-y-6">
-            <Card>
-                <CardContent className="p-6">
-                    <div className="mb-4 flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg font-semibold">Change Password</h2>
+            <div className="rounded-xl border border-gray-200 bg-white p-5">
+                <div className="mb-5 flex items-start gap-3">
+                    <div className="rounded-lg bg-amber-50 p-2">
+                        <KeyRound className="h-5 w-5 text-amber-600" />
                     </div>
-                    <p className="mb-6 text-sm text-muted-foreground">
-                        Your password is managed through Keycloak. Enter your current password to verify your identity, then set a new one.
+                    <div>
+                        <h2 className="text-base font-semibold text-gray-900">Change Password</h2>
+                        <p className="mt-0.5 text-sm text-gray-500">
+                            Update your password to keep your account secure
+                        </p>
+                    </div>
+                </div>
+
+                <div className="mb-5 flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2.5">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                    <p className="text-xs text-blue-700">
+                        Your password is managed through the identity provider. Enter your current password to verify your identity.
                     </p>
-                    <form
-                        onSubmit={form.handleSubmit((data) => changePassword.mutate(data))}
-                        className="max-w-md space-y-4"
-                    >
-                        <div className="space-y-2">
-                            <Label htmlFor="currentPassword">Current Password *</Label>
-                            <Input
-                                id="currentPassword"
-                                type="password"
-                                {...form.register('currentPassword')}
-                            />
-                            <FieldError message={form.formState.errors.currentPassword?.message} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="newPassword">New Password *</Label>
-                            <Input
-                                id="newPassword"
-                                type="password"
-                                {...form.register('newPassword')}
-                            />
-                            <FieldError message={form.formState.errors.newPassword?.message} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                            <Input
-                                id="confirmPassword"
-                                type="password"
-                                {...form.register('confirmPassword')}
-                            />
-                            <FieldError message={form.formState.errors.confirmPassword?.message} />
-                        </div>
+                </div>
+
+                <form
+                    onSubmit={form.handleSubmit((data) => changePassword.mutate(data))}
+                    className="max-w-sm space-y-3"
+                >
+                    <div className="space-y-1">
+                        <Label htmlFor="currentPassword" className="text-xs">Current Password</Label>
+                        <Input id="currentPassword" type="password" {...form.register('currentPassword')} />
+                        <FieldError message={form.formState.errors.currentPassword?.message} />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="newPassword" className="text-xs">New Password</Label>
+                        <Input id="newPassword" type="password" {...form.register('newPassword')} />
+                        <FieldError message={form.formState.errors.newPassword?.message} />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor="confirmPassword" className="text-xs">Confirm Password</Label>
+                        <Input id="confirmPassword" type="password" {...form.register('confirmPassword')} />
+                        <FieldError message={form.formState.errors.confirmPassword?.message} />
+                    </div>
+                    <div className="pt-2">
                         <Button type="submit" disabled={changePassword.isPending}>
                             {changePassword.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Change Password
+                            Update Password
                         </Button>
-                    </form>
-                </CardContent>
-            </Card>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 }

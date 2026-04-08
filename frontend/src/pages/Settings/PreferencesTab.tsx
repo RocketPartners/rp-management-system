@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { toast } from 'sonner';
-import { Bell, BellOff, Globe, Moon, Sun, Monitor } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Bell, Globe, Moon, Sun, Monitor, Search, Check } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -28,34 +27,39 @@ function setNotificationPrefs(prefs: Record<string, boolean>) {
 }
 
 function getPushEnabled(): boolean {
-    try {
-        return localStorage.getItem('push-enabled') !== 'false';
-    } catch {
-        return true;
-    }
+    try { return localStorage.getItem('push-enabled') !== 'false'; }
+    catch { return true; }
 }
 
 const ALL_TIMEZONES = (() => {
-    try {
-        return Intl.supportedValuesOf('timeZone');
-    } catch {
-        return ['America/New_York', 'Europe/London', 'Europe/Madrid', 'Asia/Manila', 'Asia/Tokyo', 'Australia/Sydney'];
-    }
+    try { return Intl.supportedValuesOf('timeZone'); }
+    catch { return ['America/New_York', 'Europe/London', 'Europe/Madrid', 'Asia/Manila', 'Asia/Tokyo', 'Australia/Sydney']; }
 })();
 
 function formatTimezoneOffset(tz: string): string {
     try {
-        const now = new Date();
-        const formatter = new Intl.DateTimeFormat('en-US', {
-            timeZone: tz,
-            timeZoneName: 'shortOffset',
-        });
-        const parts = formatter.formatToParts(now);
-        const offsetPart = parts.find((p) => p.type === 'timeZoneName');
-        return offsetPart?.value || '';
-    } catch {
-        return '';
-    }
+        const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+        return parts.find((p) => p.type === 'timeZoneName')?.value || '';
+    } catch { return ''; }
+}
+
+function SectionCard({ icon: Icon, iconBg, title, description, children }: {
+    icon: typeof Globe; iconBg: string; title: string; description: string; children: React.ReactNode;
+}) {
+    return (
+        <div className="rounded-xl border border-gray-200 bg-white p-5">
+            <div className="mb-4 flex items-start gap-3">
+                <div className={cn('rounded-lg p-2', iconBg)}>
+                    <Icon className="h-5 w-5" />
+                </div>
+                <div>
+                    <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+                    <p className="mt-0.5 text-sm text-gray-500">{description}</p>
+                </div>
+            </div>
+            {children}
+        </div>
+    );
 }
 
 export default function PreferencesTab() {
@@ -66,16 +70,15 @@ export default function PreferencesTab() {
     const [tzSearch, setTzSearch] = useState('');
 
     const filteredTimezones = useMemo(() => {
-        if (!tzSearch) return ALL_TIMEZONES.slice(0, 20);
+        if (!tzSearch) return ALL_TIMEZONES.slice(0, 15);
         const q = tzSearch.toLowerCase();
-        return ALL_TIMEZONES.filter((tz) => tz.toLowerCase().includes(q)).slice(0, 20);
+        return ALL_TIMEZONES.filter((tz) => tz.toLowerCase().includes(q)).slice(0, 15);
     }, [tzSearch]);
 
     const handleNotifToggle = (key: string, enabled: boolean) => {
         const updated = { ...notifPrefs, [key]: enabled };
         setNotifPrefs(updated);
         setNotificationPrefs(updated);
-        toast.success(`${enabled ? 'Enabled' : 'Disabled'} ${key} notifications`);
     };
 
     const handlePushToggle = async (enabled: boolean) => {
@@ -94,144 +97,110 @@ export default function PreferencesTab() {
     const handleTimezoneSelect = (tz: string) => {
         setTimezone(tz);
         setTzSearch('');
-        toast.success(`Timezone set to ${tz}`);
     };
 
-    const themes: { value: Appearance; label: string; icon: typeof Sun }[] = [
-        { value: 'light', label: 'Light', icon: Sun },
-        { value: 'dark', label: 'Dark', icon: Moon },
-        { value: 'system', label: 'System', icon: Monitor },
+    const themes: { value: Appearance; label: string; icon: typeof Sun; desc: string }[] = [
+        { value: 'light', label: 'Light', icon: Sun, desc: 'Clean and bright' },
+        { value: 'dark', label: 'Dark', icon: Moon, desc: 'Easy on the eyes' },
+        { value: 'system', label: 'System', icon: Monitor, desc: 'Match your device' },
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             {/* Timezone */}
-            <Card>
-                <CardContent className="p-6">
-                    <div className="mb-4 flex items-center gap-2">
-                        <Globe className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg font-semibold">Timezone</h2>
-                    </div>
-                    <p className="mb-4 text-sm text-muted-foreground">
-                        Times throughout the app will be displayed in your selected timezone.
-                    </p>
-                    <div className="max-w-md space-y-2">
+            <SectionCard icon={Globe} iconBg="bg-sky-50 text-sky-600" title="Timezone" description="Times will be displayed in your selected timezone">
+                <div className="max-w-md space-y-2">
+                    <div className="relative">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
                         <Input
                             placeholder="Search timezones..."
                             value={tzSearch}
                             onChange={(e) => setTzSearch(e.target.value)}
+                            className="pl-8"
                         />
-                        <div className="max-h-48 overflow-y-auto rounded-md border">
-                            {filteredTimezones.map((tz) => (
-                                <button
-                                    key={tz}
-                                    onClick={() => handleTimezoneSelect(tz)}
-                                    className={cn(
-                                        'flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-accent',
-                                        tz === timezone && 'bg-accent font-medium',
-                                    )}
-                                >
-                                    <span>{tz.replace(/_/g, ' ')}</span>
-                                    <span className="text-xs text-muted-foreground">
-                                        {formatTimezoneOffset(tz)}
-                                    </span>
-                                </button>
-                            ))}
-                            {filteredTimezones.length === 0 && (
-                                <p className="px-3 py-4 text-center text-sm text-muted-foreground">
-                                    No timezones found
-                                </p>
-                            )}
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                            Current: <strong>{timezone.replace(/_/g, ' ')}</strong> ({formatTimezoneOffset(timezone)})
-                        </p>
                     </div>
-                </CardContent>
-            </Card>
+                    <div className="max-h-44 overflow-y-auto rounded-lg border border-gray-100 bg-gray-50/50">
+                        {filteredTimezones.map((tz) => (
+                            <button
+                                key={tz}
+                                onClick={() => handleTimezoneSelect(tz)}
+                                className={cn(
+                                    'flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors hover:bg-white',
+                                    tz === timezone && 'bg-white font-medium text-blue-600',
+                                )}
+                            >
+                                <span>{tz.replace(/_/g, ' ')}</span>
+                                <span className="flex items-center gap-2">
+                                    <span className="text-xs text-gray-400">{formatTimezoneOffset(tz)}</span>
+                                    {tz === timezone && <Check className="h-3.5 w-3.5 text-blue-600" />}
+                                </span>
+                            </button>
+                        ))}
+                        {filteredTimezones.length === 0 && (
+                            <p className="px-3 py-4 text-center text-sm text-gray-400">No timezones found</p>
+                        )}
+                    </div>
+                </div>
+            </SectionCard>
 
             {/* Notifications */}
-            <Card>
-                <CardContent className="p-6">
-                    <div className="mb-4 flex items-center gap-2">
-                        <Bell className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg font-semibold">Notifications</h2>
-                    </div>
-
-                    <div className="space-y-6">
-                        {/* Push toggle */}
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label className="text-sm font-medium">Push Notifications</Label>
-                                <p className="text-xs text-muted-foreground">
-                                    Receive browser notifications even when the app is in the background
-                                </p>
-                            </div>
-                            <Switch
-                                checked={pushEnabled}
-                                onCheckedChange={handlePushToggle}
-                            />
-                        </div>
-
-                        <hr />
-
-                        {/* Per-category toggles */}
+            <SectionCard icon={Bell} iconBg="bg-violet-50 text-violet-600" title="Notifications" description="Control how you receive notifications">
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between rounded-lg bg-gray-50 px-4 py-3">
                         <div>
-                            <p className="mb-3 text-sm font-medium">Notification Categories</p>
-                            <div className="space-y-4">
-                                {NOTIFICATION_CATEGORIES.map((cat) => (
-                                    <div key={cat.key} className="flex items-center justify-between">
-                                        <div className="space-y-0.5">
-                                            <Label className="text-sm">{cat.label}</Label>
-                                            <p className="text-xs text-muted-foreground">{cat.description}</p>
-                                        </div>
-                                        <Switch
-                                            checked={notifPrefs[cat.key] ?? true}
-                                            onCheckedChange={(v) => handleNotifToggle(cat.key, v)}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
+                            <Label className="text-sm font-medium">Push Notifications</Label>
+                            <p className="text-xs text-gray-500">Receive alerts even when the app is in the background</p>
                         </div>
+                        <Switch checked={pushEnabled} onCheckedChange={handlePushToggle} />
                     </div>
-                </CardContent>
-            </Card>
+
+                    <div className="space-y-1">
+                        {NOTIFICATION_CATEGORIES.map((cat) => (
+                            <div key={cat.key} className="flex items-center justify-between px-4 py-2.5">
+                                <div>
+                                    <Label className="text-sm">{cat.label}</Label>
+                                    <p className="text-xs text-gray-500">{cat.description}</p>
+                                </div>
+                                <Switch
+                                    checked={notifPrefs[cat.key] ?? true}
+                                    onCheckedChange={(v) => handleNotifToggle(cat.key, v)}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </SectionCard>
 
             {/* Theme */}
-            <Card>
-                <CardContent className="p-6">
-                    <div className="mb-4 flex items-center gap-2">
-                        <Sun className="h-5 w-5 text-muted-foreground" />
-                        <h2 className="text-lg font-semibold">Appearance</h2>
-                    </div>
-                    <p className="mb-4 text-sm text-muted-foreground">
-                        Choose your preferred color scheme.
-                    </p>
-                    <div className="flex gap-3">
-                        {themes.map((t) => {
-                            const Icon = t.icon;
-                            return (
-                                <button
-                                    key={t.value}
-                                    onClick={() => {
-                                        updateAppearance(t.value);
-                                        toast.success(`Theme set to ${t.label}`);
-                                    }}
-                                    className={cn(
-                                        'flex flex-1 flex-col items-center gap-2 rounded-lg border-2 p-4 transition-colors',
-                                        appearance === t.value
-                                            ? 'border-primary bg-primary/5'
-                                            : 'border-transparent bg-muted/50 hover:bg-muted',
-                                    )}
-                                >
-                                    <Icon className="h-6 w-6" />
-                                    <span className="text-sm font-medium">{t.label}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-                </CardContent>
-            </Card>
+            <SectionCard icon={Sun} iconBg="bg-orange-50 text-orange-600" title="Appearance" description="Choose your preferred color scheme">
+                <div className="grid grid-cols-3 gap-3">
+                    {themes.map((t) => {
+                        const Icon = t.icon;
+                        const isActive = appearance === t.value;
+                        return (
+                            <button
+                                key={t.value}
+                                onClick={() => updateAppearance(t.value)}
+                                className={cn(
+                                    'relative flex flex-col items-center gap-1.5 rounded-xl border-2 px-3 py-4 transition-all',
+                                    isActive
+                                        ? 'border-blue-500 bg-blue-50/60 shadow-sm'
+                                        : 'border-gray-100 bg-gray-50/50 hover:border-gray-200 hover:bg-gray-50',
+                                )}
+                            >
+                                {isActive && (
+                                    <div className="absolute right-1.5 top-1.5 rounded-full bg-blue-500 p-0.5">
+                                        <Check className="h-2.5 w-2.5 text-white" />
+                                    </div>
+                                )}
+                                <Icon className={cn('h-6 w-6', isActive ? 'text-blue-600' : 'text-gray-400')} />
+                                <span className={cn('text-sm font-medium', isActive ? 'text-blue-700' : 'text-gray-700')}>{t.label}</span>
+                                <span className="text-[11px] text-gray-400">{t.desc}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+            </SectionCard>
         </div>
     );
 }
