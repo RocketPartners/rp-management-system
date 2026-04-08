@@ -230,16 +230,16 @@ export default function EditLeave() {
 
             {/* Header */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
+                <div className="px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-blue-100 p-2">
+                        <div className="hidden lg:block rounded-lg bg-blue-100 p-2">
                             <Edit2 className="h-6 w-6 text-blue-600" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-bold text-gray-900">
+                            <h2 className="text-xl lg:text-3xl font-bold text-gray-900">
                                 Edit Leave Request
                             </h2>
-                            <p className="mt-1 text-gray-600">
+                            <p className="hidden lg:block mt-1 text-gray-600">
                                 Modify your pending leave request
                             </p>
                         </div>
