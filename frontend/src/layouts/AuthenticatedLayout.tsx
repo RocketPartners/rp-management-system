@@ -45,6 +45,7 @@ import {
     Wallet,
     X,
     FileCheck,
+    Sparkles,
 } from 'lucide-react';
 import { type MouseEvent, useState, type LucideIcon } from 'react';
 
@@ -107,6 +108,8 @@ export default function AuthenticatedLayout() {
 
         if (cleanUrl === cleanHref) return true;
 
+        if (cleanHref === '/ai-chat' && cleanUrl.startsWith('/ai-chat'))
+            return true;
         if (cleanHref === '/calendar' && cleanUrl.startsWith('/calendar'))
             return true;
         if (cleanHref === '/users' && cleanUrl.startsWith('/users/'))
@@ -157,6 +160,7 @@ export default function AuthenticatedLayout() {
                     href: '/dashboard',
                     icon: LayoutDashboard,
                 },
+                { name: 'AI Assistant', href: '/ai-chat', icon: Sparkles },
                 { name: 'Calendar', href: '/calendar', icon: Calendar },
                 { name: 'My Leaves', href: '/my-leaves', icon: ClipboardList },
                 { name: 'My WFH', href: '/my-wfh', icon: Home },
