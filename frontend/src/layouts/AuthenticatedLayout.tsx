@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { BottomNav } from '@/components/mobile-nav/BottomNav';
+import { SwUpdateBanner } from '@/components/pwa/SwUpdateBanner';
+import { PwaInstallPrompt } from '@/components/pwa/PwaInstallPrompt';
 import { buildNavigation, type NavSection, type NavItemConfig } from '@/lib/navigation';
 import { type MouseEvent, useState } from 'react';
 
@@ -441,6 +443,8 @@ export default function AuthenticatedLayout() {
                 <Outlet />
             </main>
             <BottomNav />
+            <SwUpdateBanner />
+            <PwaInstallPrompt />
         </div>
     );
 }

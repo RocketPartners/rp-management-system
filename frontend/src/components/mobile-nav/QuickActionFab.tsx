@@ -61,7 +61,7 @@ export function QuickActionFab() {
                 <button
                     onClick={() => { buzz(); setOpen(!open); }}
                     className={cn(
-                        'flex h-16 w-16 items-center justify-center rounded-full transition-transform duration-300',
+                        'flex h-16 w-16 shrink-0 items-center justify-center rounded-full transition-transform duration-300',
                         glassClasses,
                         open && 'scale-105',
                     )}

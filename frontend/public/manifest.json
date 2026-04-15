@@ -24,5 +24,25 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Apply Leave",
+      "short_name": "Leave",
+      "url": "/my-leaves/apply",
+      "icons": [{ "src": "/images/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Calendar",
+      "short_name": "Calendar",
+      "url": "/calendar",
+      "icons": [{ "src": "/images/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Support",
+      "short_name": "Support",
+      "url": "/support",
+      "icons": [{ "src": "/images/icon-192x192.png", "sizes": "192x192" }]
+    }
   ]
 }

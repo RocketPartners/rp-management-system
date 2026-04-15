@@ -93,7 +93,7 @@ export function MoreSheet() {
         <>
             <button
                 onClick={() => { buzz(); setOpen(true); }}
-                className={cn('flex h-16 w-16 items-center justify-center rounded-full', glassClasses)}
+                className={cn('flex h-16 w-16 shrink-0 items-center justify-center rounded-full', glassClasses)}
                 aria-label="More navigation"
             >
                 <MoreHorizontal className="h-6 w-6 text-black/30" strokeWidth={2.5} />

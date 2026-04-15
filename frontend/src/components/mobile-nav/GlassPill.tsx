@@ -89,7 +89,7 @@ export function GlassPill() {
                         onClick={buzz}
                         aria-current={active ? 'page' : undefined}
                         className={cn(
-                            'relative z-[1] flex flex-col items-center gap-0.5 rounded-full px-5 py-2',
+                            'relative z-[1] flex flex-col items-center gap-0.5 rounded-full px-3 py-2 sm:px-5',
                         )}
                     >
                         <Icon
