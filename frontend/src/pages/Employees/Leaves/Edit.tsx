@@ -69,7 +69,7 @@ export default function EditLeave() {
         emergencyContactName: '',
         emergencyContactPhone: '',
         useDefaultEmergencyContact: false,
-        availability: 'reachable',
+        availability: 'REACHABLE',
     });
 
     const [selectedLeaveType, setSelectedLeaveType] = useState<LeaveTypeResponse | null>(null);
@@ -475,14 +475,14 @@ export default function EditLeave() {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="reachable">
+                                                <SelectItem value="REACHABLE">
                                                     Reachable - Can respond to
                                                     urgent matters
                                                 </SelectItem>
-                                                <SelectItem value="offline">
+                                                <SelectItem value="OFFLINE">
                                                     Completely Offline
                                                 </SelectItem>
-                                                <SelectItem value="emergency_only">
+                                                <SelectItem value="EMERGENCY_ONLY">
                                                     Emergency Only
                                                 </SelectItem>
                                             </SelectContent>
