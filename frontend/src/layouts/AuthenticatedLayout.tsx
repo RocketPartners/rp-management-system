@@ -46,8 +46,11 @@ import {
     X,
     FileCheck,
     Sparkles,
+    ScrollText,
+    BarChart3,
+    Wrench,
 } from 'lucide-react';
-import { type MouseEvent, useState, type LucideIcon } from 'react';
+import { type MouseEvent, useState, useEffect, useRef, type LucideIcon } from 'react';
 
 interface NavItemConfig {
     name: string;
@@ -83,6 +86,18 @@ export default function AuthenticatedLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+
+    // Auto-collapse sidebar on AI Chat pages for immersive experience
+    const prevMinimized = useRef(sidebarMinimized);
+    const isAIChat = location.pathname.startsWith('/ai-chat');
+    useEffect(() => {
+        if (isAIChat) {
+            prevMinimized.current = sidebarMinimized;
+            setSidebarMinimized(true);
+        } else {
+            setSidebarMinimized(prevMinimized.current);
+        }
+    }, [isAIChat]);
     const currentUrl = location.pathname + location.search;
     const { can } = usePermission();
     const { timezone, setTimezone, timezones } = useTimezone();
@@ -139,6 +154,12 @@ export default function AuthenticatedLayout() {
             cleanHref === '/onboarding/submissions' &&
             cleanUrl.startsWith('/onboarding/submissions')
         )
+            return true;
+        if (cleanHref === '/audit-logs' && cleanUrl.startsWith('/audit-logs'))
+            return true;
+        if (cleanHref === '/audit-dashboard' && cleanUrl.startsWith('/audit-dashboard'))
+            return true;
+        if (cleanHref === '/admin-tools' && cleanUrl.startsWith('/admin-tools'))
             return true;
 
         return false;
@@ -382,6 +403,32 @@ export default function AuthenticatedLayout() {
                         href: '/tasks/kanban',
                         icon: Layers,
                     },
+                ],
+            });
+        }
+
+        // SUPER ADMIN — Audit Trail + Admin Tools
+        if (can('AUDIT_LOG_READ') || can('ADMIN_TOOLS')) {
+            nav.push({ type: 'divider', label: 'Super Admin' });
+        }
+
+        if (can('AUDIT_LOG_READ')) {
+            nav.push({
+                type: 'accordion',
+                name: 'Audit Trail',
+                icon: ScrollText,
+                items: [
+                    { name: 'Audit Logs', href: '/audit-logs', icon: ScrollText },
+                    { name: 'Audit Dashboard', href: '/audit-dashboard', icon: BarChart3 },
+                ],
+            });
+        }
+
+        if (can('ADMIN_TOOLS')) {
+            nav.push({
+                type: 'items',
+                items: [
+                    { name: 'Admin Tools', href: '/admin-tools', icon: Wrench },
                 ],
             });
         }

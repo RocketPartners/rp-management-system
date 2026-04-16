@@ -90,9 +90,13 @@ export async function refreshAccessToken() {
 
 export async function logout() {
     if (refreshToken) {
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (accessToken) {
+            headers['Authorization'] = `Bearer ${accessToken}`;
+        }
         await fetch(`${API_URL}/auth/logout`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers,
             body: JSON.stringify({ refreshToken }),
         }).catch(() => {});
     }
