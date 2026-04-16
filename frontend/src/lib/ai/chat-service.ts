@@ -9,7 +9,8 @@ import { executeTool } from './executor';
 
 const MODEL = import.meta.env.VITE_AI_MODEL || 'us.anthropic.claude-sonnet-4-6';
 
-const SYSTEM_PROMPT = `You are an AI assistant for the Rocket Partners HRIS (Human Resource Information System). You help employees with HR-related tasks by calling the HRIS API.
+function getSystemPrompt(): string {
+    return `You are an AI assistant for the Rocket Partners HRIS (Human Resource Information System). You help employees with HR-related tasks by calling the HRIS API.
 
 Today's date: ${new Date().toISOString().split('T')[0]}
 Timezone: Asia/Manila (Philippine Time)
@@ -127,6 +128,7 @@ Timezone: Asia/Manila (Philippine Time)
 - The API automatically authenticates as the current user. You cannot act as another user.
 - If an endpoint returns 403, the user doesn't have permission for that action.
 - If an endpoint returns 404, the resource doesn't exist.`;
+}
 
 export interface ChatMessage {
     role: 'user' | 'assistant';
@@ -220,30 +222,9 @@ export async function sendChatMessage(
     };
 }
 
-async function callClaude(messages: AnthropicMessage[]): Promise<any> {
-    const res = await apiFetch('/ai/chat', {
-        method: 'POST',
-        body: JSON.stringify({
-            model: MODEL,
-            max_tokens: 4096,
-            system: SYSTEM_PROMPT,
-            tools: HRIS_TOOLS,
-            messages,
-        }),
-    });
-
-    if (!res.ok) {
-        const errorText = await res.text().catch(() => 'Unknown error');
-        throw new Error(`AI request failed (${res.status}): ${errorText}`);
-    }
-
-    return res.json();
-}
-
 /**
- * Streaming version: calls /ai/chat/stream and processes SSE events.
+ * Streaming call to /ai/chat/stream — processes SSE events.
  * Calls onTextDelta for each text chunk so the UI can update progressively.
- * Returns the full assembled response in the same format as callClaude.
  */
 async function callClaudeStream(
     messages: AnthropicMessage[],
@@ -254,7 +235,7 @@ async function callClaudeStream(
         body: JSON.stringify({
             model: MODEL,
             max_tokens: 4096,
-            system: SYSTEM_PROMPT,
+            system: getSystemPrompt(),
             tools: HRIS_TOOLS,
             messages,
         }),

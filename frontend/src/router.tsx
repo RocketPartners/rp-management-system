@@ -55,6 +55,13 @@ const HolidayList = lazy(() => import('@/pages/Holidays/Index'));
 // Phase 13 — AI Chat (TSX)
 const AIChat = lazy(() => import('@/pages/AIChat/Index'));
 
+// Phase 14 — Audit Trail (TSX)
+const AuditLogList = lazy(() => import('@/pages/AuditLogs/Index'));
+const AuditDashboard = lazy(() => import('@/pages/AuditLogs/Dashboard'));
+
+// Phase 15 — Admin Tools (TSX)
+const AdminTools = lazy(() => import('@/pages/AdminTools/Index'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -167,7 +174,11 @@ export const router = createBrowserRouter([
                             { path: '/tasks', element: <ComingSoon /> },
                             { path: '/tasks/kanban', element: <ComingSoon /> },
                             { path: '/ai-chat', element: <AIChat /> },
+                            { path: '/ai-chat/:sessionId', element: <AIChat /> },
                             { path: '/support', element: <SupportTickets /> },
+                            { path: '/audit-logs', element: <AuditLogList /> },
+                            { path: '/audit-dashboard', element: <AuditDashboard /> },
+                            { path: '/admin-tools', element: <AdminTools /> },
                             { path: '/settings', element: <ComingSoon /> },
                         ],
                     },

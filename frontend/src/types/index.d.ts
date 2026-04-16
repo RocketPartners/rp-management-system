@@ -762,3 +762,117 @@ export interface AnnouncementPreview {
     publishedAt: string;
     totalReactions: number;
 }
+
+// AI Chat
+export interface AIChatSessionResponse {
+    id: number;
+    title: string;
+    lastMessagePreview: string | null;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface AIChatMessageResponse {
+    id: number;
+    sessionId: number;
+    role: 'user' | 'assistant';
+    content: string;
+    toolActions: string | null;
+    createdAt: string;
+}
+
+export interface AIChatSessionDetailResponse {
+    id: number;
+    title: string;
+    messages: AIChatMessageResponse[];
+    createdAt: string;
+    updatedAt: string;
+}
+
+// ============================================
+// AUDIT LOG TYPES (Spring Boot camelCase)
+// ============================================
+
+export type AuditSeverity = 'INFO' | 'WARN' | 'ERROR' | 'CRITICAL';
+
+export interface AuditLogResponse {
+    id: number;
+    eventName: string;
+    severity: AuditSeverity;
+    message: string;
+    actorId: number | null;
+    actorName: string | null;
+    entityType: string | null;
+    entityId: number | null;
+    httpMethod: string | null;
+    httpStatus: number | null;
+    endpoint: string | null;
+    ipAddress: string | null;
+    createdAt: string;
+}
+
+export interface AuditActivityPoint {
+    timestamp: string;
+    count: number;
+}
+
+export interface AuditErrorRatePoint {
+    timestamp: string;
+    count4xx: number;
+    count5xx: number;
+}
+
+export interface AuditEndpointCount {
+    endpoint: string;
+    count: number;
+}
+
+export interface AuditActiveUser {
+    userId: number;
+    name: string;
+    actionCount: number;
+    lastActivity: string;
+}
+
+export interface AuditSummaryCards {
+    totalToday: number;
+    errorsToday: number;
+    criticalToday: number;
+    activeUsersToday: number;
+}
+
+export interface AuditFailedLogin {
+    actorName: string | null;
+    ipAddress: string | null;
+    endpoint: string | null;
+    httpStatus: number | null;
+    createdAt: string;
+}
+
+export interface AuditHeatmapCell {
+    dayOfWeek: number;
+    hour: number;
+    count: number;
+}
+
+export interface AuditUserSession {
+    userId: number;
+    userName: string;
+    ipAddress: string | null;
+    loginTime: string;
+    logoutTime: string | null;
+    durationMinutes: number | null;
+}
+
+export interface AuditStatsResponse {
+    activityOverTime: AuditActivityPoint[];
+    errorRateOverTime: AuditErrorRatePoint[];
+    severityBreakdown: Record<string, number>;
+    topErrorEndpoints: AuditEndpointCount[];
+    topEndpoints: AuditEndpointCount[];
+    activeUsersToday: AuditActiveUser[];
+    recentFailedLogins: AuditFailedLogin[];
+    activityHeatmap: AuditHeatmapCell[];
+    recentSessions: AuditUserSession[];
+    summaryCards: AuditSummaryCards;
+}
