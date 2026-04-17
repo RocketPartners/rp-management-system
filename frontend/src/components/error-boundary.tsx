@@ -51,11 +51,11 @@ export function NotFoundPage({ homePath = '/' }: { homePath?: string }) {
     );
 }
 
-export function RouteErrorPage() {
+export function RouteErrorPage({ homePath = '/' }: { homePath?: string }) {
     const error = useRouteError();
 
     if (isRouteErrorResponse(error) && error.status === 404) {
-        return <NotFoundPage />;
+        return <NotFoundPage homePath={homePath} />;
     }
 
     console.error('RouteErrorPage caught:', error);
@@ -65,7 +65,7 @@ export function RouteErrorPage() {
             <h1 className="text-2xl font-bold text-gray-900">Something went wrong</h1>
             <p className="text-gray-600">An unexpected error occurred.</p>
             <Button asChild>
-                <Link to="/">Go Home</Link>
+                <Link to={homePath}>Go Home</Link>
             </Button>
         </div>
     );
