@@ -63,6 +63,13 @@ const AuditDashboard = lazy(() => import('@/pages/AuditLogs/Dashboard'));
 // Phase 15 — Admin Tools (TSX)
 const AdminTools = lazy(() => import('@/pages/AdminTools/Index'));
 
+// Phase 16 — Analytics (TSX)
+const AnalyticsIndex = lazy(() => import('@/pages/Analytics/Index'));
+const LeaveUtilization = lazy(() => import('@/pages/Analytics/LeaveUtilization'));
+const OnboardingFunnel = lazy(() => import('@/pages/Analytics/OnboardingFunnel'));
+const Headcount = lazy(() => import('@/pages/Analytics/Headcount'));
+const WfhAnalytics = lazy(() => import('@/pages/Analytics/WfhAnalytics'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -181,6 +188,11 @@ export const router = createBrowserRouter([
                             { path: '/audit-logs', element: <AuditLogList /> },
                             { path: '/audit-dashboard', element: <AuditDashboard /> },
                             { path: '/admin-tools', element: <AdminTools /> },
+                            { path: '/analytics', element: <AnalyticsIndex /> },
+                            { path: '/analytics/leave-utilization', element: <LeaveUtilization /> },
+                            { path: '/analytics/onboarding-funnel', element: <OnboardingFunnel /> },
+                            { path: '/analytics/headcount', element: <Headcount /> },
+                            { path: '/analytics/wfh', element: <WfhAnalytics /> },
                             { path: '/settings', element: <ComingSoon /> },
                             { path: '*', element: <NotFoundPage homePath="/dashboard" /> },
                         ],
