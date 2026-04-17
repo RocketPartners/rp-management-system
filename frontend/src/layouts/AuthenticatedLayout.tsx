@@ -49,6 +49,8 @@ import {
     ScrollText,
     BarChart3,
     Wrench,
+    CalendarDays,
+    TrendingUp,
 } from 'lucide-react';
 import { type MouseEvent, useState, useEffect, useRef, type LucideIcon } from 'react';
 
@@ -160,6 +162,10 @@ export default function AuthenticatedLayout() {
         if (cleanHref === '/audit-dashboard' && cleanUrl.startsWith('/audit-dashboard'))
             return true;
         if (cleanHref === '/admin-tools' && cleanUrl.startsWith('/admin-tools'))
+            return true;
+        if (cleanHref === '/analytics' && cleanUrl === '/analytics')
+            return true;
+        if (cleanHref !== '/analytics' && cleanHref.startsWith('/analytics/') && cleanUrl.startsWith(cleanHref))
             return true;
 
         return false;
@@ -429,6 +435,21 @@ export default function AuthenticatedLayout() {
                 type: 'items',
                 items: [
                     { name: 'Admin Tools', href: '/admin-tools', icon: Wrench },
+                ],
+            });
+        }
+
+        if (can('ANALYTICS_READ')) {
+            nav.push({
+                type: 'accordion',
+                name: 'Analytics',
+                icon: BarChart3,
+                items: [
+                    { name: 'Overview', href: '/analytics', icon: LayoutDashboard },
+                    { name: 'Leave Utilization', href: '/analytics/leave-utilization', icon: CalendarDays },
+                    { name: 'Onboarding Funnel', href: '/analytics/onboarding-funnel', icon: UserPlus },
+                    { name: 'Headcount', href: '/analytics/headcount', icon: Users },
+                    { name: 'WFH Analytics', href: '/analytics/wfh', icon: Home },
                 ],
             });
         }
