@@ -28,10 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <h1 className="text-2xl font-bold text-gray-900">Something went wrong</h1>
                     <p className="text-gray-600">An unexpected error occurred. Please try refreshing the page.</p>
                     <button
-                        onClick={() => {
-                            this.setState({ hasError: false });
-                            window.location.reload();
-                        }}
+                        onClick={() => window.location.reload()}
                         className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                     >
                         Refresh Page

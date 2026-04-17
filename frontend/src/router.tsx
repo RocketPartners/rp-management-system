@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Link, Navigate, Outlet } from 'react-router-dom';
 import { ProtectedRoute, GuestRoute } from '@/components/route-guards';
 import { RouteErrorPage, NotFoundPage } from '@/components/error-boundary';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
@@ -83,9 +83,9 @@ function ComingSoon() {
         <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
             <h1 className="text-2xl font-bold text-gray-900">Coming Soon</h1>
             <p className="text-gray-600">This page is being migrated from the legacy system.</p>
-            <a href="/dashboard" className="text-blue-600 hover:underline">
+            <Link to="/dashboard" className="text-blue-600 hover:underline">
                 Back to Dashboard
-            </a>
+            </Link>
         </div>
     );
 }
