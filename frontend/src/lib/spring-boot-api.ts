@@ -61,31 +61,47 @@ export async function loginWithGoogle(idToken: string) {
     return json.data;
 }
 
-export async function refreshAccessToken() {
-    if (!refreshToken) throw new Error('No refresh token');
+interface TokenData {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+}
 
-    const res = await fetch(`${API_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
+let refreshPromise: Promise<TokenData> | null = null;
+
+export async function refreshAccessToken() {
+    if (refreshPromise) return refreshPromise;
+
+    refreshPromise = (async () => {
+        if (!refreshToken) throw new Error('No refresh token');
+
+        const res = await fetch(`${API_URL}/auth/refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refreshToken }),
+        });
+
+        const json = await res.json();
+
+        if (!res.ok || json.status !== 'success') {
+            accessToken = null;
+            refreshToken = null;
+            tokenExpiry = null;
+            persistTokens();
+            throw new Error('Token refresh failed');
+        }
+
+        accessToken = json.data.accessToken;
+        refreshToken = json.data.refreshToken;
+        tokenExpiry = Date.now() + json.data.expiresIn - 30000;
+        persistTokens();
+
+        return json.data;
+    })().finally(() => {
+        refreshPromise = null;
     });
 
-    const json = await res.json();
-
-    if (!res.ok || json.status !== 'success') {
-        accessToken = null;
-        refreshToken = null;
-        tokenExpiry = null;
-        persistTokens();
-        throw new Error('Token refresh failed');
-    }
-
-    accessToken = json.data.accessToken;
-    refreshToken = json.data.refreshToken;
-    tokenExpiry = Date.now() + json.data.expiresIn - 30000;
-    persistTokens();
-
-    return json.data;
+    return refreshPromise;
 }
 
 export async function logout() {

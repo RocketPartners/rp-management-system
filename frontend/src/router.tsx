@@ -1,5 +1,6 @@
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
+import { createBrowserRouter, Link, Navigate, Outlet } from 'react-router-dom';
 import { ProtectedRoute, GuestRoute } from '@/components/route-guards';
+import { RouteErrorPage, NotFoundPage } from '@/components/error-boundary';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { lazy, Suspense } from 'react';
 
@@ -82,9 +83,9 @@ function ComingSoon() {
         <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
             <h1 className="text-2xl font-bold text-gray-900">Coming Soon</h1>
             <p className="text-gray-600">This page is being migrated from the legacy system.</p>
-            <a href="/dashboard" className="text-blue-600 hover:underline">
+            <Link to="/dashboard" className="text-blue-600 hover:underline">
                 Back to Dashboard
-            </a>
+            </Link>
         </div>
     );
 }
@@ -106,6 +107,7 @@ function SuspenseLayout() {
 export const router = createBrowserRouter([
     {
         element: <SuspenseLayout />,
+        errorElement: <RouteErrorPage />,
         children: [
             // Public routes (accessible regardless of auth state)
             { path: '/onboarding/:token', element: <OnboardingPortal /> },
@@ -180,10 +182,14 @@ export const router = createBrowserRouter([
                             { path: '/audit-dashboard', element: <AuditDashboard /> },
                             { path: '/admin-tools', element: <AdminTools /> },
                             { path: '/settings', element: <ComingSoon /> },
+                            { path: '*', element: <NotFoundPage homePath="/dashboard" /> },
                         ],
                     },
                 ],
             },
+
+            // Catch-all 404 for any unmatched route
+            { path: '*', element: <NotFoundPage /> },
         ],
     },
 ]);
