@@ -182,7 +182,7 @@ export const router = createBrowserRouter([
                             { path: '/audit-dashboard', element: <AuditDashboard /> },
                             { path: '/admin-tools', element: <AdminTools /> },
                             { path: '/settings', element: <ComingSoon /> },
-                            { path: '*', element: <NotFoundPage /> },
+                            { path: '*', element: <NotFoundPage homePath="/dashboard" /> },
                         ],
                     },
                 ],

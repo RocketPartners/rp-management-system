@@ -27,12 +27,9 @@ export class ErrorBoundary extends Component<Props, State> {
                 <div className="flex h-screen flex-col items-center justify-center gap-4">
                     <h1 className="text-2xl font-bold text-gray-900">Something went wrong</h1>
                     <p className="text-gray-600">An unexpected error occurred. Please try refreshing the page.</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                    >
+                    <Button onClick={() => window.location.reload()}>
                         Refresh Page
-                    </button>
+                    </Button>
                 </div>
             );
         }
@@ -41,14 +38,14 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 }
 
-export function NotFoundPage() {
+export function NotFoundPage({ homePath = '/' }: { homePath?: string }) {
     return (
         <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
             <h1 className="text-6xl font-bold text-gray-300">404</h1>
             <h2 className="text-xl font-semibold text-gray-900">Page Not Found</h2>
             <p className="text-gray-600">The page you're looking for doesn't exist or has been moved.</p>
             <Button asChild>
-                <Link to="/">Go Home</Link>
+                <Link to={homePath}>Go Home</Link>
             </Button>
         </div>
     );
@@ -60,6 +57,8 @@ export function RouteErrorPage() {
     if (isRouteErrorResponse(error) && error.status === 404) {
         return <NotFoundPage />;
     }
+
+    console.error('RouteErrorPage caught:', error);
 
     return (
         <div className="flex h-screen flex-col items-center justify-center gap-4">
