@@ -98,6 +98,7 @@ export default function AuthenticatedLayout() {
         } else {
             setSidebarMinimized(prevMinimized.current);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to AI chat route transitions
     }, [isAIChat]);
     const currentUrl = location.pathname + location.search;
     const { can } = usePermission();

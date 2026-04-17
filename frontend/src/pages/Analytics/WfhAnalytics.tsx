@@ -35,7 +35,6 @@ interface WfhStatsData {
 
 export default function WfhAnalytics() {
     const { can } = usePermission();
-    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     const today = new Date().toISOString().split('T')[0];
     const janFirst = `${new Date().getFullYear()}-01-01`;
@@ -50,8 +49,10 @@ export default function WfhAnalytics() {
             if (endDate) params.set('endDate', endDate);
             return apiGet<WfhStatsData>(`/analytics/wfh?${params}`);
         },
-        enabled: !!startDate && !!endDate,
+        enabled: can('ANALYTICS_READ') && !!startDate && !!endDate,
     });
+
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     return (
         <>

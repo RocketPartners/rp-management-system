@@ -19,15 +19,16 @@ import {
     XAxis,
     YAxis,
     CartesianGrid,
-    Tooltip,
     ResponsiveContainer,
     Legend,
 } from 'recharts';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiGet, apiFetch } from '@/lib/spring-boot-api';
 import { usePermission } from '@/hooks/usePermission';
-import { StatCard, ChartPanel, TablePanel, CustomTooltip, PIE_COLORS } from './components';
+import { StatCard, ChartPanel, TablePanel, CustomTooltip } from './components';
+import { PIE_COLORS } from './constants';
 
 interface LeaveUtilizationData {
     totalUsed: number;
@@ -39,7 +40,6 @@ interface LeaveUtilizationData {
 
 export default function LeaveUtilization() {
     const { can } = usePermission();
-    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     const today = new Date().toISOString().split('T')[0];
     const janFirst = `${new Date().getFullYear()}-01-01`;
@@ -54,8 +54,10 @@ export default function LeaveUtilization() {
             if (endDate) params.set('endDate', endDate);
             return apiGet<LeaveUtilizationData>(`/analytics/leave-utilization?${params}`);
         },
-        enabled: !!startDate && !!endDate,
+        enabled: can('ANALYTICS_READ') && !!startDate && !!endDate,
     });
+
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     const utilizationRate = data && data.totalAvailable > 0
         ? ((data.totalUsed / data.totalAvailable) * 100).toFixed(1)
@@ -76,7 +78,7 @@ export default function LeaveUtilization() {
             a.click();
             URL.revokeObjectURL(url);
         } catch {
-            console.error('Export failed');
+            toast.error('Failed to export CSV. Please try again.');
         }
     }
 
@@ -171,7 +173,7 @@ export default function LeaveUtilization() {
                                             <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip contentStyle={{ background: '#1f2937', border: 'none', borderRadius: '8px', color: '#f9fafb', fontSize: '12px' }} />
+                                    <CustomTooltip />
                                 </PieChart>
                             </ResponsiveContainer>
                         </ChartPanel>

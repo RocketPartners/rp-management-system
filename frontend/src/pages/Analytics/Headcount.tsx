@@ -17,7 +17,6 @@ import {
     XAxis,
     YAxis,
     CartesianGrid,
-    Tooltip,
     ResponsiveContainer,
     Legend,
 } from 'recharts';
@@ -26,7 +25,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiGet } from '@/lib/spring-boot-api';
 import { usePermission } from '@/hooks/usePermission';
-import { ChartPanel, TablePanel, CustomTooltip, PIE_COLORS } from './components';
+import { ChartPanel, TablePanel, CustomTooltip } from './components';
+import { PIE_COLORS } from './constants';
 
 interface HeadcountData {
     total: number;
@@ -38,12 +38,14 @@ interface HeadcountData {
 
 export default function Headcount() {
     const { can } = usePermission();
-    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     const { data, isLoading, isError } = useQuery({
         queryKey: ['analytics-headcount'],
         queryFn: () => apiGet<HeadcountData>('/analytics/headcount'),
+        enabled: can('ANALYTICS_READ'),
     });
+
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     return (
         <>
@@ -124,7 +126,7 @@ export default function Headcount() {
                                             <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip contentStyle={{ background: '#1f2937', border: 'none', borderRadius: '8px', color: '#f9fafb', fontSize: '12px' }} />
+                                    <CustomTooltip />
                                     <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: '11px' }} />
                                 </PieChart>
                             </ResponsiveContainer>

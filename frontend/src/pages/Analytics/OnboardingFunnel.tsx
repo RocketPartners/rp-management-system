@@ -31,7 +31,6 @@ interface OnboardingFunnelData {
 
 export default function OnboardingFunnel() {
     const { can } = usePermission();
-    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     const today = new Date().toISOString().split('T')[0];
     const janFirst = `${new Date().getFullYear()}-01-01`;
@@ -46,8 +45,10 @@ export default function OnboardingFunnel() {
             if (endDate) params.set('endDate', endDate);
             return apiGet<OnboardingFunnelData>(`/analytics/onboarding-funnel?${params}`);
         },
-        enabled: !!startDate && !!endDate,
+        enabled: can('ANALYTICS_READ') && !!startDate && !!endDate,
     });
+
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
 
     const totalInvites = data?.stages?.[0]?.count ?? 0;
     const agingCount = data?.agingInvites?.length ?? 0;
