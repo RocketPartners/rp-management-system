@@ -1,10 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
     ArrowLeft,
     Users,
-    TrendingUp,
     Briefcase,
 } from 'lucide-react';
 import {
@@ -26,6 +25,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiGet } from '@/lib/spring-boot-api';
+import { usePermission } from '@/hooks/usePermission';
+import { ChartPanel, TablePanel, CustomTooltip, PIE_COLORS } from './components';
 
 interface HeadcountData {
     total: number;
@@ -35,27 +36,11 @@ interface HeadcountData {
     growthByMonth: { month: string; newHires: number }[];
 }
 
-const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
-
-// Grafana-style tooltip
-const CustomTooltip = ({ contentStyle, ...props }: any) => (
-    <Tooltip
-        {...props}
-        contentStyle={{
-            background: '#1f2937',
-            border: 'none',
-            borderRadius: '8px',
-            color: '#f9fafb',
-            fontSize: '12px',
-            padding: '8px 12px',
-            ...contentStyle,
-        }}
-        labelStyle={{ color: '#9ca3af', marginBottom: '4px' }}
-    />
-);
-
 export default function Headcount() {
-    const { data, isLoading } = useQuery({
+    const { can } = usePermission();
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
+
+    const { data, isLoading, isError } = useQuery({
         queryKey: ['analytics-headcount'],
         queryFn: () => apiGet<HeadcountData>('/analytics/headcount'),
     });
@@ -78,6 +63,12 @@ export default function Headcount() {
                             <p className="mt-1 text-sm text-gray-500">Current workforce overview</p>
                         </div>
                     </div>
+
+                    {isError && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                            <p className="text-sm font-medium text-red-800">Failed to load analytics data. Please try again later.</p>
+                        </div>
+                    )}
 
                     {/* Big Number Card */}
                     <Card className="border-0 shadow-sm">
@@ -184,43 +175,5 @@ export default function Headcount() {
                 </div>
             </div>
         </>
-    );
-}
-
-// --- Reusable Components ---
-
-function ChartPanel({ title, loading, children }: { title: string; loading: boolean; children: React.ReactNode }) {
-    return (
-        <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-                <div className="mb-3 flex items-center gap-1.5">
-                    <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
-                    <span className="text-xs font-semibold text-gray-500">{title}</span>
-                </div>
-                {loading ? <Skeleton className="h-[260px] w-full rounded" /> : children}
-            </CardContent>
-        </Card>
-    );
-}
-
-function TablePanel({ title, icon, loading, empty, emptyText, children }: {
-    title: string; icon: React.ReactNode; loading: boolean; empty: boolean; emptyText: string; children: React.ReactNode;
-}) {
-    return (
-        <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-                <div className="mb-3 flex items-center gap-1.5">
-                    {icon}
-                    <span className="text-xs font-semibold text-gray-500">{title}</span>
-                </div>
-                {loading ? (
-                    <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8 w-full rounded" />)}</div>
-                ) : empty ? (
-                    <p className="py-6 text-center text-xs text-gray-400">{emptyText}</p>
-                ) : (
-                    <div className="overflow-x-auto">{children}</div>
-                )}
-            </CardContent>
-        </Card>
     );
 }

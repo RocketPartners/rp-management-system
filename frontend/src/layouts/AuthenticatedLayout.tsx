@@ -50,7 +50,6 @@ import {
     BarChart3,
     Wrench,
     CalendarDays,
-    TrendingUp,
 } from 'lucide-react';
 import { type MouseEvent, useState, useEffect, useRef, type LucideIcon } from 'react';
 

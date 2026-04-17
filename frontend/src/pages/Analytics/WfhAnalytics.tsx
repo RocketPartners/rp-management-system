@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
     ArrowLeft,
     Home,
     CalendarDays,
-    TrendingUp,
     Users,
 } from 'lucide-react';
 import {
@@ -17,14 +16,13 @@ import {
     XAxis,
     YAxis,
     CartesianGrid,
-    Tooltip,
     ResponsiveContainer,
 } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Skeleton } from '@/components/ui/skeleton';
 import { apiGet } from '@/lib/spring-boot-api';
+import { usePermission } from '@/hooks/usePermission';
+import { StatCard, ChartPanel, TablePanel, CustomTooltip } from './components';
 
 interface WfhStatsData {
     totalDaysThisMonth: number;
@@ -35,30 +33,16 @@ interface WfhStatsData {
     topUsers: { userId: number; name: string; department: string; totalDays: number }[];
 }
 
-// Grafana-style tooltip
-const CustomTooltip = ({ contentStyle, ...props }: any) => (
-    <Tooltip
-        {...props}
-        contentStyle={{
-            background: '#1f2937',
-            border: 'none',
-            borderRadius: '8px',
-            color: '#f9fafb',
-            fontSize: '12px',
-            padding: '8px 12px',
-            ...contentStyle,
-        }}
-        labelStyle={{ color: '#9ca3af', marginBottom: '4px' }}
-    />
-);
-
 export default function WfhAnalytics() {
+    const { can } = usePermission();
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
+
     const today = new Date().toISOString().split('T')[0];
     const janFirst = `${new Date().getFullYear()}-01-01`;
     const [startDate, setStartDate] = useState(janFirst);
     const [endDate, setEndDate] = useState(today);
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isError } = useQuery({
         queryKey: ['analytics-wfh', { startDate, endDate }],
         queryFn: () => {
             const params = new URLSearchParams();
@@ -66,6 +50,7 @@ export default function WfhAnalytics() {
             if (endDate) params.set('endDate', endDate);
             return apiGet<WfhStatsData>(`/analytics/wfh?${params}`);
         },
+        enabled: !!startDate && !!endDate,
     });
 
     return (
@@ -94,6 +79,12 @@ export default function WfhAnalytics() {
                             <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-8 w-[130px] border-0 p-0 text-xs shadow-none" />
                         </div>
                     </div>
+
+                    {isError && (
+                        <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+                            <p className="text-sm font-medium text-red-800">Failed to load analytics data. Please try again later.</p>
+                        </div>
+                    )}
 
                     {/* Stat Cards */}
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -193,69 +184,5 @@ export default function WfhAnalytics() {
                 </div>
             </div>
         </>
-    );
-}
-
-// --- Reusable Components ---
-
-function StatCard({ title, value, icon: Icon, color, loading, suffix = '' }: {
-    title: string; value?: number; icon: React.ComponentType<{ className?: string }>; color: string; loading: boolean; suffix?: string;
-}) {
-    const colorMap: Record<string, { bg: string; text: string; icon: string }> = {
-        blue: { bg: 'bg-blue-50', text: 'text-blue-700', icon: 'text-blue-500' },
-        green: { bg: 'bg-green-50', text: 'text-green-700', icon: 'text-green-500' },
-    };
-    const c = colorMap[color] || colorMap.blue;
-
-    return (
-        <Card className="border-0 shadow-sm">
-            <CardContent className="flex items-center gap-3 p-4">
-                <div className={`rounded-lg p-2.5 ${c.bg}`}>
-                    <Icon className={`h-5 w-5 ${c.icon}`} />
-                </div>
-                <div>
-                    <p className="text-[11px] font-medium text-gray-400">{title}</p>
-                    {loading ? <Skeleton className="mt-1 h-6 w-12" /> : (
-                        <p className={`text-xl font-bold ${c.text}`}>{(value ?? 0).toLocaleString()}{suffix}</p>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-    );
-}
-
-function ChartPanel({ title, loading, children }: { title: string; loading: boolean; children: React.ReactNode }) {
-    return (
-        <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-                <div className="mb-3 flex items-center gap-1.5">
-                    <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
-                    <span className="text-xs font-semibold text-gray-500">{title}</span>
-                </div>
-                {loading ? <Skeleton className="h-[260px] w-full rounded" /> : children}
-            </CardContent>
-        </Card>
-    );
-}
-
-function TablePanel({ title, icon, loading, empty, emptyText, children }: {
-    title: string; icon: React.ReactNode; loading: boolean; empty: boolean; emptyText: string; children: React.ReactNode;
-}) {
-    return (
-        <Card className="border-0 shadow-sm">
-            <CardContent className="p-4">
-                <div className="mb-3 flex items-center gap-1.5">
-                    {icon}
-                    <span className="text-xs font-semibold text-gray-500">{title}</span>
-                </div>
-                {loading ? (
-                    <div className="space-y-2">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-8 w-full rounded" />)}</div>
-                ) : empty ? (
-                    <p className="py-6 text-center text-xs text-gray-400">{emptyText}</p>
-                ) : (
-                    <div className="overflow-x-auto">{children}</div>
-                )}
-            </CardContent>
-        </Card>
     );
 }

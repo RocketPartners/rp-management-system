@@ -1,7 +1,8 @@
 import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { CalendarDays, UserPlus, Users, Home } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { usePermission } from '@/hooks/usePermission';
 import type { LucideIcon } from 'lucide-react';
 
 interface ReportCard {
@@ -51,6 +52,9 @@ const colorMap: Record<string, { bg: string; icon: string; border: string }> = {
 };
 
 export default function AnalyticsIndex() {
+    const { can } = usePermission();
+    if (!can('ANALYTICS_READ')) return <Navigate to="/dashboard" replace />;
+
     return (
         <>
             <Helmet><title>Analytics | HRIS</title></Helmet>
