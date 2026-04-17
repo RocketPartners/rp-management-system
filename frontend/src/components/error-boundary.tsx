@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
 export function RouteErrorPage() {
     const error = useRouteError();
 
-    if (isRouteErrorResponse(error) && error.status === 404) {
+    if (!error || (isRouteErrorResponse(error) && error.status === 404)) {
         return (
             <div className="flex h-screen flex-col items-center justify-center gap-4">
                 <h1 className="text-6xl font-bold text-gray-300">404</h1>

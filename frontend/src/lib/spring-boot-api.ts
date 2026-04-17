@@ -61,7 +61,13 @@ export async function loginWithGoogle(idToken: string) {
     return json.data;
 }
 
-let refreshPromise: Promise<unknown> | null = null;
+interface TokenData {
+    accessToken: string;
+    refreshToken: string;
+    expiresIn: number;
+}
+
+let refreshPromise: Promise<TokenData> | null = null;
 
 export async function refreshAccessToken() {
     if (refreshPromise) return refreshPromise;
