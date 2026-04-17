@@ -1,6 +1,6 @@
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { ProtectedRoute, GuestRoute } from '@/components/route-guards';
-import { RouteErrorPage } from '@/components/error-boundary';
+import { RouteErrorPage, NotFoundPage } from '@/components/error-boundary';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { lazy, Suspense } from 'react';
 
@@ -182,14 +182,14 @@ export const router = createBrowserRouter([
                             { path: '/audit-dashboard', element: <AuditDashboard /> },
                             { path: '/admin-tools', element: <AdminTools /> },
                             { path: '/settings', element: <ComingSoon /> },
-                            { path: '*', element: <RouteErrorPage /> },
+                            { path: '*', element: <NotFoundPage /> },
                         ],
                     },
                 ],
             },
 
             // Catch-all 404 for any unmatched route
-            { path: '*', element: <RouteErrorPage /> },
+            { path: '*', element: <NotFoundPage /> },
         ],
     },
 ]);

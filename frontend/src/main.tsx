@@ -8,6 +8,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/auth-context';
+import { ErrorBoundary } from '@/components/error-boundary';
 import { TimezoneProvider } from '@/hooks/use-timezone';
 import { router } from '@/router';
 
@@ -27,8 +28,10 @@ createRoot(document.getElementById('root')!).render(
             <HelmetProvider>
                 <AuthProvider>
                     <TimezoneProvider>
-                        <RouterProvider router={router} />
-                        <Toaster position="top-right" richColors closeButton />
+                        <ErrorBoundary>
+                            <RouterProvider router={router} />
+                            <Toaster position="top-right" richColors closeButton />
+                        </ErrorBoundary>
                     </TimezoneProvider>
                 </AuthProvider>
             </HelmetProvider>
