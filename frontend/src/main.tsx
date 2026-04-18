@@ -11,6 +11,10 @@ import { AuthProvider } from '@/contexts/auth-context';
 import { TimezoneProvider } from '@/hooks/use-timezone';
 import { router } from '@/router';
 
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+}
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
