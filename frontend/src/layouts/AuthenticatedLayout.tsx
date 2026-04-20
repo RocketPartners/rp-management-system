@@ -193,6 +193,7 @@ export default function AuthenticatedLayout() {
                 { name: 'My WFH', href: '/my-wfh', icon: Home },
                 { name: 'Announcements', href: '/announcements', icon: Megaphone },
                 { name: 'My Assets', href: '/my-assets', icon: Laptop },
+                { name: 'My Teams', href: '/my-teams', icon: UsersRound },
             ],
         });
 
@@ -201,7 +202,7 @@ export default function AuthenticatedLayout() {
             can('USER_READ') || can('TEAM_READ') || can('ROLE_READ') ||
             can('DEPARTMENT_READ') || can('POSITION_READ') ||
             can('ONBOARDING_VIEW') || can('ONBOARDING_MANAGE') ||
-            can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE') ||
+            can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_TYPE_CREATE') ||
             can('ASSET_VIEW') || can('ASSET_CREATE') ||
             can('PROJECT_READ') || can('PROJECT_CREATE');
 
@@ -325,10 +326,9 @@ export default function AuthenticatedLayout() {
             });
         }
 
-        // LEAVE MANAGEMENT
+        // LEAVE MANAGEMENT (admin — not shown for LEAVE_APPLICATION_READ alone)
         if (
             can('LEAVE_APPLICATION_APPROVE') ||
-            can('LEAVE_APPLICATION_READ') ||
             can('LEAVE_TYPE_CREATE')
         ) {
             const leaveItems: NavItemConfig[] = [];
@@ -341,7 +341,7 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE')) {
+            if (can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_TYPE_CREATE')) {
                 leaveItems.push({
                     name: 'All Requests',
                     href: '/leaves',
