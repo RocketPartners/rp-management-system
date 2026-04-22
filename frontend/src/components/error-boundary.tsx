@@ -38,6 +38,22 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 }
 
+export function ForbiddenPage({ homePath = '/dashboard' }: { homePath?: string }) {
+    return (
+        <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
+            <h1 className="text-6xl font-bold text-gray-300">403</h1>
+            <h2 className="text-xl font-semibold text-gray-900">Access Denied</h2>
+            <p className="text-gray-600">
+                You don&apos;t have permission to access this page. If you think
+                this is a mistake, contact your administrator.
+            </p>
+            <Button asChild>
+                <Link to={homePath}>Back to Dashboard</Link>
+            </Button>
+        </div>
+    );
+}
+
 export function NotFoundPage({ homePath = '/' }: { homePath?: string }) {
     return (
         <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">

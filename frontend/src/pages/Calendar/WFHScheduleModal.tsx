@@ -8,6 +8,8 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { MobileBottomSheet } from '@/components/mobile-nav/MobileBottomSheet';
+import { useIsBottomNav } from '@/hooks/use-bottom-nav';
 import { apiFetch } from '@/lib/spring-boot-api';
 import type { WFHWeeklyUsage } from '@/types';
 import { Loader2 } from 'lucide-react';
@@ -80,6 +82,7 @@ export default function WFHScheduleModal({
     const [recurringMonth, setRecurringMonth] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const isMobile = useIsBottomNav();
 
     const handleDateSelect = (dateStr: string) => {
         if (isWeekend(dateStr)) {
@@ -180,27 +183,11 @@ export default function WFHScheduleModal({
     const scheduleDateCount =
         mode === 'one-time' ? selectedDates.length : previewDates.length;
 
-    return (
-        <Dialog
-            open={open}
-            onOpenChange={(isOpen) => {
-                if (!isOpen) handleClose();
-                else onOpenChange(true);
-            }}
-        >
-            <DialogContent className="sm:max-w-[700px]">
-                <DialogHeader>
-                    <DialogTitle>Schedule Work From Home</DialogTitle>
-                    <DialogDescription>
-                        Schedule specific dates or set up a recurring weekly
-                        pattern. Weekends are not allowed.
-                    </DialogDescription>
-                </DialogHeader>
-
-                <div className="grid gap-6">
+    const formContent = (
+                <div className="grid gap-4 lg:gap-6 min-w-0">
                     {/* Weekly Usage */}
                     {weeklyUsage && (
-                        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-4">
+                        <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100 p-3 lg:p-4">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h4 className="text-sm font-semibold text-blue-900">
@@ -224,10 +211,10 @@ export default function WFHScheduleModal({
                     )}
 
                     {/* Mode Toggle */}
-                    <div className="flex gap-2 rounded-lg bg-gray-100 p-1">
+                    <div className="flex gap-2 rounded-xl bg-gray-100 p-1.5">
                         <button
                             onClick={() => setMode('one-time')}
-                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                            className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
                                 mode === 'one-time'
                                     ? 'bg-white text-blue-700 shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900'
@@ -237,7 +224,7 @@ export default function WFHScheduleModal({
                         </button>
                         <button
                             onClick={() => setMode('recurring')}
-                            className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-all ${
+                            className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all ${
                                 mode === 'recurring'
                                     ? 'bg-white text-blue-700 shadow-sm'
                                     : 'text-gray-600 hover:text-gray-900'
@@ -267,8 +254,8 @@ export default function WFHScheduleModal({
                         </div>
                     )}
 
-                    {/* Two Column Layout */}
-                    <div className="grid gap-6 md:grid-cols-2">
+                    {/* Single column on mobile, two on desktop */}
+                    <div className="grid gap-4 lg:gap-6 lg:grid-cols-2">
                         {/* Left Column - Date Selection */}
                         <div className="space-y-4">
                             {mode === 'one-time' ? (
@@ -285,7 +272,7 @@ export default function WFHScheduleModal({
                                     <input
                                         type="date"
                                         id="wfh-date"
-                                        className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                        className="w-full max-w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                         min={
                                             new Date()
                                                 .toISOString()
@@ -323,7 +310,7 @@ export default function WFHScheduleModal({
                                                     e.target.value,
                                                 )
                                             }
-                                            className="w-full rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                            className="w-full max-w-full rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                             min={new Date()
                                                 .toISOString()
                                                 .slice(0, 7)}
@@ -395,10 +382,10 @@ export default function WFHScheduleModal({
                                 </Label>
                                 <textarea
                                     id="wfh-reason"
-                                    rows={4}
+                                    rows={isMobile ? 2 : 4}
                                     value={reason}
                                     onChange={(e) => setReason(e.target.value)}
-                                    className="mt-2 w-full resize-none rounded-lg border-2 border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                    className="mt-2 w-full max-w-full resize-none rounded-lg border border-gray-300 px-4 py-3 text-sm transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                     placeholder="e.g., Doctor's appointment, Home maintenance, Focus work..."
                                 />
                             </div>
@@ -421,55 +408,87 @@ export default function WFHScheduleModal({
                         </div>
                     </div>
                 </div>
+    );
 
+    const footerContent = (
+        <div className="flex gap-3 mt-5">
+            <Button
+                variant="outline"
+                onClick={handleClose}
+                disabled={loading}
+                className="flex-1 h-12 text-base"
+            >
+                Cancel
+            </Button>
+            <Button
+                onClick={handleSubmit}
+                disabled={
+                    loading ||
+                    (mode === 'one-time' && selectedDates.length === 0) ||
+                    (mode === 'recurring' && (!recurringMonth || recurringDays.length === 0))
+                }
+                className="flex-1 h-12 text-base bg-blue-600 hover:bg-blue-700"
+            >
+                {loading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Scheduling...
+                    </>
+                ) : (
+                    <>
+                        <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        {scheduleDateCount > 0
+                            ? `Schedule (${scheduleDateCount} ${scheduleDateCount === 1 ? 'day' : 'days'})`
+                            : mode === 'one-time' ? 'Schedule WFH' : 'Schedule Pattern'}
+                    </>
+                )}
+            </Button>
+        </div>
+    );
+
+    if (isMobile) {
+        return (
+            <MobileBottomSheet
+                open={open}
+                onOpenChange={(isOpen) => {
+                    if (!isOpen) handleClose();
+                    else onOpenChange(true);
+                }}
+                header={
+                    <div className="px-5 pb-3 pt-1">
+                        <h2 className="text-base font-semibold text-slate-900">Schedule Work From Home</h2>
+                        <p className="text-xs text-gray-500">Schedule dates or set up a recurring pattern</p>
+                    </div>
+                }
+            >
+                <div className="overflow-hidden px-5 pb-6">
+                    {formContent}
+                    {footerContent}
+                </div>
+            </MobileBottomSheet>
+        );
+    }
+
+    return (
+        <Dialog
+            open={open}
+            onOpenChange={(isOpen) => {
+                if (!isOpen) handleClose();
+                else onOpenChange(true);
+            }}
+        >
+            <DialogContent className="sm:max-w-[700px]">
+                <DialogHeader>
+                    <DialogTitle>Schedule Work From Home</DialogTitle>
+                    <DialogDescription>
+                        Schedule specific dates or set up a recurring weekly pattern. Weekends are not allowed.
+                    </DialogDescription>
+                </DialogHeader>
+                {formContent}
                 <DialogFooter className="mt-6 gap-2">
-                    <Button
-                        variant="outline"
-                        onClick={handleClose}
-                        disabled={loading}
-                        className="flex-1 sm:flex-none"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={
-                            loading ||
-                            (mode === 'one-time' &&
-                                selectedDates.length === 0) ||
-                            (mode === 'recurring' &&
-                                (!recurringMonth || recurringDays.length === 0))
-                        }
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 sm:flex-none"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Scheduling...
-                            </>
-                        ) : (
-                            <>
-                                <svg
-                                    className="mr-2 h-4 w-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M5 13l4 4L19 7"
-                                    />
-                                </svg>
-                                {scheduleDateCount > 0
-                                    ? `Schedule (${scheduleDateCount} ${scheduleDateCount === 1 ? 'day' : 'days'})`
-                                    : mode === 'one-time'
-                                      ? 'Schedule WFH'
-                                      : 'Schedule Pattern'}
-                            </>
-                        )}
-                    </Button>
+                    {footerContent}
                 </DialogFooter>
             </DialogContent>
         </Dialog>

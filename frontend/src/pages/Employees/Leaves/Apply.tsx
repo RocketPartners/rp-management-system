@@ -82,7 +82,7 @@ export default function Apply() {
         emergencyContactName: '',
         emergencyContactPhone: '',
         useDefaultEmergencyContact: true,
-        availability: 'reachable',
+        availability: 'REACHABLE',
         managerId: 'auto',
         duration: 'FULL_DAY',
     });
@@ -231,7 +231,7 @@ export default function Apply() {
 
             {/* Header */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
+                <div className="px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
                     <div className="flex items-center gap-3">
                         <Button asChild variant="ghost" size="sm">
                             <Link to="/my-leaves">
@@ -241,14 +241,14 @@ export default function Apply() {
                         </Button>
                         <div className="h-8 w-px bg-gray-300" />
                         <div className="flex items-center gap-3">
-                            <div className="rounded-lg bg-blue-100 p-2">
+                            <div className="hidden lg:block rounded-lg bg-blue-100 p-2">
                                 <Calendar className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <h2 className="text-3xl font-bold text-gray-900">
+                                <h2 className="text-xl lg:text-3xl font-bold text-gray-900">
                                     Apply for Leave
                                 </h2>
-                                <p className="mt-1 text-gray-600">
+                                <p className="hidden lg:block mt-1 text-gray-600">
                                     Submit a new leave request
                                 </p>
                             </div>
@@ -494,14 +494,14 @@ export default function Apply() {
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="reachable">
+                                                <SelectItem value="REACHABLE">
                                                     Reachable - Can respond to
                                                     urgent matters
                                                 </SelectItem>
-                                                <SelectItem value="offline">
+                                                <SelectItem value="OFFLINE">
                                                     Completely Offline
                                                 </SelectItem>
-                                                <SelectItem value="emergency_only">
+                                                <SelectItem value="EMERGENCY_ONLY">
                                                     Emergency Only
                                                 </SelectItem>
                                             </SelectContent>

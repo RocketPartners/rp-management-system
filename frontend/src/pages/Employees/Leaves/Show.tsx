@@ -213,86 +213,84 @@ export default function Show() {
 
             {/* Header */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <Button asChild variant="ghost" size="sm">
-                                <Link to="/my-leaves">
-                                    <ArrowLeft className="mr-2 h-4 w-4" />
-                                    Back to My Leaves
-                                </Link>
-                            </Button>
-                            <div className="h-8 w-px bg-gray-300" />
-                            <div className="flex items-center gap-3">
-                                <div
-                                    className="rounded-lg p-2"
-                                    style={{
-                                        backgroundColor:
-                                            (leave.leaveTypeColor || '#3B82F6') + '15',
-                                    }}
-                                >
-                                    <Calendar
-                                        className="h-6 w-6"
-                                        style={{
-                                            color: leave.leaveTypeColor || '#3B82F6',
-                                        }}
-                                    />
-                                </div>
-                                <div>
-                                    <div className="flex items-center gap-2">
-                                        <h2 className="text-3xl font-bold text-gray-900">
-                                            My Leave Request
-                                        </h2>
-                                        <Badge
-                                            className={`${statusStyle.bg} ${statusStyle.text} ${statusStyle.border} flex items-center gap-1.5 border`}
-                                        >
-                                            <StatusIcon className="h-3.5 w-3.5" />
-                                            {leave.statusLabel || formatStatusLabel(leave.status)}
-                                        </Badge>
-                                    </div>
-                                    <p className="mt-1 text-gray-600">
+                <div className="px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+                    {/* Back + title */}
+                    <div className="flex items-center gap-2 mb-3 lg:mb-0">
+                        <Button asChild variant="ghost" size="sm">
+                            <Link to="/my-leaves">
+                                <ArrowLeft className="h-4 w-4 lg:mr-2" />
+                                <span className="hidden lg:inline">Back to My Leaves</span>
+                            </Link>
+                        </Button>
+                        <div className="hidden h-8 w-px bg-gray-300 lg:block" />
+                        <div className="flex items-center gap-2 lg:gap-3">
+                            <div
+                                className="hidden rounded-lg p-2 lg:block"
+                                style={{ backgroundColor: (leave.leaveTypeColor || '#3B82F6') + '15' }}
+                            >
+                                <Calendar className="h-6 w-6" style={{ color: leave.leaveTypeColor || '#3B82F6' }} />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h2 className="text-lg font-bold text-gray-900 lg:text-3xl">
                                         {leave.leaveTypeName}
-                                    </p>
+                                    </h2>
+                                    <Badge className={`${statusStyle.bg} ${statusStyle.text} ${statusStyle.border} flex items-center gap-1 border text-[11px] lg:gap-1.5 lg:text-xs`}>
+                                        <StatusIcon className="h-3 w-3 lg:h-3.5 lg:w-3.5" />
+                                        {leave.statusLabel || formatStatusLabel(leave.status)}
+                                    </Badge>
                                 </div>
+                                <p className="text-xs text-gray-500 mt-0.5 lg:mt-1 lg:text-sm lg:text-gray-600">
+                                    {new Date(leave.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                    {leave.startDate !== leave.endDate && (
+                                        <> – {new Date(leave.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</>
+                                    )}
+                                    {' · '}{leave.totalDays} {leave.totalDays === 1 ? 'day' : 'days'}
+                                </p>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex gap-3">
+                    {/* Action Buttons — stacked on mobile */}
+                    {(canEdit || canCancel || canRequestCancellation) && (
+                        <div className="flex gap-2 mt-3 lg:mt-0 lg:absolute lg:right-8 lg:top-6">
                             {canEdit && (
-                                <Button asChild variant="outline">
+                                <Button asChild variant="outline" size="sm" className="flex-1 lg:flex-none">
                                     <Link to={`/my-leaves/${leave.id}/edit`}>
-                                        <Edit2 className="mr-2 h-4 w-4" />
-                                        Edit Request
+                                        <Edit2 className="mr-1.5 h-4 w-4" />
+                                        Edit
                                     </Link>
                                 </Button>
                             )}
                             {canCancel && (
                                 <Button
                                     variant="outline"
-                                    className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+                                    size="sm"
+                                    className="flex-1 border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 lg:flex-none"
                                     onClick={() => setShowCancelModal(true)}
                                 >
-                                    <XCircle className="mr-2 h-4 w-4" />
-                                    Cancel Request
+                                    <XCircle className="mr-1.5 h-4 w-4" />
+                                    Cancel
                                 </Button>
                             )}
                             {canRequestCancellation && (
                                 <Button
                                     variant="outline"
-                                    className="border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700"
+                                    size="sm"
+                                    className="flex-1 border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700 lg:flex-none"
                                     onClick={() => setShowRequestCancelModal(true)}
                                 >
-                                    <AlertTriangle className="mr-2 h-4 w-4" />
-                                    Request Cancellation
+                                    <AlertTriangle className="mr-1.5 h-4 w-4" />
+                                    <span className="lg:hidden">Request Cancel</span>
+                                    <span className="hidden lg:inline">Request Cancellation</span>
                                 </Button>
                             )}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 
-            <div className="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:px-6 lg:space-y-6 lg:py-8 lg:px-8">
                 {/* Flash Messages */}
                 {successMsg && (
                     <Alert className="animate-fade-in border-green-200 bg-green-50">
@@ -327,11 +325,11 @@ export default function Show() {
                     </Alert>
                 )}
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-3">
                     {/* Main Content */}
-                    <div className="space-y-6 lg:col-span-2">
-                        {/* Leave Details */}
-                        <Card className="animate-fade-in">
+                    <div className="flex flex-col gap-4 lg:gap-6 lg:col-span-2">
+                        {/* Leave Details — order-2 on mobile (after timeline) */}
+                        <Card className="animate-fade-in order-2 lg:order-1">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Calendar className="h-5 w-5" />
@@ -468,8 +466,8 @@ export default function Show() {
                             </CardContent>
                         </Card>
 
-                        {/* Approval Timeline */}
-                        <Card className="animate-fade-in animation-delay-200">
+                        {/* Approval Timeline — order-1 on mobile (shown first) */}
+                        <Card className="animate-fade-in animation-delay-200 order-1 lg:order-2">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Clock className="h-5 w-5" />
@@ -644,8 +642,8 @@ export default function Show() {
                         </Card>
                     </div>
 
-                    {/* Sidebar */}
-                    <div className="space-y-6">
+                    {/* Sidebar — order-3 on mobile (after details) */}
+                    <div className="order-3 space-y-4 lg:space-y-6">
                         {/* Request Info Card */}
                         <Card className="animate-fade-in animation-delay-100">
                             <CardHeader>

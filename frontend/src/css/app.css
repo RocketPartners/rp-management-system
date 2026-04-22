@@ -1,6 +1,18 @@
 @import 'tailwindcss';
 @import './animations.css';
 
+/* New notification slide-in animation */
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 @plugin '@tailwindcss/typography';
 
 @theme {
@@ -326,5 +338,73 @@
     /* Remove pointer-events from child elements to ensure hover works */
     .has-custom-tooltip * {
         pointer-events: none;
+    }
+
+    /* FullCalendar List View — modern mobile styling */
+    .fc-list {
+        @apply border-0;
+    }
+
+    .fc-list-table {
+        @apply border-0;
+    }
+
+    .fc-list-day-cushion {
+        @apply bg-gray-50/80 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-500;
+    }
+
+    .fc-list-event {
+        @apply cursor-pointer;
+    }
+
+    .fc-list-event td {
+        @apply border-0 px-3 py-2.5;
+    }
+
+    .fc-list-event:hover td {
+        @apply bg-gray-50;
+    }
+
+    .fc-list-event-dot {
+        @apply border-0;
+        width: 10px !important;
+        height: 10px !important;
+        border-radius: 50% !important;
+    }
+
+    .fc-list-event-title {
+        @apply text-sm font-medium text-gray-900;
+    }
+
+    .fc-list-event-time {
+        @apply text-xs text-gray-500;
+        white-space: nowrap;
+    }
+
+    .fc-list-empty {
+        @apply bg-transparent;
+    }
+
+    .fc-list-empty-cushion {
+        @apply py-12 text-sm text-gray-400;
+    }
+
+    /* Mobile-specific calendar tweaks */
+    @media (max-width: 1023px) {
+        .fc-daygrid-day-frame {
+            @apply min-h-[80px];
+        }
+
+        .fc-daygrid-day-number {
+            @apply p-1 text-xs;
+        }
+
+        .fc-col-header-cell-cushion {
+            @apply text-xs;
+        }
+
+        .fc-event {
+            @apply px-1.5 py-0.5 text-xs;
+        }
     }
 }

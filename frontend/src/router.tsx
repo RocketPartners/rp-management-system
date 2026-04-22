@@ -34,6 +34,9 @@ const AssetList = lazy(() => import('@/pages/Assets/Index'));
 // Phase 9 — Support / Tickets (TSX)
 const SupportTickets = lazy(() => import('@/pages/Support/Index'));
 
+const NotificationsPage = lazy(() => import('@/pages/Notifications/Index'));
+const SettingsPage = lazy(() => import('@/pages/Settings/Index'));
+
 // Phase 10 — Onboarding (TSX)
 const OnboardingInvites = lazy(() => import('@/pages/Onboarding/Invites/Index'));
 const OnboardingSubmissions = lazy(() => import('@/pages/Onboarding/Submissions/Index'));
@@ -148,7 +151,8 @@ export const router = createBrowserRouter([
                             { path: '/ai-chat', element: <AIChat /> },
                             { path: '/ai-chat/:sessionId', element: <AIChat /> },
                             { path: '/support', element: <SupportTickets /> },
-                            { path: '/settings', element: <ComingSoon /> },
+                            { path: '/notifications', element: <NotificationsPage /> },
+                            { path: '/settings', element: <SettingsPage /> },
 
                             // ─── User Management ───
                             {

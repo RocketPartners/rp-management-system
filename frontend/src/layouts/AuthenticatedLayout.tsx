@@ -13,77 +13,25 @@ import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
-    Bell,
-    Briefcase,
-    Building2,
     Calendar,
-    CheckCircle2,
-    CheckSquare,
     ChevronDown,
     ChevronRight,
-    ClipboardList,
-    FolderKanban,
     Globe,
-    Home,
-    Laptop,
-    Layers,
-    LayoutDashboard,
     LifeBuoy,
     LogOut,
-    Mail,
-    Megaphone,
     Menu,
-    Package,
-    PartyPopper,
     Search,
     Settings,
-    Shield,
     UserCheck,
-    UserPlus,
-    Users,
-    UsersRound,
-    Wallet,
     X,
-    FileCheck,
-    Sparkles,
-    ScrollText,
-    BarChart3,
-    Wrench,
-    CalendarDays,
 } from 'lucide-react';
-import { type MouseEvent, useState, useEffect, useRef, type LucideIcon } from 'react';
-
-interface NavItemConfig {
-    name: string;
-    href: string;
-    icon: LucideIcon;
-    badge?: number;
-}
-
-interface NavSectionItems {
-    type: 'items';
-    label?: string;
-    items: NavItemConfig[];
-}
-
-interface NavSectionAccordion {
-    type: 'accordion';
-    name: string;
-    icon: LucideIcon;
-    items: NavItemConfig[];
-}
-
-interface NavSectionDivider {
-    type: 'divider';
-    label?: string;
-}
-
-type NavSection = NavSectionItems | NavSectionAccordion | NavSectionDivider;
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
+import { BottomNav } from '@/components/mobile-nav/BottomNav';
+import { buildNavigation, type NavItemConfig } from '@/lib/navigation';
+import { type MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 
 export default function AuthenticatedLayout() {
-    const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [sidebarMinimized, setSidebarMinimized] = useState<boolean>(false);
-    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
@@ -102,6 +50,21 @@ export default function AuthenticatedLayout() {
     }, [isAIChat]);
     const currentUrl = location.pathname + location.search;
     const { can } = usePermission();
+    const navigation = useMemo(() => buildNavigation(can), [can]);
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+        const initial: Record<string, boolean> = {};
+        const initialUrl = location.pathname + location.search;
+        const cleanUrl = initialUrl.split('?')[0];
+        navigation.forEach((section) => {
+            if (section.type === 'accordion') {
+                initial[section.name] = section.items.some((item) => {
+                    const cleanHref = item.href.split('?')[0];
+                    return cleanUrl === cleanHref || cleanUrl.startsWith(cleanHref + '/');
+                });
+            }
+        });
+        return initial;
+    });
     const { timezone, setTimezone, timezones } = useTimezone();
     const currentTimezone =
         timezones.find((tz) => tz.id === timezone) || timezones[2];
@@ -175,313 +138,6 @@ export default function AuthenticatedLayout() {
         return items.some((item) => isActive(item.href));
     };
 
-    const buildNavigation = (): NavSection[] => {
-        const nav: NavSection[] = [];
-
-        // EVERYONE - Personal
-        nav.push({
-            type: 'items',
-            items: [
-                {
-                    name: 'Dashboard',
-                    href: '/dashboard',
-                    icon: LayoutDashboard,
-                },
-                { name: 'AI Assistant', href: '/ai-chat', icon: Sparkles },
-                { name: 'Calendar', href: '/calendar', icon: Calendar },
-                { name: 'My Leaves', href: '/my-leaves', icon: ClipboardList },
-                { name: 'My WFH', href: '/my-wfh', icon: Home },
-                { name: 'Announcements', href: '/announcements', icon: Megaphone },
-                { name: 'My Assets', href: '/my-assets', icon: Laptop },
-                { name: 'My Teams', href: '/my-teams', icon: UsersRound },
-            ],
-        });
-
-        // ADMINISTRATION divider
-        const hasAdminAccess =
-            can('USER_READ') || can('TEAM_READ') || can('ROLE_READ') ||
-            can('DEPARTMENT_READ') || can('POSITION_READ') ||
-            can('ONBOARDING_VIEW') || can('ONBOARDING_MANAGE') ||
-            can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_TYPE_CREATE') ||
-            can('ASSET_VIEW') || can('ASSET_CREATE') ||
-            can('PROJECT_READ') || can('PROJECT_CREATE');
-
-        if (hasAdminAccess) {
-            nav.push({ type: 'divider', label: 'Administration' });
-        }
-
-        // USER MANAGEMENT
-        if (can('USER_READ') || can('TEAM_READ')) {
-            const userItems: NavItemConfig[] = [];
-
-            if (can('USER_READ')) {
-                userItems.push({
-                    name: 'All Users',
-                    href: '/users',
-                    icon: Users,
-                });
-            }
-
-            if (can('USER_UPDATE')) {
-                userItems.push({
-                    name: 'Pending Approvals',
-                    href: '/users/pending-approvals',
-                    icon: UserCheck,
-                });
-            }
-
-            if (can('TEAM_READ')) {
-                userItems.push({
-                    name: 'Teams',
-                    href: '/teams',
-                    icon: UsersRound,
-                });
-            }
-
-            if (userItems.length > 0) {
-                nav.push({
-                    type: 'accordion',
-                    name: 'User Management',
-                    icon: Users,
-                    items: userItems,
-                });
-            }
-        } else if (can('USER_UPDATE')) {
-            nav.push({
-                type: 'items',
-                items: [
-                    {
-                        name: 'Pending Approvals',
-                        href: '/users/pending-approvals',
-                        icon: UserCheck,
-                    },
-                ],
-            });
-        }
-
-        // ROLE MANAGEMENT
-        if (can('ROLE_READ')) {
-            nav.push({
-                type: 'accordion',
-                name: 'Role Management',
-                icon: Shield,
-                items: [
-                    {
-                        name: 'All Roles',
-                        href: '/roles',
-                        icon: Shield,
-                    },
-                ],
-            });
-        }
-
-        // ORGANIZATION (Departments & Positions)
-        if (can('DEPARTMENT_READ') || can('POSITION_READ')) {
-            const orgItems: NavItemConfig[] = [];
-
-            if (can('DEPARTMENT_READ')) {
-                orgItems.push({
-                    name: 'Departments',
-                    href: '/departments',
-                    icon: Building2,
-                });
-            }
-
-            if (can('POSITION_READ')) {
-                orgItems.push({
-                    name: 'Positions',
-                    href: '/positions',
-                    icon: Briefcase,
-                });
-            }
-
-            if (orgItems.length > 0) {
-                nav.push({
-                    type: 'accordion',
-                    name: 'Organization',
-                    icon: Building2,
-                    items: orgItems,
-                });
-            }
-        }
-
-        // ONBOARDING MANAGEMENT
-        if (can('ONBOARDING_VIEW') || can('ONBOARDING_MANAGE')) {
-            nav.push({
-                type: 'accordion',
-                name: 'Onboarding',
-                icon: UserPlus,
-                items: [
-                    {
-                        name: 'Invites',
-                        href: '/onboarding/invites',
-                        icon: Mail,
-                    },
-                    {
-                        name: 'Submissions',
-                        href: '/onboarding/submissions',
-                        icon: FileCheck,
-                    },
-                ],
-            });
-        }
-
-        // LEAVE MANAGEMENT (admin — not shown for LEAVE_APPLICATION_READ alone)
-        if (
-            can('LEAVE_APPLICATION_APPROVE') ||
-            can('LEAVE_TYPE_CREATE')
-        ) {
-            const leaveItems: NavItemConfig[] = [];
-
-            if (can('LEAVE_APPLICATION_APPROVE')) {
-                leaveItems.push({
-                    name: 'Pending Approvals',
-                    href: '/leaves/pending-approvals',
-                    icon: CheckSquare,
-                });
-            }
-
-            if (can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_TYPE_CREATE')) {
-                leaveItems.push({
-                    name: 'All Requests',
-                    href: '/leaves',
-                    icon: ClipboardList,
-                });
-            }
-
-            if (can('LEAVE_TYPE_CREATE')) {
-                leaveItems.push({
-                    name: 'Leave Types',
-                    href: '/leave-types',
-                    icon: Layers,
-                });
-                leaveItems.push({
-                    name: 'Balance Management',
-                    href: '/leave-balances',
-                    icon: Wallet,
-                });
-                leaveItems.push({
-                    name: 'Holidays',
-                    href: '/holidays',
-                    icon: PartyPopper,
-                });
-            }
-
-            if (leaveItems.length > 0) {
-                nav.push({
-                    type: 'accordion',
-                    name: 'Leave Management',
-                    icon: Calendar,
-                    items: leaveItems,
-                });
-            }
-        }
-
-        // ASSET MANAGEMENT
-        if (can('ASSET_VIEW') || can('ASSET_CREATE') || can('ASSET_EDIT')) {
-            nav.push({
-                type: 'items',
-                items: [
-                    {
-                        name: 'Assets',
-                        href: '/assets',
-                        icon: Package,
-                    },
-                ],
-            });
-        }
-
-        // PROJECT MANAGEMENT
-        if (can('PROJECT_READ') || can('PROJECT_CREATE')) {
-            nav.push({
-                type: 'accordion',
-                name: 'Projects',
-                icon: FolderKanban,
-                items: [
-                    {
-                        name: 'All Projects',
-                        href: '/projects',
-                        icon: FolderKanban,
-                    },
-                    { name: 'Tasks', href: '/tasks', icon: ClipboardList },
-                    {
-                        name: 'Kanban Board',
-                        href: '/tasks/kanban',
-                        icon: Layers,
-                    },
-                ],
-            });
-        }
-
-        // SUPER ADMIN — Audit Trail + Admin Tools
-        if (can('AUDIT_LOG_READ') || can('ADMIN_TOOLS')) {
-            nav.push({ type: 'divider', label: 'Super Admin' });
-        }
-
-        if (can('AUDIT_LOG_READ')) {
-            nav.push({
-                type: 'accordion',
-                name: 'Audit Trail',
-                icon: ScrollText,
-                items: [
-                    { name: 'Audit Logs', href: '/audit-logs', icon: ScrollText },
-                    { name: 'Audit Dashboard', href: '/audit-dashboard', icon: BarChart3 },
-                ],
-            });
-        }
-
-        if (can('ADMIN_TOOLS')) {
-            nav.push({
-                type: 'items',
-                items: [
-                    { name: 'Admin Tools', href: '/admin-tools', icon: Wrench },
-                ],
-            });
-        }
-
-        if (can('ANALYTICS_READ')) {
-            nav.push({
-                type: 'accordion',
-                name: 'Analytics',
-                icon: BarChart3,
-                items: [
-                    { name: 'Overview', href: '/analytics', icon: LayoutDashboard },
-                    { name: 'Leave Utilization', href: '/analytics/leave-utilization', icon: CalendarDays },
-                    { name: 'Onboarding Funnel', href: '/analytics/onboarding-funnel', icon: UserPlus },
-                    { name: 'Headcount', href: '/analytics/headcount', icon: Users },
-                    { name: 'WFH Analytics', href: '/analytics/wfh', icon: Home },
-                ],
-            });
-        }
-
-        // SUPPORT & SETTINGS
-        nav.push({ type: 'divider' });
-        nav.push({
-            type: 'items',
-            items: [
-                { name: 'Support', href: '/support', icon: LifeBuoy },
-                { name: 'Settings', href: '/settings', icon: Settings },
-            ],
-        });
-
-        return nav;
-    };
-
-    const navigation = buildNavigation();
-
-    // Initialize expanded sections on mount
-    useState(() => {
-        const initialExpanded: Record<string, boolean> = {};
-        navigation.forEach((section) => {
-            if (section.type === 'accordion') {
-                initialExpanded[section.name] = sectionHasActiveItem(
-                    section.items,
-                );
-            }
-        });
-        setExpandedSections(initialExpanded);
-    });
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Top Navigation Bar */}
@@ -489,16 +145,6 @@ export default function AuthenticatedLayout() {
                 <div className="px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 justify-between">
                         <div className="flex items-center">
-                            <button
-                                onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 lg:hidden"
-                            >
-                                {sidebarOpen ? (
-                                    <X className="h-6 w-6" />
-                                ) : (
-                                    <Menu className="h-6 w-6" />
-                                )}
-                            </button>
                             <Link
                                 to="/dashboard"
                                 className="group ml-4 flex items-center lg:ml-0"
@@ -525,33 +171,7 @@ export default function AuthenticatedLayout() {
 
                         <div className="flex items-center space-x-4">
                             {/* Notifications Bell */}
-                            <DropdownMenu modal={false}>
-                                <DropdownMenuTrigger asChild>
-                                    <button className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-                                        <Bell className="h-6 w-6" />
-                                    </button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent
-                                    align="end"
-                                    className="w-80"
-                                >
-                                    <DropdownMenuLabel className="flex items-center justify-between">
-                                        <span className="text-base font-semibold">
-                                            Notifications
-                                        </span>
-                                    </DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <div className="px-4 py-8 text-center">
-                                        <CheckCircle2 className="mx-auto h-12 w-12 text-gray-300" />
-                                        <p className="mt-2 text-sm font-medium text-gray-900">
-                                            All caught up!
-                                        </p>
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            No pending approvals
-                                        </p>
-                                    </div>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <NotificationDropdown />
 
                             {/* Timezone Selector */}
                             <DropdownMenu>
@@ -652,17 +272,9 @@ export default function AuthenticatedLayout() {
                 </div>
             </nav>
 
-            {/* Mobile sidebar overlay */}
-            {sidebarOpen && (
-                <div
-                    className="fixed inset-0 z-20 bg-gray-900 bg-opacity-50 lg:hidden"
-                    onClick={() => setSidebarOpen(false)}
-                />
-            )}
-
             {/* Sidebar */}
             <aside
-                className={`fixed left-0 z-20 transform border-r border-gray-200 bg-white transition-all duration-300 ${sidebarMinimized ? 'w-20' : 'w-64'} lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+                className={`fixed left-0 z-20 transform border-r border-gray-200 bg-white transition-all duration-300 ${sidebarMinimized ? 'w-20' : 'w-64'} hidden lg:block`}
                 style={{ top: '64px', height: 'calc(100vh - 64px)' }}
             >
                 <div className="flex h-full flex-col">
@@ -848,10 +460,11 @@ export default function AuthenticatedLayout() {
 
             {/* Main Content */}
             <main
-                className={`flex-1 transition-all duration-300 ${sidebarMinimized ? 'lg:ml-20' : 'lg:ml-64'} pt-16`}
+                className={`flex-1 transition-all duration-300 ${sidebarMinimized ? 'lg:ml-20' : 'lg:ml-64'} pt-16 pb-28 lg:pb-0`}
             >
                 <Outlet />
             </main>
+            <BottomNav />
         </div>
     );
 }

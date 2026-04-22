@@ -59,18 +59,22 @@ export default function MyAssets() {
         <>
             <Helmet><title>My Assets | HRIS</title></Helmet>
 
-            <div className="space-y-6 p-6">
-                {/* Header */}
-                <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-blue-100 p-2">
-                        <Laptop className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">My Assets</h1>
-                        <p className="text-sm text-gray-500">View equipment assigned to you</p>
+            {/* Header */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+                    <div className="flex items-center gap-3">
+                        <div className="hidden lg:block rounded-lg bg-blue-100 p-2">
+                            <Laptop className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                            <h1 className="text-xl lg:text-2xl font-bold text-gray-900">My Assets</h1>
+                            <p className="text-sm text-gray-500">View equipment assigned to you</p>
+                        </div>
                     </div>
                 </div>
+            </div>
 
+            <div className="space-y-6 p-6">
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {/* Main Content */}
                     <div className="space-y-6 lg:col-span-2">
