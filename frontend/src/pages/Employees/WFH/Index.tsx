@@ -214,13 +214,13 @@ export default function MyWFH() {
 
             {/* Header */}
             <div className="border-b border-gray-200 bg-white">
-                <div className="px-4 py-6 sm:px-6 lg:px-8">
+                <div className="px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                                My Work From Home
+                            <h2 className="text-xl font-bold text-gray-900 lg:text-2xl">
+                                My WFH
                             </h2>
-                            <p className="mt-1 text-sm text-gray-600">
+                            <p className="hidden mt-1 text-sm text-gray-600 lg:block">
                                 View and manage your WFH schedule
                             </p>
                         </div>
@@ -229,14 +229,14 @@ export default function MyWFH() {
                             size="sm"
                             onClick={handleOpenSchedule}
                         >
-                            <Plus className="mr-2 h-4 w-4" />
+                            <Plus className="mr-1.5 h-4 w-4" />
                             Schedule WFH
                         </Button>
                     </div>
                 </div>
             </div>
 
-            <div className="py-6">
+            <div className="py-4 lg:py-6">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     {/* Flash Messages */}
                     {successMessage && (
@@ -256,16 +256,16 @@ export default function MyWFH() {
                         </Alert>
                     )}
 
-                    {/* Stats Cards */}
-                    <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    {/* Stats Cards — 2x2 on mobile */}
+                    <div className="mb-4 grid grid-cols-2 gap-3 lg:mb-6 lg:gap-4 lg:grid-cols-4">
                         <Card>
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
+                            <CardContent className="p-3 lg:pt-6 lg:p-6">
+                                <div className="flex items-center gap-3 lg:justify-between">
                                     <div>
                                         <p className="text-sm text-gray-500">
                                             This Week
                                         </p>
-                                        <p className="mt-1 text-2xl font-bold">
+                                        <p className="mt-0.5 text-xl font-bold lg:mt-1 lg:text-2xl">
                                             {weeklyUsage.used}/
                                             {weeklyUsage.quota}
                                         </p>
@@ -273,7 +273,7 @@ export default function MyWFH() {
                                             days used
                                         </p>
                                     </div>
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                    <div className="hidden lg:flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                                         <Home className="h-6 w-6 text-blue-600" />
                                     </div>
                                 </div>
@@ -281,20 +281,20 @@ export default function MyWFH() {
                         </Card>
 
                         <Card>
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
+                            <CardContent className="p-3 lg:pt-6 lg:p-6">
+                                <div className="flex items-center gap-3 lg:justify-between">
                                     <div>
                                         <p className="text-sm text-gray-500">
                                             Remaining
                                         </p>
-                                        <p className="mt-1 text-2xl font-bold text-green-600">
+                                        <p className="mt-0.5 text-xl font-bold lg:mt-1 lg:text-2xl text-green-600">
                                             {weeklyUsage.remaining}
                                         </p>
                                         <p className="text-xs text-gray-500">
                                             days this week
                                         </p>
                                     </div>
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                                    <div className="hidden lg:flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                                         <CheckCircle2 className="h-6 w-6 text-green-600" />
                                     </div>
                                 </div>
@@ -302,20 +302,20 @@ export default function MyWFH() {
                         </Card>
 
                         <Card>
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
+                            <CardContent className="p-3 lg:pt-6 lg:p-6">
+                                <div className="flex items-center gap-3 lg:justify-between">
                                     <div>
                                         <p className="text-sm text-gray-500">
                                             This Month
                                         </p>
-                                        <p className="mt-1 text-2xl font-bold">
+                                        <p className="mt-0.5 text-xl font-bold lg:mt-1 lg:text-2xl">
                                             {monthlyStats.approved}
                                         </p>
                                         <p className="text-xs text-gray-500">
                                             approved days
                                         </p>
                                     </div>
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
+                                    <div className="hidden lg:flex h-12 w-12 items-center justify-center rounded-full bg-purple-100">
                                         <Calendar className="h-6 w-6 text-purple-600" />
                                     </div>
                                 </div>
@@ -323,20 +323,20 @@ export default function MyWFH() {
                         </Card>
 
                         <Card>
-                            <CardContent className="pt-6">
-                                <div className="flex items-center justify-between">
+                            <CardContent className="p-3 lg:pt-6 lg:p-6">
+                                <div className="flex items-center gap-3 lg:justify-between">
                                     <div>
                                         <p className="text-sm text-gray-500">
                                             Upcoming
                                         </p>
-                                        <p className="mt-1 text-2xl font-bold text-blue-600">
+                                        <p className="mt-0.5 text-xl font-bold lg:mt-1 lg:text-2xl text-blue-600">
                                             {monthlyStats.upcoming}
                                         </p>
                                         <p className="text-xs text-gray-500">
                                             days scheduled
                                         </p>
                                     </div>
-                                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+                                    <div className="hidden lg:flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
                                         <Calendar className="h-6 w-6 text-blue-600" />
                                     </div>
                                 </div>
@@ -355,7 +355,7 @@ export default function MyWFH() {
                                     value={currentMonth}
                                     onValueChange={handleMonthChange}
                                 >
-                                    <SelectTrigger className="w-48">
+                                    <SelectTrigger className="w-36 lg:w-48">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -390,7 +390,55 @@ export default function MyWFH() {
                                     </Button>
                                 </div>
                             ) : (
-                                <Table>
+                                <>
+                                {/* Mobile card view */}
+                                <div className="space-y-2 lg:hidden">
+                                    {schedules.map((wfh) => {
+                                        const config = statusConfig[wfh.status] || statusConfig.approved;
+                                        return (
+                                            <div
+                                                key={wfh.id}
+                                                className={`rounded-2xl border bg-white p-4 ${
+                                                    wfh.isToday ? 'border-blue-200 bg-blue-50/30' :
+                                                    wfh.status === 'cancelled' ? 'opacity-50 border-gray-100' : 'border-gray-100'
+                                                }`}
+                                            >
+                                                <div className="flex items-start justify-between">
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-sm font-semibold text-gray-900">
+                                                                {formatDate(wfh.date)}
+                                                            </span>
+                                                            {wfh.isToday && (
+                                                                <Badge className="bg-blue-100 text-[11px] text-blue-700">Today</Badge>
+                                                            )}
+                                                        </div>
+                                                        <p className="mt-0.5 text-xs text-gray-500">
+                                                            {wfh.dayName} · <span className="capitalize">{wfh.type.replace('_', ' ')}</span>
+                                                        </p>
+                                                    </div>
+                                                    <Badge className={config.className + ' text-[11px]'}>{config.label}</Badge>
+                                                </div>
+                                                {wfh.reason && (
+                                                    <p className="mt-2 text-xs text-gray-500 line-clamp-2">{wfh.reason}</p>
+                                                )}
+                                                {!wfh.isPast && wfh.status !== 'cancelled' && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="mt-2 h-8 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 -ml-2"
+                                                        onClick={() => setCancelTarget(wfh)}
+                                                    >
+                                                        <XCircle className="mr-1 h-3.5 w-3.5" />
+                                                        Cancel
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                {/* Desktop table */}
+                                <Table className="hidden lg:table">
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Date</TableHead>
@@ -475,6 +523,7 @@ export default function MyWFH() {
                                         })}
                                     </TableBody>
                                 </Table>
+                                </>
                             )}
                         </CardContent>
                     </Card>

@@ -12,6 +12,7 @@ import type {
     WFHWeeklyUsage,
 } from '@/types';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import listPlugin from '@fullcalendar/list';
 import FullCalendar from '@fullcalendar/react';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import {
@@ -22,6 +23,7 @@ import {
     Loader2,
 } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useIsBottomNav } from '@/hooks/use-bottom-nav';
 import { Helmet } from 'react-helmet-async';
 
 import CalendarFilters from './CalendarFilters';
@@ -30,7 +32,7 @@ import { setupEventTooltip } from './event-tooltip';
 import EventDetailModal from './EventDetailModal';
 import WFHScheduleModal from './WFHScheduleModal';
 
-type FullCalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay';
+type FullCalendarView = 'dayGridMonth' | 'timeGridWeek' | 'timeGridDay' | 'listMonth';
 
 const DEFAULT_FILTERS: CalendarFiltersState = {
     event_types: ['leave', 'holiday', 'wfh'],
@@ -66,6 +68,7 @@ function persistFilters(filters: CalendarFiltersState) {
 
 export default function CalendarIndex() {
     const calendarRef = useRef<FullCalendar>(null);
+    const isMobile = useIsBottomNav();
     const [events, setEvents] = useState<CalendarEventData[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [statistics, setStatistics] = useState<CalendarStatsResponse | null>(null);
@@ -76,7 +79,7 @@ export default function CalendarIndex() {
     const [showFilters, setShowFilters] = useState<boolean>(false);
     const [wfhWeeklyUsage, setWfhWeeklyUsage] = useState<WFHWeeklyUsage | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [currentView, setCurrentView] = useState<FullCalendarView>('dayGridMonth');
+    const [currentView, setCurrentView] = useState<FullCalendarView>(() => isMobile ? 'listMonth' : 'dayGridMonth');
     const [currentDate, setCurrentDate] = useState<Date>(new Date());
     const [filters, setFilters] = useState<CalendarFiltersState>(() => loadFilters());
 
@@ -336,7 +339,7 @@ export default function CalendarIndex() {
         const start = api.view.currentStart;
         const end = api.view.currentEnd;
 
-        if (currentView === 'dayGridMonth') {
+        if (currentView === 'dayGridMonth' || currentView === 'listMonth') {
             return start.toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -357,25 +360,25 @@ export default function CalendarIndex() {
                 <title>Calendar</title>
             </Helmet>
 
-            <div className="space-y-6 p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between">
+            {/* Header — white bg strip */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-blue-100 p-2">
-                            <ChevronRight className="h-6 w-6 text-blue-600" style={{ display: 'none' }} />
+                        <div className="hidden rounded-lg bg-blue-100 p-2 lg:block">
                             <svg className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" strokeWidth="2"/><line x1="16" y1="2" x2="16" y2="6" strokeWidth="2"/><line x1="8" y1="2" x2="8" y2="6" strokeWidth="2"/><line x1="3" y1="10" x2="21" y2="10" strokeWidth="2"/></svg>
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
-                            <p className="text-sm text-gray-500">View team activities, leaves, and events</p>
+                            <h1 className="text-xl font-bold text-gray-900 lg:text-2xl">Calendar</h1>
+                            <p className="hidden text-sm text-gray-500 lg:block">View team activities, leaves, and events</p>
                         </div>
                     </div>
                     <div className="flex gap-2">
                         <Button
+                            size="sm"
                             onClick={handleOpenWFHModal}
                         >
                             <svg
-                                className="mr-2 h-4 w-4"
+                                className="mr-1.5 h-4 w-4"
                                 fill="none"
                                 stroke="currentColor"
                                 viewBox="0 0 24 24"
@@ -391,20 +394,26 @@ export default function CalendarIndex() {
                         </Button>
                         <Button
                             variant="outline"
+                            size={isMobile ? 'sm' : 'default'}
                             onClick={() => setShowFilters(true)}
                         >
-                            <Filter className="mr-2 h-4 w-4" />
-                            Filters
+                            <Filter className="h-4 w-4 lg:mr-2" />
+                            <span className="hidden lg:inline">Filters</span>
                         </Button>
                         <Button
                             variant="outline"
+                            size={isMobile ? 'sm' : 'default'}
                             onClick={handleExport}
+                            className="hidden lg:inline-flex"
                         >
                             <Download className="mr-2 h-4 w-4" />
                             Export
                         </Button>
                     </div>
                 </div>
+            </div>
+
+            <div className="space-y-4 p-3 lg:space-y-6 lg:p-6">
                     {/* Success Message */}
                     {successMessage && (
                         <div className="animate-fade-in mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
@@ -414,14 +423,35 @@ export default function CalendarIndex() {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
+                    {/* Mobile overview — compact stats row */}
+                    {statistics && (
+                        <div className="flex gap-3 lg:hidden">
+                            <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                                <span className="text-lg font-bold text-gray-900">{statistics.totalEvents}</span>
+                                <span className="text-xs text-gray-500">Events</span>
+                            </div>
+                            <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                                <span className="text-lg font-bold text-gray-900">{statistics.usersOnLeaveToday}</span>
+                                <span className="text-xs text-gray-500">On Leave</span>
+                            </div>
+                            {usersOnLeaveToday.length > 0 && (
+                                <div className="flex flex-1 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+                                    <span className="text-lg font-bold text-gray-900">{usersOnLeaveToday.length}</span>
+                                    <span className="text-xs text-gray-500">WFH Today</span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 gap-4 lg:gap-6 lg:grid-cols-4">
                         {/* Main Calendar */}
                         <div className="lg:col-span-3">
                             <Card>
-                                <CardHeader>
+                                <CardHeader className="px-3 py-3 lg:px-6 lg:py-4">
+                                    {/* Row 1: Nav + date */}
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-2 lg:gap-4">
+                                            <div className="flex items-center gap-1 lg:gap-2">
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
@@ -444,11 +474,12 @@ export default function CalendarIndex() {
                                                     <ChevronRight className="h-4 w-4" />
                                                 </Button>
                                             </div>
-                                            <h3 className="text-lg font-semibold">
+                                            <h3 className="text-sm font-semibold lg:text-lg">
                                                 {getDateRangeText()}
                                             </h3>
                                         </div>
-                                        <div className="flex items-center gap-2">
+                                        {/* Desktop view toggles */}
+                                        <div className="hidden items-center gap-2 lg:flex">
                                             {(
                                                 [
                                                     'dayGridMonth',
@@ -478,8 +509,35 @@ export default function CalendarIndex() {
                                             ))}
                                         </div>
                                     </div>
+                                    {/* Mobile view toggles — includes List */}
+                                    <div className="mt-2 flex items-center gap-1 lg:hidden">
+                                        {(
+                                            [
+                                                { view: 'listMonth' as FullCalendarView, label: 'List' },
+                                                { view: 'dayGridMonth' as FullCalendarView, label: 'Month' },
+                                                { view: 'timeGridWeek' as FullCalendarView, label: 'Week' },
+                                                { view: 'timeGridDay' as FullCalendarView, label: 'Day' },
+                                            ]
+                                        ).map(({ view, label }) => (
+                                            <Button
+                                                key={view}
+                                                variant={
+                                                    currentView === view
+                                                        ? 'default'
+                                                        : 'outline'
+                                                }
+                                                size="sm"
+                                                className="flex-1 text-xs"
+                                                onClick={() =>
+                                                    handleViewChange(view)
+                                                }
+                                            >
+                                                {label}
+                                            </Button>
+                                        ))}
+                                    </div>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="px-2 pb-3 lg:px-6 lg:pb-6">
                                     {loading && (
                                         <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/50">
                                             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
@@ -490,6 +548,7 @@ export default function CalendarIndex() {
                                         plugins={[
                                             dayGridPlugin,
                                             timeGridPlugin,
+                                            listPlugin,
                                         ]}
                                         initialView={currentView}
                                         headerToolbar={false}
@@ -524,14 +583,16 @@ export default function CalendarIndex() {
                             </Card>
                         </div>
 
-                        {/* Sidebar */}
-                        <CalendarSidebar
-                            statistics={statistics}
-                            usersOnLeaveToday={usersOnLeaveToday}
-                            eventTypes={eventTypes}
-                            visibleEventTypes={filters.event_types}
-                            onToggleEventType={handleToggleEventType}
-                        />
+                        {/* Sidebar — hidden on mobile */}
+                        <div className="hidden lg:block">
+                            <CalendarSidebar
+                                statistics={statistics}
+                                usersOnLeaveToday={usersOnLeaveToday}
+                                eventTypes={eventTypes}
+                                visibleEventTypes={filters.event_types}
+                                onToggleEventType={handleToggleEventType}
+                            />
+                        </div>
                     </div>
             </div>
 

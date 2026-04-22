@@ -13,6 +13,8 @@ import {
 import { apiGet, apiPatch } from '@/lib/spring-boot-api';
 import { useNotificationSocket } from '@/hooks/use-notification-socket';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
+import { useIsBottomNav } from '@/hooks/use-bottom-nav';
+import { useUnreadCount } from '@/hooks/use-unread-count';
 import type { PagedResponse } from '@/types';
 import {
     getNotificationMeta,
@@ -25,19 +27,14 @@ export function NotificationDropdown() {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
 
+    const isMobile = useIsBottomNav();
+
     // Live WebSocket updates (polling kept as fallback)
     useNotificationSocket();
     // Browser push notifications (prompts for permission on first load)
     usePushNotifications();
 
-    const { data: unreadData } = useQuery({
-        queryKey: ['notifications', 'unread-count'],
-        queryFn: () => apiGet<{ count: number }>('/notifications/unread-count'),
-        refetchInterval: 30_000,
-        refetchIntervalInBackground: false,
-    });
-
-    const unreadCount = unreadData?.count ?? 0;
+    const unreadCount = useUnreadCount();
 
     const { data: notificationsData, isLoading, isError } = useQuery({
         queryKey: ['notifications', 'list'],
@@ -111,6 +108,22 @@ export function NotificationDropdown() {
             setOpen(false);
             navigate(route);
         }
+    }
+
+    if (isMobile) {
+        return (
+            <button
+                onClick={() => navigate('/notifications')}
+                className="relative rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500"
+            >
+                <Bell className="h-6 w-6" />
+                {unreadCount > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1 text-xs font-bold text-white">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                )}
+            </button>
+        );
     }
 
     return (

@@ -347,37 +347,41 @@ export default function SupportIndex() {
                 <title>Support</title>
             </Helmet>
 
-            <div className="p-8">
-                {/* Header */}
-                <div className="mb-8 flex items-center justify-between">
+            {/* Header — white bg strip */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Support</h1>
-                        <p className="mt-1 text-gray-600">
+                        <h1 className="text-xl font-bold text-gray-900 lg:text-3xl">Support</h1>
+                        <p className="hidden mt-1 text-gray-600 lg:block">
                             Submit and track your support tickets
                         </p>
                     </div>
                     <Button
-                        className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700"
+                        size="sm"
+                        className="flex items-center gap-1.5 bg-blue-600 text-white hover:bg-blue-700"
                         onClick={() => handleOpenDialog('feature')}
                     >
                         <Plus className="h-4 w-4" />
                         New Ticket
                     </Button>
                 </div>
+            </div>
 
+            <div className="p-4 lg:p-8">
                 {/* Filters Bar */}
-                <div className="mb-6 flex items-center gap-4">
+                <div className="mb-4 flex flex-col gap-3 lg:mb-6 lg:flex-row lg:items-center lg:gap-4">
                     <div className="flex-1">
                         <Input
                             type="text"
                             placeholder="Search tickets..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full max-w-md"
+                            className="w-full lg:max-w-md"
                         />
                     </div>
+                    <div className="flex gap-2">
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-40">
+                        <SelectTrigger className="flex-1 lg:w-40 lg:flex-none">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -389,7 +393,7 @@ export default function SupportIndex() {
                         </SelectContent>
                     </Select>
                     <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                        <SelectTrigger className="w-48">
+                        <SelectTrigger className="flex-1 lg:w-48 lg:flex-none">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -400,7 +404,8 @@ export default function SupportIndex() {
                             <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                     </Select>
-                    <div className="ml-auto text-sm text-gray-500">
+                    </div>
+                    <div className="text-xs text-gray-500 lg:ml-auto lg:text-sm">
                         {tickets.length > 0
                             ? `1-${tickets.length} of ${totalElements}`
                             : `0 of ${totalElements}`}

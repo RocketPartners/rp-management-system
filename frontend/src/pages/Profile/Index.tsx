@@ -160,11 +160,16 @@ export default function ProfilePage() {
                 <title>My Profile | HRIS</title>
             </Helmet>
 
-            <div className="space-y-6">
-                <h1 className="text-2xl font-bold tracking-tight">
-                    My Profile
-                </h1>
+            {/* Header */}
+            <div className="border-b border-gray-200 bg-white">
+                <div className="px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
+                    <h1 className="text-xl lg:text-2xl font-bold tracking-tight text-gray-900">
+                        My Profile
+                    </h1>
+                </div>
+            </div>
 
+            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
                 {/* Profile Header */}
                 {profile && (
                     <Card>

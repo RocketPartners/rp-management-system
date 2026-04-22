@@ -7,7 +7,8 @@ import { getAccessToken } from '@/lib/spring-boot-api';
 import type { PagedResponse } from '@/types';
 import type { NotificationResponse } from '@/types/notification';
 
-const SOCKJS_URL = (import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1') + '/ws';
+const WS_URL = (import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1')
+    .replace(/^http/, 'ws') + '/ws';
 
 export function useNotificationSocket() {
     const { user } = useAuth();
