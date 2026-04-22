@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { apiGet, apiPost } from '@/lib/spring-boot-api';
+
+let lastRegisteredUserId: number | null = null;
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -13,16 +15,27 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
     return outputArray;
 }
 
+async function registerSubscription(subscription: PushSubscription): Promise<void> {
+    const subJson = subscription.toJSON();
+    if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys?.auth) {
+        console.warn('Push subscription missing endpoint or keys — skipping registration');
+        return;
+    }
+    await apiPost('/notifications/push/subscribe', {
+        endpoint: subJson.endpoint,
+        keys: subJson.keys,
+    });
+}
+
 export function usePushNotifications() {
     const { user } = useAuth();
-    const lastUserId = useRef<number | null>(null);
 
     useEffect(() => {
         if (!user?.id) return;
-        if (user.id === lastUserId.current) return;
+        if (user.id === lastRegisteredUserId) return;
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
-        lastUserId.current = user.id;
+        lastRegisteredUserId = user.id;
 
         const setup = async () => {
             try {
@@ -31,12 +44,7 @@ export function usePushNotifications() {
 
                 const existing = await registration.pushManager.getSubscription();
                 if (existing) {
-                    // Always re-register with backend for current user (handles user switch)
-                    const subJson = existing.toJSON();
-                    await apiPost('/notifications/push/subscribe', {
-                        endpoint: subJson.endpoint,
-                        keys: subJson.keys,
-                    });
+                    await registerSubscription(existing);
                     return;
                 }
 
@@ -50,11 +58,7 @@ export function usePushNotifications() {
                     applicationServerKey: urlBase64ToUint8Array(publicKey),
                 });
 
-                const subJson = subscription.toJSON();
-                await apiPost('/notifications/push/subscribe', {
-                    endpoint: subJson.endpoint,
-                    keys: subJson.keys,
-                });
+                await registerSubscription(subscription);
             } catch (err) {
                 if (err instanceof Error && err.message.includes('PushManager')) return;
                 console.warn('Push notification setup failed:', err);

@@ -39,11 +39,12 @@ export function NotificationDropdown() {
 
     const unreadCount = unreadData?.count ?? 0;
 
-    const { data: notificationsData, isLoading } = useQuery({
+    const { data: notificationsData, isLoading, isError } = useQuery({
         queryKey: ['notifications', 'list'],
         queryFn: () =>
             apiGet<PagedResponse<NotificationResponse>>('/notifications?page=0&size=15'),
         enabled: open,
+        staleTime: 15_000,
     });
 
     const notifications = notificationsData?.content ?? [];
@@ -141,6 +142,11 @@ export function NotificationDropdown() {
                 {isLoading && open ? (
                     <div className="px-4 py-8 text-center">
                         <p className="text-sm text-gray-500">Loading...</p>
+                    </div>
+                ) : isError ? (
+                    <div className="px-4 py-8 text-center">
+                        <p className="text-sm font-medium text-gray-900">Failed to load</p>
+                        <p className="mt-1 text-xs text-gray-500">Please try again in a moment</p>
                     </div>
                 ) : notifications.length === 0 ? (
                     <div className="px-4 py-8 text-center">

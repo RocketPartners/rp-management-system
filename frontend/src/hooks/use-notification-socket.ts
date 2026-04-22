@@ -46,8 +46,10 @@ export function useNotificationSocket() {
                             ['notifications', 'unread-count'],
                             (old) => ({ count: (old?.count ?? 0) + 1 }),
                         );
-                    } catch {
-                        // Ignore malformed messages
+                    } catch (err) {
+                        if (import.meta.env.DEV) {
+                            console.warn('Failed to parse notification message:', err);
+                        }
                     }
                 });
             },
