@@ -1,7 +1,9 @@
-import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
-import { ProtectedRoute, GuestRoute } from '@/components/route-guards';
+import { createBrowserRouter, Link, Navigate, Outlet } from 'react-router-dom';
+import { ProtectedRoute, GuestRoute, PermissionRoute } from '@/components/route-guards';
+import { RouteErrorPage, NotFoundPage } from '@/components/error-boundary';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { lazy, Suspense } from 'react';
+import { FullPageSpinner } from '@/components/full-page-spinner';
 
 // Phase 1 — Migrated pages (TSX)
 const Login = lazy(() => import('@/pages/Auth/Login'));
@@ -16,6 +18,7 @@ const EditLeave = lazy(() => import('@/pages/Employees/Leaves/Edit'));
 // Phase 3 — Calendar + WFH pages (TSX)
 const Calendar = lazy(() => import('@/pages/Calendar/Index'));
 const MyWFH = lazy(() => import('@/pages/Employees/WFH/Index'));
+const MyTeams = lazy(() => import('@/pages/Employees/Team/MyTeams'));
 
 // Phase 5 — Team Management pages (TSX)
 const TeamList = lazy(() => import('@/pages/Teams/Index'));
@@ -52,6 +55,23 @@ const LeaveTypeList = lazy(() => import('@/pages/LeaveTypes/Index'));
 const LeaveBalanceList = lazy(() => import('@/pages/LeaveBalances/Index'));
 const HolidayList = lazy(() => import('@/pages/Holidays/Index'));
 
+// Phase 13 — AI Chat (TSX)
+const AIChat = lazy(() => import('@/pages/AIChat/Index'));
+
+// Phase 14 — Audit Trail (TSX)
+const AuditLogList = lazy(() => import('@/pages/AuditLogs/Index'));
+const AuditDashboard = lazy(() => import('@/pages/AuditLogs/Dashboard'));
+
+// Phase 15 — Admin Tools (TSX)
+const AdminTools = lazy(() => import('@/pages/AdminTools/Index'));
+
+// Phase 16 — Analytics (TSX)
+const AnalyticsIndex = lazy(() => import('@/pages/Analytics/Index'));
+const LeaveUtilization = lazy(() => import('@/pages/Analytics/LeaveUtilization'));
+const OnboardingFunnel = lazy(() => import('@/pages/Analytics/OnboardingFunnel'));
+const Headcount = lazy(() => import('@/pages/Analytics/Headcount'));
+const WfhAnalytics = lazy(() => import('@/pages/Analytics/WfhAnalytics'));
+
 // Phase 6 — Department & Position Management pages (TSX)
 const DepartmentList = lazy(() => import('@/pages/Departments/Index'));
 const DepartmentCreateEdit = lazy(() => import('@/pages/Departments/CreateEdit'));
@@ -72,22 +92,16 @@ function ComingSoon() {
         <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4">
             <h1 className="text-2xl font-bold text-gray-900">Coming Soon</h1>
             <p className="text-gray-600">This page is being migrated from the legacy system.</p>
-            <a href="/dashboard" className="text-blue-600 hover:underline">
+            <Link to="/dashboard" className="text-blue-600 hover:underline">
                 Back to Dashboard
-            </a>
+            </Link>
         </div>
     );
 }
 
 function SuspenseLayout() {
     return (
-        <Suspense
-            fallback={
-                <div className="flex h-screen items-center justify-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
-                </div>
-            }
-        >
+        <Suspense fallback={<FullPageSpinner />}>
             <Outlet />
         </Suspense>
     );
@@ -96,6 +110,7 @@ function SuspenseLayout() {
 export const router = createBrowserRouter([
     {
         element: <SuspenseLayout />,
+        errorElement: <RouteErrorPage />,
         children: [
             // Public routes (accessible regardless of auth state)
             { path: '/onboarding/:token', element: <OnboardingPortal /> },
@@ -117,58 +132,209 @@ export const router = createBrowserRouter([
                     {
                         element: <AuthenticatedLayout />,
                         children: [
+                            // ─── Everyone (authenticated, no extra permissions) ───
                             { path: '/dashboard', element: <Dashboard /> },
-
-                            // Employee Leave pages (migrated)
+                            { path: '/calendar', element: <Calendar /> },
                             { path: '/my-leaves', element: <MyLeaves /> },
                             { path: '/my-leaves/apply', element: <ApplyLeave /> },
                             { path: '/my-leaves/:id', element: <ShowLeave /> },
                             { path: '/my-leaves/:id/edit', element: <EditLeave /> },
-
-                            // Placeholder routes — will be migrated in subsequent phases
-                            { path: '/calendar', element: <Calendar /> },
+                            { path: '/my-wfh', element: <MyWFH /> },
                             { path: '/announcements', element: <AnnouncementList /> },
                             { path: '/my-assets', element: <MyAssets /> },
-                            { path: '/my-wfh', element: <MyWFH /> },
-                            // User Management (migrated)
-                            { path: '/users', element: <UserList /> },
-                            { path: '/users/create', element: <UserCreate /> },
-                            { path: '/users/pending-approvals', element: <UserPendingApprovals /> },
-                            { path: '/users/:id', element: <UserShow /> },
-                            { path: '/users/:id/edit', element: <UserEdit /> },
+                            { path: '/my-team', element: <Navigate to="/my-teams" replace /> },
+                            { path: '/my-teams', element: <MyTeams /> },
                             { path: '/profile', element: <Profile /> },
-                            { path: '/teams', element: <TeamList /> },
-                            { path: '/teams/create', element: <TeamCreateEdit /> },
-                            { path: '/teams/:id', element: <TeamShow /> },
-                            { path: '/teams/:id/edit', element: <TeamCreateEdit /> },
-                            { path: '/departments', element: <DepartmentList /> },
-                            { path: '/departments/create', element: <DepartmentCreateEdit /> },
-                            { path: '/departments/:id/edit', element: <DepartmentCreateEdit /> },
-                            { path: '/positions', element: <PositionList /> },
-                            { path: '/positions/create', element: <PositionCreateEdit /> },
-                            { path: '/positions/:id/edit', element: <PositionCreateEdit /> },
-                            { path: '/roles', element: <RoleList /> },
-                            { path: '/onboarding/invites', element: <OnboardingInvites /> },
-                            { path: '/onboarding/submissions', element: <OnboardingSubmissions /> },
-                            { path: '/onboarding/submissions/:id', element: <OnboardingSubmissionShow /> },
-                            { path: '/leaves', element: <LeaveRequestList /> },
-                            { path: '/leaves/pending-approvals', element: <LeavePendingApprovals /> },
-                            { path: '/leaves/:id', element: <LeaveRequestShow /> },
-                            { path: '/leave-types', element: <LeaveTypeList /> },
-                            { path: '/leave-balances', element: <LeaveBalanceList /> },
-                            { path: '/holidays', element: <HolidayList /> },
-                            { path: '/assets', element: <AssetList /> },
-                            { path: '/inventory', element: <Navigate to="/assets" replace /> },
-                            { path: '/individual-assets', element: <Navigate to="/assets" replace /> },
-                            { path: '/projects', element: <ComingSoon /> },
-                            { path: '/tasks', element: <ComingSoon /> },
-                            { path: '/tasks/kanban', element: <ComingSoon /> },
+                            { path: '/ai-chat', element: <AIChat /> },
+                            { path: '/ai-chat/:sessionId', element: <AIChat /> },
                             { path: '/support', element: <SupportTickets /> },
                             { path: '/settings', element: <ComingSoon /> },
+
+                            // ─── User Management ───
+                            {
+                                element: <PermissionRoute permission="USER_READ" />,
+                                children: [
+                                    { path: '/users', element: <UserList /> },
+                                    { path: '/users/:id', element: <UserShow /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="USER_CREATE" />,
+                                children: [
+                                    { path: '/users/create', element: <UserCreate /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="USER_UPDATE" />,
+                                children: [
+                                    { path: '/users/pending-approvals', element: <UserPendingApprovals /> },
+                                    { path: '/users/:id/edit', element: <UserEdit /> },
+                                ],
+                            },
+
+                            // ─── Teams ───
+                            {
+                                element: <PermissionRoute permission="TEAM_READ" />,
+                                children: [
+                                    { path: '/teams', element: <TeamList /> },
+                                    { path: '/teams/:id', element: <TeamShow /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="TEAM_CREATE" />,
+                                children: [
+                                    { path: '/teams/create', element: <TeamCreateEdit /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="TEAM_UPDATE" />,
+                                children: [
+                                    { path: '/teams/:id/edit', element: <TeamCreateEdit /> },
+                                ],
+                            },
+
+                            // ─── Departments ───
+                            {
+                                element: <PermissionRoute permission="DEPARTMENT_READ" />,
+                                children: [
+                                    { path: '/departments', element: <DepartmentList /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="DEPARTMENT_CREATE" />,
+                                children: [
+                                    { path: '/departments/create', element: <DepartmentCreateEdit /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="DEPARTMENT_UPDATE" />,
+                                children: [
+                                    { path: '/departments/:id/edit', element: <DepartmentCreateEdit /> },
+                                ],
+                            },
+
+                            // ─── Positions ───
+                            {
+                                element: <PermissionRoute permission="POSITION_READ" />,
+                                children: [
+                                    { path: '/positions', element: <PositionList /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="POSITION_CREATE" />,
+                                children: [
+                                    { path: '/positions/create', element: <PositionCreateEdit /> },
+                                ],
+                            },
+                            {
+                                element: <PermissionRoute permission="POSITION_UPDATE" />,
+                                children: [
+                                    { path: '/positions/:id/edit', element: <PositionCreateEdit /> },
+                                ],
+                            },
+
+                            // ─── Roles — ROLE_READ ───
+                            {
+                                element: <PermissionRoute permission="ROLE_READ" />,
+                                children: [
+                                    { path: '/roles', element: <RoleList /> },
+                                ],
+                            },
+
+                            // ─── Onboarding — ONBOARDING_VIEW or ONBOARDING_MANAGE ───
+                            {
+                                element: <PermissionRoute permission={['ONBOARDING_VIEW', 'ONBOARDING_MANAGE']} />,
+                                children: [
+                                    { path: '/onboarding/invites', element: <OnboardingInvites /> },
+                                    { path: '/onboarding/submissions', element: <OnboardingSubmissions /> },
+                                    { path: '/onboarding/submissions/:id', element: <OnboardingSubmissionShow /> },
+                                ],
+                            },
+
+                            // ─── Leave Pending Approvals — LEAVE_APPLICATION_APPROVE ───
+                            {
+                                element: <PermissionRoute permission="LEAVE_APPLICATION_APPROVE" />,
+                                children: [
+                                    { path: '/leaves/pending-approvals', element: <LeavePendingApprovals /> },
+                                ],
+                            },
+
+                            // ─── Leave Requests — admin only (APPROVE or LEAVE_TYPE_CREATE) ───
+                            {
+                                element: <PermissionRoute permission={['LEAVE_APPLICATION_APPROVE', 'LEAVE_TYPE_CREATE']} />,
+                                children: [
+                                    { path: '/leaves', element: <LeaveRequestList /> },
+                                    { path: '/leaves/:id', element: <LeaveRequestShow /> },
+                                ],
+                            },
+
+                            // ─── Leave Config — LEAVE_TYPE_CREATE ───
+                            {
+                                element: <PermissionRoute permission="LEAVE_TYPE_CREATE" />,
+                                children: [
+                                    { path: '/leave-types', element: <LeaveTypeList /> },
+                                    { path: '/leave-balances', element: <LeaveBalanceList /> },
+                                    { path: '/holidays', element: <HolidayList /> },
+                                ],
+                            },
+
+                            // ─── Assets — ASSET_VIEW or ASSET_CREATE or ASSET_EDIT ───
+                            {
+                                element: <PermissionRoute permission={['ASSET_VIEW', 'ASSET_CREATE', 'ASSET_EDIT']} />,
+                                children: [
+                                    { path: '/assets', element: <AssetList /> },
+                                    { path: '/inventory', element: <Navigate to="/assets" replace /> },
+                                    { path: '/individual-assets', element: <Navigate to="/assets" replace /> },
+                                ],
+                            },
+
+                            // ─── Projects — PROJECT_READ or PROJECT_CREATE ───
+                            {
+                                element: <PermissionRoute permission={['PROJECT_READ', 'PROJECT_CREATE']} />,
+                                children: [
+                                    { path: '/projects', element: <ComingSoon /> },
+                                    { path: '/tasks', element: <ComingSoon /> },
+                                    { path: '/tasks/kanban', element: <ComingSoon /> },
+                                ],
+                            },
+
+                            // ─── Audit Trail — AUDIT_LOG_READ ───
+                            {
+                                element: <PermissionRoute permission="AUDIT_LOG_READ" />,
+                                children: [
+                                    { path: '/audit-logs', element: <AuditLogList /> },
+                                    { path: '/audit-dashboard', element: <AuditDashboard /> },
+                                ],
+                            },
+
+                            // ─── Admin Tools — ADMIN_TOOLS ───
+                            {
+                                element: <PermissionRoute permission="ADMIN_TOOLS" />,
+                                children: [
+                                    { path: '/admin-tools', element: <AdminTools /> },
+                                ],
+                            },
+
+                            // ─── Analytics — ANALYTICS_READ ───
+                            {
+                                element: <PermissionRoute permission="ANALYTICS_READ" />,
+                                children: [
+                                    { path: '/analytics', element: <AnalyticsIndex /> },
+                                    { path: '/analytics/leave-utilization', element: <LeaveUtilization /> },
+                                    { path: '/analytics/onboarding-funnel', element: <OnboardingFunnel /> },
+                                    { path: '/analytics/headcount', element: <Headcount /> },
+                                    { path: '/analytics/wfh', element: <WfhAnalytics /> },
+                                ],
+                            },
+
+                            { path: '*', element: <NotFoundPage homePath="/dashboard" /> },
                         ],
                     },
                 ],
             },
+
+            // Catch-all 404 for any unmatched route
+            { path: '*', element: <NotFoundPage /> },
         ],
     },
 ]);

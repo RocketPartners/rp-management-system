@@ -39,6 +39,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { usePermission } from '@/hooks/usePermission';
 import { apiGet, apiPost } from '@/lib/spring-boot-api';
 import type { PendingApprovalsResponse } from '@/types';
 
@@ -59,6 +60,11 @@ const STATUS_CONFIG: Record<string, { color: string; icon: typeof Clock; label: 
 export default function PendingApprovals() {
     const [searchParams, setSearchParams] = useSearchParams();
     const queryClient = useQueryClient();
+    const { can } = usePermission();
+
+    // Role-based action permissions
+    const canActAsManager = can('LEAVE_APPLICATION_APPROVE');
+    const canActAsHr = can('LEAVE_TYPE_CREATE');
 
     const page = parseInt(searchParams.get('page') || '0');
     const size = 20;
@@ -306,10 +312,12 @@ export default function PendingApprovals() {
                                                         {isPendingManager && (
                                                             <>
                                                                 <Button size="sm" className="h-7 bg-green-600 px-2 text-xs hover:bg-green-700"
+                                                                    disabled={!canActAsManager}
                                                                     onClick={() => openActionDialog('manager_approve', leave.id, leave.userName)}>
                                                                     Approve
                                                                 </Button>
                                                                 <Button size="sm" variant="destructive" className="h-7 px-2 text-xs"
+                                                                    disabled={!canActAsManager}
                                                                     onClick={() => openActionDialog('manager_reject', leave.id, leave.userName)}>
                                                                     Reject
                                                                 </Button>
@@ -318,10 +326,12 @@ export default function PendingApprovals() {
                                                         {isPendingHr && (
                                                             <>
                                                                 <Button size="sm" className="h-7 bg-green-600 px-2 text-xs hover:bg-green-700"
+                                                                    disabled={!canActAsHr}
                                                                     onClick={() => openActionDialog('hr_approve', leave.id, leave.userName)}>
                                                                     Approve
                                                                 </Button>
                                                                 <Button size="sm" variant="destructive" className="h-7 px-2 text-xs"
+                                                                    disabled={!canActAsHr}
                                                                     onClick={() => openActionDialog('hr_reject', leave.id, leave.userName)}>
                                                                     Reject
                                                                 </Button>
@@ -330,10 +340,12 @@ export default function PendingApprovals() {
                                                         {isPendingCancel && (
                                                             <>
                                                                 <Button size="sm" className="h-7 bg-green-600 px-2 text-xs hover:bg-green-700"
+                                                                    disabled={!canActAsHr}
                                                                     onClick={() => openActionDialog('cancel_approve', leave.id, leave.userName)}>
                                                                     Approve
                                                                 </Button>
                                                                 <Button size="sm" variant="destructive" className="h-7 px-2 text-xs"
+                                                                    disabled={!canActAsHr}
                                                                     onClick={() => openActionDialog('cancel_reject', leave.id, leave.userName)}>
                                                                     Reject
                                                                 </Button>

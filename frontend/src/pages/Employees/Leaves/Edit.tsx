@@ -95,7 +95,7 @@ export default function EditLeave() {
                     emergencyContactName: data.emergencyContactName || '',
                     emergencyContactPhone: data.emergencyContactPhone || '',
                     useDefaultEmergencyContact: false,
-                    availability: data.availability || 'reachable',
+                    availability: data.availability || 'REACHABLE',
                 });
                 setCalculatedDays(data.totalDays);
             }

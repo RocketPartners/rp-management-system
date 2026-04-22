@@ -43,9 +43,14 @@ import {
     Wallet,
     X,
     FileCheck,
+    Sparkles,
+    ScrollText,
+    BarChart3,
+    Wrench,
+    CalendarDays,
 } from 'lucide-react';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
-import { type MouseEvent, useState, type LucideIcon } from 'react';
+import { type MouseEvent, useState, useEffect, useRef, type LucideIcon } from 'react';
 
 interface NavItemConfig {
     name: string;
@@ -81,6 +86,19 @@ export default function AuthenticatedLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+
+    // Auto-collapse sidebar on AI Chat pages for immersive experience
+    const prevMinimized = useRef(sidebarMinimized);
+    const isAIChat = location.pathname.startsWith('/ai-chat');
+    useEffect(() => {
+        if (isAIChat) {
+            prevMinimized.current = sidebarMinimized;
+            setSidebarMinimized(true);
+        } else {
+            setSidebarMinimized(prevMinimized.current);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to AI chat route transitions
+    }, [isAIChat]);
     const currentUrl = location.pathname + location.search;
     const { can } = usePermission();
     const { timezone, setTimezone, timezones } = useTimezone();
@@ -106,6 +124,8 @@ export default function AuthenticatedLayout() {
 
         if (cleanUrl === cleanHref) return true;
 
+        if (cleanHref === '/ai-chat' && cleanUrl.startsWith('/ai-chat'))
+            return true;
         if (cleanHref === '/calendar' && cleanUrl.startsWith('/calendar'))
             return true;
         if (cleanHref === '/users' && cleanUrl.startsWith('/users/'))
@@ -136,6 +156,16 @@ export default function AuthenticatedLayout() {
             cleanUrl.startsWith('/onboarding/submissions')
         )
             return true;
+        if (cleanHref === '/audit-logs' && cleanUrl.startsWith('/audit-logs'))
+            return true;
+        if (cleanHref === '/audit-dashboard' && cleanUrl.startsWith('/audit-dashboard'))
+            return true;
+        if (cleanHref === '/admin-tools' && cleanUrl.startsWith('/admin-tools'))
+            return true;
+        if (cleanHref === '/analytics' && cleanUrl === '/analytics')
+            return true;
+        if (cleanHref !== '/analytics' && cleanHref.startsWith('/analytics/') && cleanUrl.startsWith(cleanHref))
+            return true;
 
         return false;
     };
@@ -156,11 +186,13 @@ export default function AuthenticatedLayout() {
                     href: '/dashboard',
                     icon: LayoutDashboard,
                 },
+                { name: 'AI Assistant', href: '/ai-chat', icon: Sparkles },
                 { name: 'Calendar', href: '/calendar', icon: Calendar },
                 { name: 'My Leaves', href: '/my-leaves', icon: ClipboardList },
                 { name: 'My WFH', href: '/my-wfh', icon: Home },
                 { name: 'Announcements', href: '/announcements', icon: Megaphone },
                 { name: 'My Assets', href: '/my-assets', icon: Laptop },
+                { name: 'My Teams', href: '/my-teams', icon: UsersRound },
             ],
         });
 
@@ -169,7 +201,7 @@ export default function AuthenticatedLayout() {
             can('USER_READ') || can('TEAM_READ') || can('ROLE_READ') ||
             can('DEPARTMENT_READ') || can('POSITION_READ') ||
             can('ONBOARDING_VIEW') || can('ONBOARDING_MANAGE') ||
-            can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE') ||
+            can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_TYPE_CREATE') ||
             can('ASSET_VIEW') || can('ASSET_CREATE') ||
             can('PROJECT_READ') || can('PROJECT_CREATE');
 
@@ -293,15 +325,14 @@ export default function AuthenticatedLayout() {
             });
         }
 
-        // LEAVE MANAGEMENT
+        // LEAVE MANAGEMENT (admin — not shown for LEAVE_APPLICATION_READ alone)
         if (
             can('LEAVE_APPLICATION_APPROVE') ||
-            can('LEAVE_APPLICATION_READ') ||
             can('LEAVE_TYPE_CREATE')
         ) {
             const leaveItems: NavItemConfig[] = [];
 
-            if (can('LEAVE_APPLICATION_APPROVE') && !can('LEAVE_TYPE_CREATE')) {
+            if (can('LEAVE_APPLICATION_APPROVE')) {
                 leaveItems.push({
                     name: 'Pending Approvals',
                     href: '/leaves/pending-approvals',
@@ -309,16 +340,11 @@ export default function AuthenticatedLayout() {
                 });
             }
 
-            if (can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE')) {
+            if (can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_TYPE_CREATE')) {
                 leaveItems.push({
                     name: 'All Requests',
                     href: '/leaves',
                     icon: ClipboardList,
-                });
-                leaveItems.push({
-                    name: 'Pending HR Approval',
-                    href: '/leaves?status=pending_hr',
-                    icon: CheckSquare,
                 });
             }
 
@@ -382,6 +408,47 @@ export default function AuthenticatedLayout() {
                         href: '/tasks/kanban',
                         icon: Layers,
                     },
+                ],
+            });
+        }
+
+        // SUPER ADMIN — Audit Trail + Admin Tools
+        if (can('AUDIT_LOG_READ') || can('ADMIN_TOOLS')) {
+            nav.push({ type: 'divider', label: 'Super Admin' });
+        }
+
+        if (can('AUDIT_LOG_READ')) {
+            nav.push({
+                type: 'accordion',
+                name: 'Audit Trail',
+                icon: ScrollText,
+                items: [
+                    { name: 'Audit Logs', href: '/audit-logs', icon: ScrollText },
+                    { name: 'Audit Dashboard', href: '/audit-dashboard', icon: BarChart3 },
+                ],
+            });
+        }
+
+        if (can('ADMIN_TOOLS')) {
+            nav.push({
+                type: 'items',
+                items: [
+                    { name: 'Admin Tools', href: '/admin-tools', icon: Wrench },
+                ],
+            });
+        }
+
+        if (can('ANALYTICS_READ')) {
+            nav.push({
+                type: 'accordion',
+                name: 'Analytics',
+                icon: BarChart3,
+                items: [
+                    { name: 'Overview', href: '/analytics', icon: LayoutDashboard },
+                    { name: 'Leave Utilization', href: '/analytics/leave-utilization', icon: CalendarDays },
+                    { name: 'Onboarding Funnel', href: '/analytics/onboarding-funnel', icon: UserPlus },
+                    { name: 'Headcount', href: '/analytics/headcount', icon: Users },
+                    { name: 'WFH Analytics', href: '/analytics/wfh', icon: Home },
                 ],
             });
         }
