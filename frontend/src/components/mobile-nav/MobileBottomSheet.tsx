@@ -33,6 +33,8 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
     const isDragging = useRef(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const outerRafRef = useRef<number | null>(null);
+    const innerRafRef = useRef<number | null>(null);
 
     const beginDrag = useCallback(() => {
         isDragging.current = true;
@@ -50,8 +52,8 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
             document.body.style.touchAction = 'none';
             // eslint-disable-next-line react-hooks/set-state-in-effect -- mount + slide-in requires coordinated state updates with rAF
             setMounted(true);
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => setVisible(true));
+            outerRafRef.current = requestAnimationFrame(() => {
+                innerRafRef.current = requestAnimationFrame(() => setVisible(true));
             });
         } else {
             setVisible(false);
@@ -59,6 +61,10 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
             document.body.style.touchAction = '';
         }
         return () => {
+            if (outerRafRef.current != null) cancelAnimationFrame(outerRafRef.current);
+            if (innerRafRef.current != null) cancelAnimationFrame(innerRafRef.current);
+            outerRafRef.current = null;
+            innerRafRef.current = null;
             document.body.style.overflow = '';
             document.body.style.touchAction = '';
         };

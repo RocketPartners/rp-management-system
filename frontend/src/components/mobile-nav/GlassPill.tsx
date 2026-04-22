@@ -1,10 +1,9 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useHaptics } from '@/hooks/use-haptics';
-import { useQuery } from '@tanstack/react-query';
+import { useUnreadCount } from '@/hooks/use-unread-count';
 import { LayoutDashboard, Calendar, ClipboardList, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { apiGet } from '@/lib/spring-boot-api';
 import {
     glassClasses, inactiveIconClass, activeIconClass,
     inactiveLabelClass, activeLabelClass,
@@ -27,19 +26,13 @@ function isTabActive(href: string, pathname: string): boolean {
 
 export function GlassPill() {
     const { pathname } = useLocation();
-    const { buzz } = useHaptics();
+    const { tap } = useHaptics();
     const navRef = useRef<HTMLElement>(null);
     const tabRefs = useRef<(HTMLAnchorElement | null)[]>([]);
     const [indicator, setIndicator] = useState({ left: 0, width: 0 });
     const [hasAnimated, setHasAnimated] = useState(false);
 
-    const { data: unreadData } = useQuery({
-        queryKey: ['notifications', 'unread-count'],
-        queryFn: () => apiGet<{ count: number }>('/notifications/unread-count'),
-        refetchInterval: 30_000,
-        refetchIntervalInBackground: false,
-    });
-    const unreadCount = unreadData?.count ?? 0;
+    const unreadCount = useUnreadCount();
 
     const activeIndex = tabs.findIndex((tab) => isTabActive(tab.href, pathname));
 
@@ -86,7 +79,7 @@ export function GlassPill() {
                         key={tab.name}
                         ref={(el) => { tabRefs.current[index] = el; }}
                         to={tab.href}
-                        onClick={buzz}
+                        onClick={tap}
                         aria-current={active ? 'page' : undefined}
                         className={cn(
                             'relative z-[1] flex flex-col items-center gap-0.5 rounded-full px-5 py-2',

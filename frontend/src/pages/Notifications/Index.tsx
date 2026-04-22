@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, CheckCheck, Loader2 } from 'lucide-react';
 import { useHaptics } from '@/hooks/use-haptics';
+import { useUnreadCount } from '@/hooks/use-unread-count';
 import { apiGet, apiPatch } from '@/lib/spring-boot-api';
 import type { PagedResponse } from '@/types';
 import {
@@ -56,9 +57,12 @@ export default function NotificationsPage() {
     const knownIds = useRef<Set<number>>(new Set());
     const [newIds, setNewIds] = useState<Set<number>>(new Set());
     const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isMountedRef = useRef(true);
 
     useEffect(() => {
+        isMountedRef.current = true;
         return () => {
+            isMountedRef.current = false;
             if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
         };
     }, []);
@@ -71,13 +75,7 @@ export default function NotificationsPage() {
     const isPulling = useRef(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const { data: unreadData } = useQuery({
-        queryKey: ['notifications', 'unread-count'],
-        queryFn: () => apiGet<{ count: number }>('/notifications/unread-count'),
-        refetchInterval: 10_000,
-        refetchIntervalInBackground: false,
-    });
-    const unreadCount = unreadData?.count ?? 0;
+    const unreadCount = useUnreadCount();
 
     const { data: notificationsData, isLoading, refetch } = useQuery({
         queryKey: ['notifications', 'list'],
@@ -115,9 +113,13 @@ export default function NotificationsPage() {
             buzz();
             knownIds.current = currentIds;
             // Defer to next tick so the setState doesn't cascade in the same render pass
-            queueMicrotask(() => setNewIds(fresh));
+            queueMicrotask(() => {
+                if (isMountedRef.current) setNewIds(fresh);
+            });
             if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
-            animationTimerRef.current = setTimeout(() => setNewIds(new Set()), 600);
+            animationTimerRef.current = setTimeout(() => {
+                if (isMountedRef.current) setNewIds(new Set());
+            }, 600);
         }
     }, [notifications, buzz]);
 
@@ -209,8 +211,10 @@ export default function NotificationsPage() {
             pullYRef.current = 50;
             setPullY(50); // Hold at spinner position
             await refetch();
+            if (!isMountedRef.current) return;
             setIsRefreshing(false);
         }
+        if (!isMountedRef.current) return;
         pullYRef.current = 0;
         setPullY(0);
     }, [refetch, buzz]);

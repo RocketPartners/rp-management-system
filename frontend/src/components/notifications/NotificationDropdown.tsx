@@ -14,6 +14,7 @@ import { apiGet, apiPatch } from '@/lib/spring-boot-api';
 import { useNotificationSocket } from '@/hooks/use-notification-socket';
 import { usePushNotifications } from '@/hooks/use-push-notifications';
 import { useIsBottomNav } from '@/hooks/use-bottom-nav';
+import { useUnreadCount } from '@/hooks/use-unread-count';
 import type { PagedResponse } from '@/types';
 import {
     getNotificationMeta,
@@ -33,14 +34,7 @@ export function NotificationDropdown() {
     // Browser push notifications (prompts for permission on first load)
     usePushNotifications();
 
-    const { data: unreadData } = useQuery({
-        queryKey: ['notifications', 'unread-count'],
-        queryFn: () => apiGet<{ count: number }>('/notifications/unread-count'),
-        refetchInterval: 30_000,
-        refetchIntervalInBackground: false,
-    });
-
-    const unreadCount = unreadData?.count ?? 0;
+    const unreadCount = useUnreadCount();
 
     const { data: notificationsData, isLoading } = useQuery({
         queryKey: ['notifications', 'list'],

@@ -64,6 +64,57 @@ function getLeaveBalanceColor(balance: DashboardLeaveBalanceSummary): string {
     return 'text-green-600';
 }
 
+function LeaveBalanceCard({ balance, variant }: { balance: DashboardLeaveBalanceSummary; variant: 'mobile' | 'desktop' }) {
+    const borderStyle = { borderColor: balance.leaveType.color + '40' };
+    const dotStyle = { backgroundColor: balance.leaveType.color };
+    const pct = balance.totalDays > 0 ? (balance.remainingDays / balance.totalDays) * 100 : 0;
+
+    if (variant === 'mobile') {
+        return (
+            <div className="flex-shrink-0 rounded-xl border-2 p-3" style={{ ...borderStyle, width: '140px' }}>
+                <div className="mb-1.5 flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full" style={dotStyle} />
+                    <span className="truncate text-xs font-medium text-gray-700">{balance.leaveType.name}</span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                    <span className={`text-xl font-bold ${getLeaveBalanceColor(balance)}`}>{balance.remainingDays}</span>
+                    <span className="text-xs text-gray-400">/ {balance.totalDays}</span>
+                </div>
+                <Progress value={pct} className="mt-2 h-1.5" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="rounded-lg border-2 p-4 transition-shadow hover:shadow-md" style={borderStyle}>
+            <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="h-3 w-3 rounded-full" style={dotStyle} />
+                    <span className="font-medium text-gray-900">{balance.leaveType.name}</span>
+                </div>
+                <Badge
+                    variant="outline"
+                    className="text-xs"
+                    style={{ borderColor: balance.leaveType.color + '40', color: balance.leaveType.color }}
+                >
+                    {balance.leaveType.code}
+                </Badge>
+            </div>
+            <div className="mb-2 flex items-baseline gap-2">
+                <span className={`text-3xl font-bold ${getLeaveBalanceColor(balance)}`}>{balance.remainingDays}</span>
+                <span className="text-gray-500">/ {balance.totalDays} days</span>
+            </div>
+            <Progress value={pct} className="mb-3 h-2" />
+            <div className="flex justify-between text-xs text-gray-600">
+                <span>Used: {balance.usedDays}</span>
+                {balance.carriedOverDays > 0 && (
+                    <span className="text-blue-600">+{balance.carriedOverDays} carried over</span>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function formatDateRange(start: string, end: string): string {
     const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
     const s = new Date(start).toLocaleDateString('en-US', opts);
@@ -274,89 +325,13 @@ function MyDashboardTab({ data, isLoading }: { data?: MyDashboardResponse; isLoa
                                     {/* Mobile: horizontal scroll chips */}
                                     <div className="flex gap-3 overflow-x-auto pb-2 lg:hidden" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
                                         {data.leaveBalances.map((balance) => (
-                                            <div
-                                                key={balance.id}
-                                                className="flex-shrink-0 rounded-xl border-2 p-3"
-                                                style={{ borderColor: balance.leaveType.color + '40', width: '140px' }}
-                                            >
-                                                <div className="mb-1.5 flex items-center gap-1.5">
-                                                    <div
-                                                        className="h-2.5 w-2.5 rounded-full"
-                                                        style={{ backgroundColor: balance.leaveType.color }}
-                                                    />
-                                                    <span className="truncate text-xs font-medium text-gray-700">
-                                                        {balance.leaveType.name}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-baseline gap-1">
-                                                    <span className={`text-xl font-bold ${getLeaveBalanceColor(balance)}`}>
-                                                        {balance.remainingDays}
-                                                    </span>
-                                                    <span className="text-xs text-gray-400">/ {balance.totalDays}</span>
-                                                </div>
-                                                <Progress
-                                                    value={
-                                                        balance.totalDays > 0
-                                                            ? (balance.remainingDays / balance.totalDays) * 100
-                                                            : 0
-                                                    }
-                                                    className="mt-2 h-1.5"
-                                                />
-                                            </div>
+                                            <LeaveBalanceCard key={balance.id} balance={balance} variant="mobile" />
                                         ))}
                                     </div>
                                     {/* Desktop: existing grid layout */}
                                     <div className="hidden gap-4 lg:grid lg:grid-cols-2">
                                         {data.leaveBalances.map((balance) => (
-                                            <div
-                                                key={balance.id}
-                                                className="rounded-lg border-2 p-4 transition-shadow hover:shadow-md"
-                                                style={{ borderColor: balance.leaveType.color + '40' }}
-                                            >
-                                                <div className="mb-3 flex items-center justify-between">
-                                                    <div className="flex items-center gap-2">
-                                                        <div
-                                                            className="h-3 w-3 rounded-full"
-                                                            style={{ backgroundColor: balance.leaveType.color }}
-                                                        />
-                                                        <span className="font-medium text-gray-900">
-                                                            {balance.leaveType.name}
-                                                        </span>
-                                                    </div>
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="text-xs"
-                                                        style={{
-                                                            borderColor: balance.leaveType.color + '40',
-                                                            color: balance.leaveType.color,
-                                                        }}
-                                                    >
-                                                        {balance.leaveType.code}
-                                                    </Badge>
-                                                </div>
-                                                <div className="mb-2 flex items-baseline gap-2">
-                                                    <span className={`text-3xl font-bold ${getLeaveBalanceColor(balance)}`}>
-                                                        {balance.remainingDays}
-                                                    </span>
-                                                    <span className="text-gray-500">/ {balance.totalDays} days</span>
-                                                </div>
-                                                <Progress
-                                                    value={
-                                                        balance.totalDays > 0
-                                                            ? (balance.remainingDays / balance.totalDays) * 100
-                                                            : 0
-                                                    }
-                                                    className="mb-3 h-2"
-                                                />
-                                                <div className="flex justify-between text-xs text-gray-600">
-                                                    <span>Used: {balance.usedDays}</span>
-                                                    {balance.carriedOverDays > 0 && (
-                                                        <span className="text-blue-600">
-                                                            +{balance.carriedOverDays} carried over
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
+                                            <LeaveBalanceCard key={balance.id} balance={balance} variant="desktop" />
                                         ))}
                                     </div>
                                 </>
