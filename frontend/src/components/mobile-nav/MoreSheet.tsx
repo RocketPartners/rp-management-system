@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LogOut, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -79,7 +79,7 @@ export function MoreSheet() {
     const { pathname } = useLocation();
     const { buzz } = useHaptics();
     const navigate = useNavigate();
-    const navigation = buildNavigation(can);
+    const navigation = useMemo(() => buildNavigation(can), [can]);
 
     const handleClose = () => setOpen(false);
 
@@ -102,6 +102,7 @@ export function MoreSheet() {
             <MobileBottomSheet
                 open={open}
                 onOpenChange={setOpen}
+                ariaLabel="Navigation menu"
                 header={
                     <div className="flex items-center gap-3 border-b border-black/[0.06] px-5 pb-3 pt-2">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600">

@@ -55,6 +55,13 @@ export default function NotificationsPage() {
     // Track known notification IDs to detect new arrivals
     const knownIds = useRef<Set<number>>(new Set());
     const [newIds, setNewIds] = useState<Set<number>>(new Set());
+    const animationTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+        };
+    }, []);
 
     // Pull-to-refresh state
     const [pullY, setPullY] = useState(0);
@@ -80,14 +87,14 @@ export default function NotificationsPage() {
     });
     const notifications = useMemo(() => notificationsData?.content ?? [], [notificationsData]);
 
-    // Refetch list when unread count changes
+    // Refetch list when unread count changes (skip while a pull-to-refresh is in flight)
     const prevUnread = useRef(unreadCount);
     useEffect(() => {
         if (unreadCount !== prevUnread.current) {
             prevUnread.current = unreadCount;
-            refetch();
+            if (!isRefreshing) refetch();
         }
-    }, [unreadCount, refetch]);
+    }, [unreadCount, refetch, isRefreshing]);
 
     // Detect new notifications and trigger animation
     useEffect(() => {
@@ -109,7 +116,8 @@ export default function NotificationsPage() {
             knownIds.current = currentIds;
             // Defer to next tick so the setState doesn't cascade in the same render pass
             queueMicrotask(() => setNewIds(fresh));
-            setTimeout(() => setNewIds(new Set()), 600);
+            if (animationTimerRef.current) clearTimeout(animationTimerRef.current);
+            animationTimerRef.current = setTimeout(() => setNewIds(new Set()), 600);
         }
     }, [notifications, buzz]);
 

@@ -27,17 +27,31 @@ import {
 } from 'lucide-react';
 import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 import { BottomNav } from '@/components/mobile-nav/BottomNav';
-import { buildNavigation, type NavSection, type NavItemConfig } from '@/lib/navigation';
-import { type MouseEvent, useState } from 'react';
+import { buildNavigation, type NavItemConfig } from '@/lib/navigation';
+import { type MouseEvent, useMemo, useState } from 'react';
 
 export default function AuthenticatedLayout() {
     const [sidebarMinimized, setSidebarMinimized] = useState<boolean>(false);
-    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
     const currentUrl = location.pathname + location.search;
     const { can } = usePermission();
+    const navigation = useMemo(() => buildNavigation(can), [can]);
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>(() => {
+        const initial: Record<string, boolean> = {};
+        const initialUrl = location.pathname + location.search;
+        const cleanUrl = initialUrl.split('?')[0];
+        navigation.forEach((section) => {
+            if (section.type === 'accordion') {
+                initial[section.name] = section.items.some((item) => {
+                    const cleanHref = item.href.split('?')[0];
+                    return cleanUrl === cleanHref || cleanUrl.startsWith(cleanHref + '/');
+                });
+            }
+        });
+        return initial;
+    });
     const { timezone, setTimezone, timezones } = useTimezone();
     const currentTimezone =
         timezones.find((tz) => tz.id === timezone) || timezones[2];
@@ -98,21 +112,6 @@ export default function AuthenticatedLayout() {
     const sectionHasActiveItem = (items: NavItemConfig[]): boolean => {
         return items.some((item) => isActive(item.href));
     };
-
-    const navigation = buildNavigation(can);
-
-    // Initialize expanded sections on mount
-    useState(() => {
-        const initialExpanded: Record<string, boolean> = {};
-        navigation.forEach((section) => {
-            if (section.type === 'accordion') {
-                initialExpanded[section.name] = sectionHasActiveItem(
-                    section.items,
-                );
-            }
-        });
-        setExpandedSections(initialExpanded);
-    });
 
     return (
         <div className="min-h-screen bg-gray-50">

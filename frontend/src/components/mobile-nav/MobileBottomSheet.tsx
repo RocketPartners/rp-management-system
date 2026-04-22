@@ -10,6 +10,10 @@ interface MobileBottomSheetProps {
     /** Content rendered in the fixed header zone (always swipeable) */
     header?: ReactNode;
     className?: string;
+    /** Accessible name announced to screen readers */
+    ariaLabel?: string;
+    /** Or id of the element labelling the dialog */
+    ariaLabelledBy?: string;
 }
 
 /**
@@ -20,7 +24,7 @@ interface MobileBottomSheetProps {
  * - Swipe-to-dismiss on header (always) and content (when at scroll top)
  * - 150px threshold to prevent accidental dismisses
  */
-export function MobileBottomSheet({ open, onOpenChange, children, header, className }: MobileBottomSheetProps) {
+export function MobileBottomSheet({ open, onOpenChange, children, header, className, ariaLabel, ariaLabelledBy }: MobileBottomSheetProps) {
     const [mounted, setMounted] = useState(false);
     const [visible, setVisible] = useState(false);
     const [dragY, setDragY] = useState(0);
@@ -152,6 +156,8 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
             <div
                 role="dialog"
                 aria-modal="true"
+                aria-label={ariaLabel}
+                aria-labelledby={ariaLabelledBy}
                 className={cn(
                     'absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col',
                     'rounded-t-3xl border-t border-white/70',
