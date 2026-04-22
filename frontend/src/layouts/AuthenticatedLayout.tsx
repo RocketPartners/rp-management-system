@@ -35,6 +35,19 @@ export default function AuthenticatedLayout() {
     const { user, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
+
+    // Auto-collapse sidebar on AI Chat pages for immersive experience
+    const prevMinimized = useRef(sidebarMinimized);
+    const isAIChat = location.pathname.startsWith('/ai-chat');
+    useEffect(() => {
+        if (isAIChat) {
+            prevMinimized.current = sidebarMinimized;
+            setSidebarMinimized(true);
+        } else {
+            setSidebarMinimized(prevMinimized.current);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to AI chat route transitions
+    }, [isAIChat]);
     const currentUrl = location.pathname + location.search;
     const { can } = usePermission();
     const navigation = useMemo(() => buildNavigation(can), [can]);
@@ -75,6 +88,8 @@ export default function AuthenticatedLayout() {
 
         if (cleanUrl === cleanHref) return true;
 
+        if (cleanHref === '/ai-chat' && cleanUrl.startsWith('/ai-chat'))
+            return true;
         if (cleanHref === '/calendar' && cleanUrl.startsWith('/calendar'))
             return true;
         if (cleanHref === '/users' && cleanUrl.startsWith('/users/'))
@@ -104,6 +119,16 @@ export default function AuthenticatedLayout() {
             cleanHref === '/onboarding/submissions' &&
             cleanUrl.startsWith('/onboarding/submissions')
         )
+            return true;
+        if (cleanHref === '/audit-logs' && cleanUrl.startsWith('/audit-logs'))
+            return true;
+        if (cleanHref === '/audit-dashboard' && cleanUrl.startsWith('/audit-dashboard'))
+            return true;
+        if (cleanHref === '/admin-tools' && cleanUrl.startsWith('/admin-tools'))
+            return true;
+        if (cleanHref === '/analytics' && cleanUrl === '/analytics')
+            return true;
+        if (cleanHref !== '/analytics' && cleanHref.startsWith('/analytics/') && cleanUrl.startsWith(cleanHref))
             return true;
 
         return false;

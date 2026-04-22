@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { apiGet, apiPost } from '@/lib/spring-boot-api';
+
+let lastRegisteredUserId: number | null = null;
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -13,49 +15,52 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
     return outputArray;
 }
 
+async function registerSubscription(subscription: PushSubscription): Promise<void> {
+    const subJson = subscription.toJSON();
+    if (!subJson.endpoint || !subJson.keys?.p256dh || !subJson.keys?.auth) {
+        console.warn('Push subscription missing endpoint or keys — skipping registration');
+        return;
+    }
+    await apiPost('/notifications/push/subscribe', {
+        endpoint: subJson.endpoint,
+        keys: subJson.keys,
+    });
+}
+
 export function usePushNotifications() {
     const { user } = useAuth();
-    const subscribedRef = useRef(false);
 
     useEffect(() => {
-        if (!user?.id || subscribedRef.current) return;
+        if (!user?.id) return;
+        if (user.id === lastRegisteredUserId) return;
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+        lastRegisteredUserId = user.id;
 
         const setup = async () => {
             try {
-                // Register service worker
                 const registration = await navigator.serviceWorker.register('/sw.js');
                 await navigator.serviceWorker.ready;
 
-                // Check if already subscribed
                 const existing = await registration.pushManager.getSubscription();
                 if (existing) {
-                    subscribedRef.current = true;
+                    await registerSubscription(existing);
                     return;
                 }
 
-                // Request permission
                 const permission = await Notification.requestPermission();
                 if (permission !== 'granted') return;
 
-                // Get VAPID key from backend
                 const { publicKey } = await apiGet<{ publicKey: string }>('/notifications/push/vapid-key');
 
-                // Subscribe to push
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(publicKey),
                 });
 
-                // Send subscription to backend
-                const subJson = subscription.toJSON();
-                await apiPost('/notifications/push/subscribe', {
-                    endpoint: subJson.endpoint,
-                    keys: subJson.keys,
-                });
-
-                subscribedRef.current = true;
+                await registerSubscription(subscription);
             } catch (err) {
+                if (err instanceof Error && err.message.includes('PushManager')) return;
                 console.warn('Push notification setup failed:', err);
             }
         };

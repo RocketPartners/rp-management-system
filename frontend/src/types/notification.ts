@@ -31,6 +31,7 @@ export const NOTIFICATION_META: Record<string, NotificationMeta> = {
     TICKET_REPLY: { icon: MessageSquare, color: 'text-blue-500', label: 'Ticket Reply' },
     TICKET_STATUS: { icon: LifeBuoy, color: 'text-indigo-500', label: 'Ticket Update' },
     LEAVE_REQUESTED: { icon: Clock, color: 'text-yellow-500', label: 'Leave Request' },
+    LEAVE_UPDATED: { icon: Clock, color: 'text-yellow-500', label: 'Leave Updated' },
     LEAVE_APPROVED: { icon: CheckCircle2, color: 'text-green-500', label: 'Leave Approved' },
     LEAVE_APPROVED_BY_MANAGER: { icon: CheckCircle2, color: 'text-green-500', label: 'Manager Approved' },
     LEAVE_REJECTED: { icon: XCircle, color: 'text-red-500', label: 'Leave Rejected' },
@@ -40,6 +41,9 @@ export const NOTIFICATION_META: Record<string, NotificationMeta> = {
     LEAVE_CANCELLATION_APPROVED: { icon: CheckCircle2, color: 'text-green-500', label: 'Cancellation Approved' },
     LEAVE_CANCELLATION_REJECTED: { icon: XCircle, color: 'text-red-500', label: 'Cancellation Rejected' },
     USER_APPROVAL: { icon: UserCheck, color: 'text-green-500', label: 'User Approval' },
+    ONBOARDING_SUBMITTED: { icon: UserCheck, color: 'text-blue-500', label: 'Onboarding Submitted' },
+    ONBOARDING_APPROVED: { icon: CheckCircle2, color: 'text-green-500', label: 'Onboarding Approved' },
+    ONBOARDING_REJECTED: { icon: XCircle, color: 'text-red-500', label: 'Onboarding Rejected' },
     ONBOARDING_UPDATE: { icon: UserCheck, color: 'text-teal-500', label: 'Onboarding' },
 };
 
@@ -49,17 +53,15 @@ export function getNotificationMeta(type: string): NotificationMeta {
     return NOTIFICATION_META[type] ?? DEFAULT_META;
 }
 
+const REFERENCE_ROUTES: Record<string, (id: number) => string> = {
+    TICKET: () => '/support',
+    LEAVE: (id) => `/my-leaves/${id}`,
+    LEAVE_APPLICATION: (id) => `/my-leaves/${id}`,
+    USER: (id) => `/users/${id}`,
+    ONBOARDING: (id) => `/onboarding/submissions/${id}`,
+};
+
 export function getNotificationRoute(referenceType: string | null, referenceId: number | null): string | null {
     if (!referenceType || !referenceId) return null;
-    switch (referenceType) {
-        case 'TICKET':
-            return `/support`;
-        case 'LEAVE':
-        case 'LEAVE_APPLICATION':
-            return `/my-leaves/${referenceId}`;
-        case 'USER':
-            return `/users/${referenceId}`;
-        default:
-            return null;
-    }
+    return REFERENCE_ROUTES[referenceType]?.(referenceId) ?? null;
 }
