@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
         staleTime: 0,
         refetchOnWindowFocus: true,
     });
-    const notifications = notificationsData?.content ?? [];
+    const notifications = useMemo(() => notificationsData?.content ?? [], [notificationsData]);
 
     // Refetch list when unread count changes
     const prevUnread = useRef(unreadCount);
@@ -106,9 +106,9 @@ export default function NotificationsPage() {
         }
         if (fresh.size > 0) {
             buzz();
-            setNewIds(fresh);
             knownIds.current = currentIds;
-            // Clear animation class after it plays
+            // Defer to next tick so the setState doesn't cascade in the same render pass
+            queueMicrotask(() => setNewIds(fresh));
             setTimeout(() => setNewIds(new Set()), 600);
         }
     }, [notifications, buzz]);

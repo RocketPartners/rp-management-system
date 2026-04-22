@@ -24,16 +24,28 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
     const [mounted, setMounted] = useState(false);
     const [visible, setVisible] = useState(false);
     const [dragY, setDragY] = useState(0);
+    const [dragging, setDragging] = useState(false);
     const dragStartY = useRef(0);
     const isDragging = useRef(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+    const beginDrag = useCallback(() => {
+        isDragging.current = true;
+        setDragging(true);
+    }, []);
+
+    const endDrag = useCallback(() => {
+        isDragging.current = false;
+        setDragging(false);
+    }, []);
+
     useEffect(() => {
         if (open) {
-            setMounted(true);
             document.body.style.overflow = 'hidden';
             document.body.style.touchAction = 'none';
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- mount + slide-in requires coordinated state updates with rAF
+            setMounted(true);
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => setVisible(true));
             });
@@ -66,8 +78,8 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
     // Header zone drag — always initiates
     const onHeaderTouchStart = useCallback((e: React.TouchEvent) => {
         dragStartY.current = e.touches[0].clientY;
-        isDragging.current = true;
-    }, []);
+        beginDrag();
+    }, [beginDrag]);
 
     const onHeaderTouchMove = useCallback((e: React.TouchEvent) => {
         if (!isDragging.current) return;
@@ -76,22 +88,22 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
     }, []);
 
     const onHeaderTouchEnd = useCallback(() => {
-        isDragging.current = false;
+        endDrag();
         if (dragY > DISMISS_THRESHOLD) {
             handleClose();
         } else {
             setDragY(0);
         }
-    }, [dragY, handleClose]);
+    }, [dragY, handleClose, endDrag]);
 
     // Scroll area drag — only when at scroll top
     const onScrollTouchStart = useCallback((e: React.TouchEvent) => {
         const scrollEl = scrollRef.current;
         if (scrollEl && scrollEl.scrollTop <= 0) {
             dragStartY.current = e.touches[0].clientY;
-            isDragging.current = true;
+            beginDrag();
         }
-    }, []);
+    }, [beginDrag]);
 
     // Native touchmove for scroll area — must be non-passive to preventDefault
     useEffect(() => {
@@ -104,23 +116,23 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
                 e.preventDefault();
                 setDragY(dy);
             } else {
-                isDragging.current = false;
+                endDrag();
                 setDragY(0);
             }
         };
         el.addEventListener('touchmove', handler, { passive: false });
         return () => el.removeEventListener('touchmove', handler);
-    }, [mounted]);
+    }, [mounted, endDrag]);
 
     const onScrollTouchEnd = useCallback(() => {
         if (!isDragging.current) return;
-        isDragging.current = false;
+        endDrag();
         if (dragY > DISMISS_THRESHOLD) {
             handleClose();
         } else {
             setDragY(0);
         }
-    }, [dragY, handleClose]);
+    }, [dragY, handleClose, endDrag]);
 
     if (!mounted) return null;
 
@@ -145,7 +157,7 @@ export function MobileBottomSheet({ open, onOpenChange, children, header, classN
                     'rounded-t-3xl border-t border-white/70',
                     'bg-white/80 backdrop-blur-[50px] backdrop-saturate-[1.8]',
                     'shadow-[0_-16px_48px_rgba(0,0,0,0.1)]',
-                    !isDragging.current && 'transition-transform duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]',
+                    !dragging && 'transition-transform duration-350 ease-[cubic-bezier(0.32,0.72,0,1)]',
                     className,
                 )}
                 style={{
