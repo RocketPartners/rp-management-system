@@ -346,6 +346,20 @@ export default function AuthenticatedLayout() {
             });
         }
 
+        // PAYROLL / PAYSLIPS
+        if (can('PAYSLIP_MANAGE')) {
+            nav.push({
+                type: 'items',
+                items: [
+                    {
+                        name: 'Payslips',
+                        href: '/payslips',
+                        icon: Wallet,
+                    },
+                ],
+            });
+        }
+
         // PROJECT MANAGEMENT
         if (can('PROJECT_READ') || can('PROJECT_CREATE')) {
             nav.push({
