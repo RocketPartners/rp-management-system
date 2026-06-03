@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Download, FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
+import { Download, FilePlus, FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { usePermission } from '@/hooks/usePermission';
 import { apiGet } from '@/lib/spring-boot-api';
 import {
@@ -40,6 +40,7 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
+import CreatePayslipDialog from './CreatePayslipDialog';
 
 interface EmployeeOption {
     id: number;
@@ -60,6 +61,7 @@ export default function PayslipsIndex() {
     const page = parseInt(searchParams.get('page') || '0', 10);
 
     const [uploadOpen, setUploadOpen] = useState(false);
+    const [createOpen, setCreateOpen] = useState(false);
     const [employeeId, setEmployeeId] = useState('');
     const [payPeriodId, setPayPeriodId] = useState('');
     const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -183,10 +185,16 @@ export default function PayslipsIndex() {
                         Upload and manage employee payslips by pay period.
                     </p>
                 </div>
-                <Button onClick={() => setUploadOpen(true)}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload payslip
-                </Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => setCreateOpen(true)}>
+                        <FilePlus className="mr-2 h-4 w-4" />
+                        Create payslip
+                    </Button>
+                    <Button onClick={() => setUploadOpen(true)}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload payslip
+                    </Button>
+                </div>
             </div>
 
             <Card>
@@ -411,6 +419,12 @@ export default function PayslipsIndex() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <CreatePayslipDialog
+                open={createOpen}
+                onOpenChange={setCreateOpen}
+                onCreated={() => queryClient.invalidateQueries({ queryKey: ['payslips'] })}
+            />
 
             <DeleteConfirmationModal
                 isOpen={deleteTarget !== null}

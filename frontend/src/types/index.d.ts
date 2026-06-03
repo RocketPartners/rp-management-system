@@ -415,6 +415,7 @@ export interface PayslipResponse {
     uploadedByName: string | null;
     uploadedAt: string | null;
     downloadUrl: string;
+    source: string | null;
     createdAt: string;
 }
 

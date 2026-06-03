@@ -1,5 +1,11 @@
-import { apiGet, apiDelete, apiFetch, apiPostFormData, getAccessToken } from '@/lib/spring-boot-api';
+import { apiGet, apiDelete, apiFetch, apiPost, apiPostFormData, getAccessToken } from '@/lib/spring-boot-api';
 import type { PagedResponse, PayPeriodResponse, PayslipResponse } from '@/types';
+
+export interface LineItemInput {
+    category: 'EARNING' | 'DEDUCTION' | 'ALLOWANCE';
+    label: string;
+    amount: number;
+}
 
 const API_URL =
     import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1';
@@ -51,6 +57,15 @@ export function uploadPayslip(
         }),
     );
     return apiPostFormData<PayslipResponse>('/payslips', formData);
+}
+
+/** Manually create a payslip from line items; the backend renders + stores the PDF. */
+export function generatePayslip(request: {
+    employeeId: number;
+    payPeriodId: number;
+    lineItems: LineItemInput[];
+}): Promise<PayslipResponse> {
+    return apiPost<PayslipResponse>('/payslips/generate', request);
 }
 
 /**
