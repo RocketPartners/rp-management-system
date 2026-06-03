@@ -33,6 +33,7 @@ const SupportTickets = lazy(() => import('@/pages/Support/Index'));
 
 // Phase 12 — Payroll / Payslips (TSX)
 const PayslipList = lazy(() => import('@/pages/Payslips/Index'));
+const MyPayslips = lazy(() => import('@/pages/Payslips/MyPayslips'));
 
 // Phase 10 — Onboarding (TSX)
 const OnboardingInvites = lazy(() => import('@/pages/Onboarding/Invites/Index'));
@@ -151,6 +152,7 @@ export const router = createBrowserRouter([
                             { path: '/holidays', element: <ComingSoon /> },
                             { path: '/assets', element: <AssetList /> },
                             { path: '/payslips', element: <PayslipList /> },
+                            { path: '/my-payslips', element: <MyPayslips /> },
                             { path: '/inventory', element: <Navigate to="/assets" replace /> },
                             { path: '/individual-assets', element: <Navigate to="/assets" replace /> },
                             { path: '/projects', element: <ComingSoon /> },

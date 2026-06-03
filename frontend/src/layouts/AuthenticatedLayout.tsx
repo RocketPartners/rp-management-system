@@ -156,6 +156,7 @@ export default function AuthenticatedLayout() {
                 { name: 'My WFH', href: '/my-wfh', icon: Home },
                 { name: 'Announcements', href: '/announcements', icon: Megaphone },
                 { name: 'My Assets', href: '/my-assets', icon: Laptop },
+                { name: 'My Payslips', href: '/my-payslips', icon: Wallet },
             ],
         });
 

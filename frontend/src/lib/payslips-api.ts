@@ -26,6 +26,17 @@ export function getPayslips(
     return apiGet<PagedResponse<PayslipResponse>>(`/payslips?${query.toString()}`);
 }
 
+/** Employee self-service: the current user's own payslips only. */
+export function getMyPayslips(
+    params: { payPeriodId?: number; page?: number; size?: number } = {},
+): Promise<PagedResponse<PayslipResponse>> {
+    const query = new URLSearchParams();
+    if (params.payPeriodId != null) query.set('payPeriodId', String(params.payPeriodId));
+    query.set('page', String(params.page ?? 0));
+    query.set('size', String(params.size ?? 20));
+    return apiGet<PagedResponse<PayslipResponse>>(`/payslips/me?${query.toString()}`);
+}
+
 export function uploadPayslip(
     employeeId: number,
     payPeriodId: number,
