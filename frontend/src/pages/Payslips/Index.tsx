@@ -16,6 +16,7 @@ import {
 import type { PagedResponse, PayslipResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Combobox } from '@/components/ui/combobox';
 import {
     Table,
     TableBody,
@@ -24,13 +25,6 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     Dialog,
     DialogContent,
@@ -59,6 +53,9 @@ export default function PayslipsIndex() {
     const queryClient = useQueryClient();
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get('page') || '0', 10);
+    const filterEmployeeId = searchParams.get('employeeId') ?? '';
+    const filterPayPeriodId = searchParams.get('payPeriodId') ?? '';
+    const hasActiveFilters = filterEmployeeId !== '' || filterPayPeriodId !== '';
 
     const [uploadOpen, setUploadOpen] = useState(false);
     const [createOpen, setCreateOpen] = useState(false);
@@ -76,21 +73,27 @@ export default function PayslipsIndex() {
     const canManage = can('PAYSLIP_MANAGE');
 
     const payslipsQuery = useQuery({
-        queryKey: ['payslips', page],
-        queryFn: () => getPayslips({ page, size: PAGE_SIZE }),
+        queryKey: ['payslips', page, filterEmployeeId, filterPayPeriodId],
+        queryFn: () =>
+            getPayslips({
+                page,
+                size: PAGE_SIZE,
+                employeeId: filterEmployeeId ? Number(filterEmployeeId) : undefined,
+                payPeriodId: filterPayPeriodId ? Number(filterPayPeriodId) : undefined,
+            }),
         enabled: canManage,
     });
 
     const payPeriodsQuery = useQuery({
         queryKey: ['pay-periods'],
         queryFn: getPayPeriods,
-        enabled: canManage && uploadOpen,
+        enabled: canManage,
     });
 
     const employeesQuery = useQuery({
         queryKey: ['users-list'],
         queryFn: () => apiGet<PagedResponse<EmployeeOption>>('/users?size=200'),
-        enabled: canManage && uploadOpen,
+        enabled: canManage,
     });
 
     const uploadMutation = useMutation({
@@ -122,6 +125,32 @@ export default function PayslipsIndex() {
         },
         onError: (err: unknown) => toast.error(getErrorMessage(err)),
     });
+
+    const employeeOptions = (employeesQuery.data?.content ?? []).map((u) => ({
+        value: String(u.id),
+        label: `${u.firstName} ${u.lastName}`,
+    }));
+    const payPeriodOptions = (payPeriodsQuery.data ?? []).map((pp) => ({
+        value: String(pp.id),
+        label: pp.label,
+    }));
+
+    // Filter changes reset to the first page so the user never lands on an empty page.
+    function updateFilter(key: 'employeeId' | 'payPeriodId', value: string) {
+        const next = new URLSearchParams(searchParams);
+        if (value) next.set(key, value);
+        else next.delete(key);
+        next.delete('page');
+        setSearchParams(next);
+    }
+
+    function clearFilters() {
+        const next = new URLSearchParams(searchParams);
+        next.delete('employeeId');
+        next.delete('payPeriodId');
+        next.delete('page');
+        setSearchParams(next);
+    }
 
     function closeUpload() {
         setUploadOpen(false);
@@ -197,6 +226,36 @@ export default function PayslipsIndex() {
                 </div>
             </div>
 
+            <div className="mb-4 flex flex-wrap items-end gap-3">
+                <div className="w-full sm:w-64">
+                    <Label className="mb-1 block">Filter by employee</Label>
+                    <Combobox
+                        value={filterEmployeeId}
+                        onChange={(value) => updateFilter('employeeId', value)}
+                        placeholder="All employees"
+                        searchPlaceholder="Search employees…"
+                        emptyText="No employees found."
+                        options={employeeOptions}
+                    />
+                </div>
+                <div className="w-full sm:w-64">
+                    <Label className="mb-1 block">Filter by pay period</Label>
+                    <Combobox
+                        value={filterPayPeriodId}
+                        onChange={(value) => updateFilter('payPeriodId', value)}
+                        placeholder="All pay periods"
+                        searchPlaceholder="Search pay periods…"
+                        emptyText="No pay periods found."
+                        options={payPeriodOptions}
+                    />
+                </div>
+                {hasActiveFilters && (
+                    <Button variant="ghost" onClick={clearFilters}>
+                        Clear filters
+                    </Button>
+                )}
+            </div>
+
             <Card>
                 <div className="overflow-x-auto">
                     <Table>
@@ -220,7 +279,9 @@ export default function PayslipsIndex() {
                             {!payslipsQuery.isLoading && payslips.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={5} className="py-10 text-center text-gray-500">
-                                        No payslips uploaded yet.
+                                        {hasActiveFilters
+                                            ? 'No payslips match these filters.'
+                                            : 'No payslips uploaded yet.'}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -308,33 +369,25 @@ export default function PayslipsIndex() {
                     <div className="space-y-4">
                         <div>
                             <Label className="mb-1 block">Employee</Label>
-                            <Select value={employeeId} onValueChange={setEmployeeId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select employee" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(employeesQuery.data?.content ?? []).map((u) => (
-                                        <SelectItem key={u.id} value={String(u.id)}>
-                                            {u.firstName} {u.lastName}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                value={employeeId}
+                                onChange={setEmployeeId}
+                                placeholder="Select employee"
+                                searchPlaceholder="Search employees…"
+                                emptyText="No employees found."
+                                options={employeeOptions}
+                            />
                         </div>
                         <div>
                             <Label className="mb-1 block">Pay period</Label>
-                            <Select value={payPeriodId} onValueChange={setPayPeriodId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select pay period" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(payPeriodsQuery.data ?? []).map((pp) => (
-                                        <SelectItem key={pp.id} value={String(pp.id)}>
-                                            {pp.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                value={payPeriodId}
+                                onChange={setPayPeriodId}
+                                placeholder="Select pay period"
+                                searchPlaceholder="Search pay periods…"
+                                emptyText="No pay periods found."
+                                options={payPeriodOptions}
+                            />
                         </div>
                         <div>
                             <Label className="mb-1 block">PDF file</Label>

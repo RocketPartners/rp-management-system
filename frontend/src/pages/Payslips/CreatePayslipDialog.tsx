@@ -6,6 +6,7 @@ import { apiGet } from '@/lib/spring-boot-api';
 import { generatePayslip, getPayPeriods, type LineItemInput } from '@/lib/payslips-api';
 import type { PagedResponse } from '@/types';
 import { Button } from '@/components/ui/button';
+import { Combobox } from '@/components/ui/combobox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -74,11 +75,14 @@ export default function CreatePayslipDialog({ open, onOpenChange, onCreated }: C
             generatePayslip({
                 employeeId: Number(employeeId),
                 payPeriodId: Number(payPeriodId),
-                lineItems: rows.map((row) => ({
-                    category: row.category,
-                    label: row.label.trim(),
-                    amount: parseFloat(row.amount) || 0,
-                })),
+                // Only submit completed rows; blank rows would fail backend @NotBlank validation.
+                lineItems: rows
+                    .filter((row) => row.label.trim() && row.amount !== '')
+                    .map((row) => ({
+                        category: row.category,
+                        label: row.label.trim(),
+                        amount: parseFloat(row.amount) || 0,
+                    })),
             }),
         onSuccess: () => {
             toast.success('Payslip generated');
@@ -122,33 +126,31 @@ export default function CreatePayslipDialog({ open, onOpenChange, onCreated }: C
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <Label className="mb-1 block">Employee</Label>
-                            <Select value={employeeId} onValueChange={setEmployeeId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select employee" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(employeesQuery.data?.content ?? []).map((u) => (
-                                        <SelectItem key={u.id} value={String(u.id)}>
-                                            {u.firstName} {u.lastName}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                value={employeeId}
+                                onChange={setEmployeeId}
+                                placeholder="Select employee"
+                                searchPlaceholder="Search employees…"
+                                emptyText="No employees found."
+                                options={(employeesQuery.data?.content ?? []).map((u) => ({
+                                    value: String(u.id),
+                                    label: `${u.firstName} ${u.lastName}`,
+                                }))}
+                            />
                         </div>
                         <div>
                             <Label className="mb-1 block">Pay period</Label>
-                            <Select value={payPeriodId} onValueChange={setPayPeriodId}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select pay period" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {(periodsQuery.data ?? []).map((pp) => (
-                                        <SelectItem key={pp.id} value={String(pp.id)}>
-                                            {pp.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <Combobox
+                                value={payPeriodId}
+                                onChange={setPayPeriodId}
+                                placeholder="Select pay period"
+                                searchPlaceholder="Search pay periods…"
+                                emptyText="No pay periods found."
+                                options={(periodsQuery.data ?? []).map((pp) => ({
+                                    value: String(pp.id),
+                                    label: pp.label,
+                                }))}
+                            />
                         </div>
                     </div>
 

@@ -6,6 +6,8 @@ import { usePermission } from '@/hooks/usePermission';
 import { downloadPayslip, getMyPayslips } from '@/lib/payslips-api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Combobox } from '@/components/ui/combobox';
+import { Label } from '@/components/ui/label';
 import {
     Table,
     TableBody,
@@ -25,14 +27,45 @@ export default function MyPayslips() {
     const { can } = usePermission();
     const [searchParams, setSearchParams] = useSearchParams();
     const page = parseInt(searchParams.get('page') || '0', 10);
+    const filterPayPeriodId = searchParams.get('payPeriodId') ?? '';
 
     const canView = can('PAYSLIP_VIEW') || can('PAYSLIP_MANAGE');
 
     const payslipsQuery = useQuery({
-        queryKey: ['my-payslips', page],
-        queryFn: () => getMyPayslips({ page, size: PAGE_SIZE }),
+        queryKey: ['my-payslips', page, filterPayPeriodId],
+        queryFn: () =>
+            getMyPayslips({
+                page,
+                size: PAGE_SIZE,
+                payPeriodId: filterPayPeriodId ? Number(filterPayPeriodId) : undefined,
+            }),
         enabled: canView,
     });
+
+    // The /pay-periods endpoint requires PAYSLIP_MANAGE, so derive the filter
+    // options from the employee's own payslips instead — only periods they have.
+    const periodOptionsQuery = useQuery({
+        queryKey: ['my-payslips-periods'],
+        queryFn: () => getMyPayslips({ size: 200 }),
+        enabled: canView,
+    });
+
+    const payPeriodOptions = Array.from(
+        new Map(
+            (periodOptionsQuery.data?.content ?? []).map((p) => [
+                String(p.payPeriodId),
+                { value: String(p.payPeriodId), label: p.payPeriodLabel },
+            ]),
+        ).values(),
+    );
+
+    function updatePeriodFilter(value: string) {
+        const next = new URLSearchParams(searchParams);
+        if (value) next.set('payPeriodId', value);
+        else next.delete('payPeriodId');
+        next.delete('page');
+        setSearchParams(next);
+    }
 
     async function handleDownload(id: number) {
         try {
@@ -65,6 +98,27 @@ export default function MyPayslips() {
                 </p>
             </div>
 
+            {(payPeriodOptions.length > 0 || filterPayPeriodId) && (
+                <div className="mb-4 flex flex-wrap items-end gap-3">
+                    <div className="w-full sm:w-64">
+                        <Label className="mb-1 block">Filter by pay period</Label>
+                        <Combobox
+                            value={filterPayPeriodId}
+                            onChange={updatePeriodFilter}
+                            placeholder="All pay periods"
+                            searchPlaceholder="Search pay periods…"
+                            emptyText="No pay periods found."
+                            options={payPeriodOptions}
+                        />
+                    </div>
+                    {filterPayPeriodId && (
+                        <Button variant="ghost" onClick={() => updatePeriodFilter('')}>
+                            Clear filter
+                        </Button>
+                    )}
+                </div>
+            )}
+
             <Card>
                 <div className="overflow-x-auto">
                     <Table>
@@ -87,7 +141,9 @@ export default function MyPayslips() {
                             {!payslipsQuery.isLoading && payslips.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={4} className="py-10 text-center text-gray-500">
-                                        You have no payslips yet.
+                                        {filterPayPeriodId
+                                            ? 'No payslips for this pay period.'
+                                            : 'You have no payslips yet.'}
                                     </TableCell>
                                 </TableRow>
                             )}
