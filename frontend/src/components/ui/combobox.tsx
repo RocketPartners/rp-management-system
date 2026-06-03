@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Check, ChevronDownIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
@@ -30,6 +30,8 @@ interface ComboboxProps {
     emptyText?: string;
     disabled?: boolean;
     className?: string;
+    /** Optional leading icon shown inside the trigger (e.g. a lucide icon). */
+    icon?: ReactNode;
 }
 
 /**
@@ -45,6 +47,7 @@ export function Combobox({
     emptyText = 'No results found.',
     disabled = false,
     className,
+    icon,
 }: ComboboxProps) {
     const [open, setOpen] = useState(false);
     const selected = options.find((option) => option.value === value);
@@ -62,8 +65,13 @@ export function Combobox({
                         className,
                     )}
                 >
-                    <span className={cn('line-clamp-1 text-left', !selected && 'text-muted-foreground')}>
-                        {selected ? selected.label : placeholder}
+                    <span className="flex min-w-0 items-center gap-2">
+                        {icon && (
+                            <span className="shrink-0 text-muted-foreground [&_svg]:size-4">{icon}</span>
+                        )}
+                        <span className={cn('line-clamp-1 text-left', !selected && 'text-muted-foreground')}>
+                            {selected ? selected.label : placeholder}
+                        </span>
                     </span>
                     <ChevronDownIcon className="size-4 shrink-0 opacity-50" />
                 </button>

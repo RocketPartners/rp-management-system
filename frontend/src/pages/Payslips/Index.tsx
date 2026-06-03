@@ -2,7 +2,19 @@ import { useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
-import { Download, FilePlus, FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
+import {
+    CalendarRange,
+    Download,
+    FilePlus,
+    FileText,
+    Inbox,
+    Loader2,
+    RefreshCw,
+    Search,
+    Trash2,
+    Upload,
+    X,
+} from 'lucide-react';
 import { usePermission } from '@/hooks/usePermission';
 import { apiGet } from '@/lib/spring-boot-api';
 import {
@@ -46,6 +58,14 @@ const PAGE_SIZE = 20;
 
 function getErrorMessage(error: unknown): string {
     return error instanceof Error ? error.message : 'Something went wrong';
+}
+
+function getInitials(name: string): string {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    const first = parts[0][0] ?? '';
+    const last = parts.length > 1 ? parts[parts.length - 1][0] ?? '' : '';
+    return (first + last).toUpperCase();
 }
 
 export default function PayslipsIndex() {
@@ -152,6 +172,13 @@ export default function PayslipsIndex() {
         setSearchParams(next);
     }
 
+    // Preserve active filters when paging.
+    function goToPage(nextPage: number) {
+        const next = new URLSearchParams(searchParams);
+        next.set('page', String(nextPage));
+        setSearchParams(next);
+    }
+
     function closeUpload() {
         setUploadOpen(false);
         setEmployeeId('');
@@ -204,6 +231,7 @@ export default function PayslipsIndex() {
     const data = payslipsQuery.data;
     const payslips = data?.content ?? [];
     const totalPages = data?.totalPages ?? 0;
+    const totalElements = data?.totalElements ?? 0;
 
     return (
         <div className="p-6 lg:p-8">
@@ -226,9 +254,9 @@ export default function PayslipsIndex() {
                 </div>
             </div>
 
-            <div className="mb-4 flex flex-wrap items-end gap-3">
-                <div className="w-full sm:w-64">
-                    <Label className="mb-1 block">Filter by employee</Label>
+            <div className="mb-4 flex flex-col gap-3 rounded-lg border bg-gray-50/60 p-3 sm:flex-row sm:flex-wrap sm:items-end">
+                <div className="w-full sm:w-60">
+                    <Label className="mb-1.5 block text-xs font-medium text-gray-500">Employee</Label>
                     <Combobox
                         value={filterEmployeeId}
                         onChange={(value) => updateFilter('employeeId', value)}
@@ -236,10 +264,12 @@ export default function PayslipsIndex() {
                         searchPlaceholder="Search employees…"
                         emptyText="No employees found."
                         options={employeeOptions}
+                        icon={<Search />}
+                        className="bg-white"
                     />
                 </div>
-                <div className="w-full sm:w-64">
-                    <Label className="mb-1 block">Filter by pay period</Label>
+                <div className="w-full sm:w-60">
+                    <Label className="mb-1.5 block text-xs font-medium text-gray-500">Pay period</Label>
                     <Combobox
                         value={filterPayPeriodId}
                         onChange={(value) => updateFilter('payPeriodId', value)}
@@ -247,10 +277,17 @@ export default function PayslipsIndex() {
                         searchPlaceholder="Search pay periods…"
                         emptyText="No pay periods found."
                         options={payPeriodOptions}
+                        icon={<CalendarRange />}
+                        className="bg-white"
                     />
                 </div>
                 {hasActiveFilters && (
-                    <Button variant="ghost" onClick={clearFilters}>
+                    <Button
+                        variant="ghost"
+                        onClick={clearFilters}
+                        className="text-gray-500 hover:text-gray-900 sm:ml-auto"
+                    >
+                        <X className="mr-1.5 h-4 w-4" />
                         Clear filters
                     </Button>
                 )}
@@ -269,37 +306,93 @@ export default function PayslipsIndex() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {payslipsQuery.isLoading && (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="py-10 text-center text-gray-500">
-                                        <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-                                    </TableCell>
-                                </TableRow>
-                            )}
+                            {payslipsQuery.isLoading &&
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <TableRow key={`skeleton-${i}`}>
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 animate-pulse rounded-full bg-gray-100" />
+                                                <div className="h-4 w-32 animate-pulse rounded bg-gray-100" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="h-4 w-24 animate-pulse rounded bg-gray-100" />
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="h-4 w-40 animate-pulse rounded bg-gray-100" />
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="h-4 w-20 animate-pulse rounded bg-gray-100" />
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="ml-auto h-4 w-16 animate-pulse rounded bg-gray-100" />
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
                             {!payslipsQuery.isLoading && payslips.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="py-10 text-center text-gray-500">
-                                        {hasActiveFilters
-                                            ? 'No payslips match these filters.'
-                                            : 'No payslips uploaded yet.'}
+                                <TableRow className="hover:bg-transparent">
+                                    <TableCell colSpan={5} className="py-16">
+                                        <div className="flex flex-col items-center text-center">
+                                            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                                                <Inbox className="h-6 w-6 text-gray-400" />
+                                            </div>
+                                            <p className="text-sm font-medium text-gray-900">
+                                                {hasActiveFilters
+                                                    ? 'No payslips match these filters'
+                                                    : 'No payslips uploaded yet'}
+                                            </p>
+                                            <p className="mt-1 max-w-sm text-sm text-gray-500">
+                                                {hasActiveFilters
+                                                    ? 'Try adjusting or clearing the filters to see more results.'
+                                                    : 'Upload a PDF or create a payslip to get started.'}
+                                            </p>
+                                            <div className="mt-4 flex gap-2">
+                                                {hasActiveFilters ? (
+                                                    <Button variant="outline" size="sm" onClick={clearFilters}>
+                                                        Clear filters
+                                                    </Button>
+                                                ) : (
+                                                    <Button size="sm" onClick={() => setUploadOpen(true)}>
+                                                        <Upload className="mr-2 h-4 w-4" />
+                                                        Upload payslip
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             )}
                             {payslips.map((p) => (
-                                <TableRow key={p.id}>
-                                    <TableCell className="font-medium">{p.employeeName}</TableCell>
-                                    <TableCell>{p.payPeriodLabel}</TableCell>
+                                <TableRow key={p.id} className="group">
                                     <TableCell>
-                                        <span className="inline-flex items-center gap-1 text-gray-600">
-                                            <FileText className="h-4 w-4" />
-                                            {p.fileName}
-                                        </span>
+                                        <div className="flex items-center gap-3">
+                                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-gray-100 text-xs font-medium text-gray-700">
+                                                {getInitials(p.employeeName)}
+                                            </span>
+                                            <span className="font-medium text-gray-900">
+                                                {p.employeeName}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="text-gray-600">{p.payPeriodLabel}</TableCell>
+                                    <TableCell>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDownload(p.id)}
+                                            title="Download payslip"
+                                            className="group/file inline-flex max-w-[260px] items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
+                                        >
+                                            <FileText className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover/file:text-gray-900" />
+                                            <span className="truncate underline-offset-4 group-hover/file:underline">
+                                                {p.fileName}
+                                            </span>
+                                        </button>
                                     </TableCell>
                                     <TableCell className="text-gray-500">
                                         {p.uploadedAt ? new Date(p.uploadedAt).toLocaleDateString() : '—'}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <div className="flex justify-end gap-1">
+                                        <div className="flex justify-end gap-1 opacity-60 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
@@ -320,7 +413,7 @@ export default function PayslipsIndex() {
                                                 variant="ghost"
                                                 size="sm"
                                                 title="Remove"
-                                                className="text-red-600 hover:text-red-700"
+                                                className="text-red-600 hover:bg-red-50 hover:text-red-700"
                                                 onClick={() => setDeleteTarget(p)}
                                             >
                                                 <Trash2 className="h-4 w-4" />
@@ -333,29 +426,32 @@ export default function PayslipsIndex() {
                     </Table>
                 </div>
 
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-between border-t px-4 py-3">
+                {payslips.length > 0 && (
+                    <div className="flex items-center justify-between border-t bg-gray-50/50 px-4 py-3">
                         <span className="text-sm text-gray-500">
-                            Page {page + 1} of {totalPages}
+                            {totalElements} payslip{totalElements === 1 ? '' : 's'}
+                            {totalPages > 1 && ` · Page ${page + 1} of ${totalPages}`}
                         </span>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={page <= 0}
-                                onClick={() => setSearchParams({ page: String(page - 1) })}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                disabled={page >= totalPages - 1}
-                                onClick={() => setSearchParams({ page: String(page + 1) })}
-                            >
-                                Next
-                            </Button>
-                        </div>
+                        {totalPages > 1 && (
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page <= 0}
+                                    onClick={() => goToPage(page - 1)}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    disabled={page >= totalPages - 1}
+                                    onClick={() => goToPage(page + 1)}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </Card>
