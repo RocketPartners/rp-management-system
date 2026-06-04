@@ -29,6 +29,7 @@ import type { PagedResponse, PayslipResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Combobox } from '@/components/ui/combobox';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
     Table,
     TableBody,
@@ -376,17 +377,23 @@ export default function PayslipsIndex() {
                                     </TableCell>
                                     <TableCell className="text-gray-600">{p.payPeriodLabel}</TableCell>
                                     <TableCell>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleDownload(p.id)}
-                                            title={p.fileName}
-                                            className="group/file inline-flex max-w-[260px] items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
-                                        >
-                                            <FileText className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover/file:text-gray-900" />
-                                            <span className="truncate underline-offset-4 group-hover/file:underline">
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDownload(p.id)}
+                                                    className="group/file inline-flex max-w-[260px] items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
+                                                >
+                                                    <FileText className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover/file:text-gray-900" />
+                                                    <span className="truncate underline-offset-4 group-hover/file:underline">
+                                                        {p.fileName}
+                                                    </span>
+                                                </button>
+                                            </TooltipTrigger>
+                                            <TooltipContent className="max-w-md break-all">
                                                 {p.fileName}
-                                            </span>
-                                        </button>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </TableCell>
                                     <TableCell className="text-gray-500">
                                         {p.uploadedAt ? new Date(p.uploadedAt).toLocaleDateString() : '—'}
