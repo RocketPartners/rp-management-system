@@ -100,6 +100,9 @@ export function deletePayslip(id: number): Promise<void> {
 export async function downloadPayslip(id: number): Promise<void> {
     const res = await apiFetch(`/payslips/${id}/download`);
     if (!res.ok) {
+        if (res.status === 404) {
+            throw new Error('This payslip file is no longer available.');
+        }
         throw new Error(`Download failed (${res.status})`);
     }
     const blob = await res.blob();

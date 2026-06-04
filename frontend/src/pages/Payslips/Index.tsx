@@ -293,9 +293,9 @@ export default function PayslipsIndex() {
                 )}
             </div>
 
-            <Card>
+            <Card className="w-fit max-w-full">
                 <div className="overflow-x-auto">
-                    <Table>
+                    <Table className="w-auto">
                         <TableHeader>
                             <TableRow className="bg-gray-50 hover:bg-gray-50">
                                 <TableHead className="font-semibold">Employee</TableHead>
@@ -379,7 +379,7 @@ export default function PayslipsIndex() {
                                         <button
                                             type="button"
                                             onClick={() => handleDownload(p.id)}
-                                            title="Download payslip"
+                                            title={p.fileName}
                                             className="group/file inline-flex max-w-[260px] items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
                                         >
                                             <FileText className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover/file:text-gray-900" />
