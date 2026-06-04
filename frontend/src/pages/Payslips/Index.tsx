@@ -308,7 +308,7 @@ export default function PayslipsIndex() {
 
             <Card>
                 <div className="overflow-x-auto">
-                    <Table>
+                    <Table className="[&_td]:px-4 [&_th]:h-11 [&_th]:px-4">
                         <TableHeader>
                             <TableRow className="bg-gray-50 hover:bg-gray-50">
                                 <TableHead className="font-semibold">Employee</TableHead>
