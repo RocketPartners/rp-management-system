@@ -7,8 +7,10 @@ import {
     Download,
     FilePlus,
     FileText,
+    Filter,
     Inbox,
     Loader2,
+    ReceiptText,
     RefreshCw,
     Search,
     Trash2,
@@ -28,6 +30,7 @@ import {
 import type { PagedResponse, PayslipResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Combobox } from '@/components/ui/combobox';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -236,14 +239,19 @@ export default function PayslipsIndex() {
 
     return (
         <div className="mx-auto max-w-4xl p-6 lg:p-8">
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Payslips</h1>
-                    <p className="text-sm text-gray-500">
-                        Upload and manage employee payslips by pay period.
-                    </p>
+            <div className="mb-6 flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                        <ReceiptText className="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight text-gray-900">Payslips</h1>
+                        <p className="text-sm text-gray-500">
+                            Upload and manage employee payslips by pay period.
+                        </p>
+                    </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex shrink-0 gap-2">
                     <Button variant="outline" onClick={() => setCreateOpen(true)}>
                         <FilePlus className="mr-2 h-4 w-4" />
                         Create payslip
@@ -255,7 +263,11 @@ export default function PayslipsIndex() {
                 </div>
             </div>
 
-            <div className="mb-4 flex flex-col gap-3 rounded-lg border bg-gray-50/60 p-3 sm:flex-row sm:flex-wrap sm:items-end">
+            <div className="mb-4 flex flex-col gap-3 rounded-xl border bg-white p-4 shadow-sm sm:flex-row sm:flex-wrap sm:items-end">
+                <div className="hidden items-center gap-1.5 self-center pr-1 text-xs font-semibold uppercase tracking-wide text-gray-400 sm:flex">
+                    <Filter className="h-3.5 w-3.5" />
+                    Filters
+                </div>
                 <div className="w-full sm:w-60">
                     <Label className="mb-1.5 block text-xs font-medium text-gray-500">Employee</Label>
                     <Combobox
@@ -334,8 +346,8 @@ export default function PayslipsIndex() {
                                 <TableRow className="hover:bg-transparent">
                                     <TableCell colSpan={5} className="py-16">
                                         <div className="flex flex-col items-center text-center">
-                                            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                                                <Inbox className="h-6 w-6 text-gray-400" />
+                                            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 ring-1 ring-blue-100">
+                                                <Inbox className="h-7 w-7 text-blue-500" />
                                             </div>
                                             <p className="text-sm font-medium text-gray-900">
                                                 {hasActiveFilters
@@ -367,7 +379,7 @@ export default function PayslipsIndex() {
                                 <TableRow key={p.id} className="group">
                                     <TableCell>
                                         <div className="flex items-center gap-3">
-                                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-gray-100 text-xs font-medium text-gray-700">
+                                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-xs font-semibold text-blue-700 ring-1 ring-blue-100">
                                                 {getInitials(p.employeeName)}
                                             </span>
                                             <span className="font-medium text-gray-900">
@@ -375,16 +387,23 @@ export default function PayslipsIndex() {
                                             </span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-gray-600">{p.payPeriodLabel}</TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            variant="secondary"
+                                            className="border-blue-100 bg-blue-50 font-medium text-blue-700"
+                                        >
+                                            {p.payPeriodLabel}
+                                        </Badge>
+                                    </TableCell>
                                     <TableCell>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleDownload(p.id)}
-                                                    className="group/file inline-flex max-w-[260px] items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
+                                                    className="group/file inline-flex max-w-[260px] items-center gap-2 text-gray-600 transition-colors hover:text-blue-600"
                                                 >
-                                                    <FileText className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover/file:text-gray-900" />
+                                                    <FileText className="h-4 w-4 shrink-0 text-gray-400 transition-colors group-hover/file:text-blue-600" />
                                                     <span className="truncate underline-offset-4 group-hover/file:underline">
                                                         {p.fileName}
                                                     </span>
@@ -404,6 +423,7 @@ export default function PayslipsIndex() {
                                                 variant="ghost"
                                                 size="sm"
                                                 title="Download"
+                                                className="hover:bg-blue-50 hover:text-blue-600"
                                                 onClick={() => handleDownload(p.id)}
                                             >
                                                 <Download className="h-4 w-4" />
