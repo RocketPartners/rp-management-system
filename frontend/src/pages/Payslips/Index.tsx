@@ -234,7 +234,7 @@ export default function PayslipsIndex() {
     const totalElements = data?.totalElements ?? 0;
 
     return (
-        <div className="p-6 lg:p-8">
+        <div className="mx-auto max-w-4xl p-6 lg:p-8">
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">Payslips</h1>
@@ -293,9 +293,9 @@ export default function PayslipsIndex() {
                 )}
             </div>
 
-            <Card className="w-fit max-w-full">
+            <Card>
                 <div className="overflow-x-auto">
-                    <Table className="w-auto">
+                    <Table>
                         <TableHeader>
                             <TableRow className="bg-gray-50 hover:bg-gray-50">
                                 <TableHead className="font-semibold">Employee</TableHead>
