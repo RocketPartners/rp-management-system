@@ -306,7 +306,7 @@ export default function PayslipsIndex() {
                 )}
             </div>
 
-            <Card>
+            <Card className="overflow-hidden py-0">
                 <div className="overflow-x-auto">
                     <Table className="[&_td]:px-4 [&_th]:h-11 [&_th]:px-4">
                         <TableHeader>
