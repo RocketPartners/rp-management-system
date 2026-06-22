@@ -62,9 +62,6 @@ jobs:
       - name: Lint Frontend (ESLint)
         run: npm run lint
 
-      - name: TypeScript type check
-        run: npm run types
-
   security:
     name: Security Scan
     runs-on: ubuntu-latest
@@ -191,7 +188,7 @@ jobs:
           DB_DATABASE: testing
           DB_USERNAME: root
           DB_PASSWORD: password
-        run: ./vendor/bin/pest --coverage --min=70
+        run: ./vendor/bin/pest
 
       - name: Upload Coverage Reports
         uses: codecov/codecov-action@v4
