@@ -76,6 +76,7 @@ export function buildNavigation(can: (perm: string) => boolean): NavSection[] {
             { name: 'Announcements', href: '/announcements', icon: Megaphone },
             { name: 'My Assets', href: '/my-assets', icon: Laptop },
             { name: 'My Teams', href: '/my-teams', icon: UsersRound },
+            { name: 'My Payslips', href: '/my-payslips', icon: Wallet },
         ],
     });
 

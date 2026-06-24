@@ -404,6 +404,37 @@ export interface PagedResponse<T> {
     last: boolean;
 }
 
+export interface PayPeriodResponse {
+    id: number;
+    label: string;
+    periodStart: string;
+    periodEnd: string;
+    cutoffDate: string;
+}
+
+export interface PayslipResponse {
+    id: number;
+    employeeId: number;
+    employeeName: string;
+    payPeriodId: number;
+    payPeriodLabel: string;
+    cutoffDate: string;
+    fileName: string;
+    contentType: string | null;
+    fileSize: number | null;
+    uploadedById: number | null;
+    uploadedByName: string | null;
+    uploadedAt: string | null;
+    downloadUrl: string;
+    source: string | null;
+    createdAt: string;
+}
+
+export interface UploadPayslipRequest {
+    employeeId: number;
+    payPeriodId: number;
+}
+
 export interface ApiResponse<T> {
     status: 'success' | 'error';
     message: string;

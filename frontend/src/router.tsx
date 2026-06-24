@@ -37,6 +37,10 @@ const SupportTickets = lazy(() => import('@/pages/Support/Index'));
 const NotificationsPage = lazy(() => import('@/pages/Notifications/Index'));
 const SettingsPage = lazy(() => import('@/pages/Settings/Index'));
 
+// Phase 12 — Payroll / Payslips (TSX)
+const PayslipList = lazy(() => import('@/pages/Payslips/Index'));
+const MyPayslips = lazy(() => import('@/pages/Payslips/MyPayslips'));
+
 // Phase 10 — Onboarding (TSX)
 const OnboardingInvites = lazy(() => import('@/pages/Onboarding/Invites/Index'));
 const OnboardingSubmissions = lazy(() => import('@/pages/Onboarding/Submissions/Index'));
@@ -150,6 +154,8 @@ export const router = createBrowserRouter([
                             { path: '/profile', element: <Profile /> },
                             { path: '/ai-chat', element: <AIChat /> },
                             { path: '/ai-chat/:sessionId', element: <AIChat /> },
+                            { path: '/payslips', element: <PayslipList /> },
+                            { path: '/my-payslips', element: <MyPayslips /> },
                             { path: '/support', element: <SupportTickets /> },
                             { path: '/notifications', element: <NotificationsPage /> },
                             { path: '/settings', element: <SettingsPage /> },
