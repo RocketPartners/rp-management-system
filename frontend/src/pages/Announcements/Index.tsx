@@ -19,6 +19,10 @@ import {
     PopoverTrigger,
 } from '@/components/ui/popover';
 import { useAuth } from '@/contexts/auth-context';
+import {
+    useAuthenticatedImage,
+    extractUploadsImagePath,
+} from '@/hooks/use-authenticated-image';
 import { usePermission } from '@/hooks/usePermission';
 import {
     apiGet,
@@ -431,6 +435,36 @@ function CommentThread({
 }
 
 // ============================================
+// Authenticated gallery / lightbox images
+// ============================================
+
+// Gallery + lightbox images come from the same /uploads/images/* endpoint as
+// inline body images, which now requires a Bearer JWT. Resolve each through the
+// shared authenticated-fetch -> objectURL hook so they don't 401 as raw <img>.
+
+function GalleryThumb({ url, fileName }: { url: string; fileName: string }) {
+    const src = useAuthenticatedImage(url);
+    return (
+        <img
+            src={src}
+            alt={fileName}
+            className="h-40 w-auto max-w-[280px] object-cover"
+        />
+    );
+}
+
+function LightboxImage({ url, fileName }: { url: string; fileName: string }) {
+    const src = useAuthenticatedImage(url);
+    return (
+        <img
+            src={src}
+            alt={fileName}
+            className="max-h-[80vh] max-w-full rounded-lg object-contain"
+        />
+    );
+}
+
+// ============================================
 // Image Lightbox
 // ============================================
 
@@ -454,10 +488,9 @@ function ImageLightbox({
                     <X className="h-5 w-5" />
                 </button>
                 <div className="flex items-center justify-center p-8">
-                    <img
-                        src={images[current].url}
-                        alt={images[current].fileName}
-                        className="max-h-[80vh] max-w-full rounded-lg object-contain"
+                    <LightboxImage
+                        url={images[current].url}
+                        fileName={images[current].fileName}
                     />
                 </div>
                 {images.length > 1 && (
@@ -518,9 +551,8 @@ function AnnouncementCard({
         imgs.forEach(async (img) => {
             // Normalize to an apiFetch path: strip origin + any /api/v1 prefix
             // so apiFetch re-adds the configured API_URL exactly once.
-            const match = img.getAttribute('src')?.match(/\/uploads\/images\/[^"'\s]+/);
-            if (!match) return;
-            const path = match[0];
+            const path = extractUploadsImagePath(img.getAttribute('src'));
+            if (!path) return;
             try {
                 const res = await apiFetch(path);
                 if (!res.ok) return;
@@ -644,11 +676,7 @@ function AnnouncementCard({
                                 onClick={() => setLightboxIndex(i)}
                                 className="flex-shrink-0 overflow-hidden rounded-lg border border-gray-200 transition-opacity hover:opacity-90"
                             >
-                                <img
-                                    src={img.url}
-                                    alt={img.fileName}
-                                    className="h-40 w-auto max-w-[280px] object-cover"
-                                />
+                                <GalleryThumb url={img.url} fileName={img.fileName} />
                             </button>
                         ))}
                     </div>
