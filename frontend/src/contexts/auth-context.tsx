@@ -7,11 +7,10 @@ import {
     type ReactNode,
 } from 'react';
 import {
-    getAccessToken,
-    isAuthenticated as checkAuth,
     login as apiLogin,
     loginWithGoogle as apiLoginWithGoogle,
     logout as apiLogout,
+    refreshAccessToken,
     apiFetch,
 } from '@/lib/spring-boot-api';
 
@@ -161,26 +160,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-        if (checkAuth()) {
-            fetchUser().finally(() => setIsLoading(false));
-        } else {
-            // Check if we have a token in localStorage
-            const savedToken = localStorage.getItem('accessToken');
-            if (savedToken) {
-                // Token was persisted — try to restore session
-                fetchUser().finally(() => setIsLoading(false));
-            } else {
+        // Access token lives in memory only; on reload attempt a silent restore
+        // via the httpOnly refresh cookie, then load the user.
+        (async () => {
+            try {
+                await refreshAccessToken();
+                await fetchUser();
+            } catch {
+                setUser(null);
+            } finally {
                 setIsLoading(false);
             }
-        }
+        })();
     }, [fetchUser]);
 
     const login = useCallback(
         async (email: string, password: string) => {
-            const data = await apiLogin(email, password);
-            // Persist tokens
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
+            await apiLogin(email, password);
             await fetchUser();
         },
         [fetchUser],
@@ -188,9 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const loginWithGoogle = useCallback(
         async (idToken: string) => {
-            const data = await apiLoginWithGoogle(idToken);
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
+            await apiLoginWithGoogle(idToken);
             await fetchUser();
         },
         [fetchUser],
@@ -198,8 +192,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const logout = useCallback(async () => {
         await apiLogout();
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
         setUser(null);
     }, []);
 

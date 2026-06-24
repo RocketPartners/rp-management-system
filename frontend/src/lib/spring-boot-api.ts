@@ -1,15 +1,7 @@
 const API_URL = import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1';
 
-let accessToken: string | null = localStorage.getItem('accessToken');
-let refreshToken: string | null = localStorage.getItem('refreshToken');
+let accessToken: string | null = null;
 let tokenExpiry: number | null = null;
-
-function persistTokens() {
-    if (accessToken) localStorage.setItem('accessToken', accessToken);
-    else localStorage.removeItem('accessToken');
-    if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
-    else localStorage.removeItem('refreshToken');
-}
 
 export function getAccessToken() {
     return accessToken;
@@ -23,6 +15,7 @@ export async function login(email: string, password: string) {
     const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
     });
 
@@ -33,9 +26,7 @@ export async function login(email: string, password: string) {
     }
 
     accessToken = json.data.accessToken;
-    refreshToken = json.data.refreshToken;
     tokenExpiry = Date.now() + json.data.expiresIn - 30000;
-    persistTokens();
 
     return json.data;
 }
@@ -44,6 +35,7 @@ export async function loginWithGoogle(idToken: string) {
     const res = await fetch(`${API_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ idToken }),
     });
 
@@ -54,16 +46,13 @@ export async function loginWithGoogle(idToken: string) {
     }
 
     accessToken = json.data.accessToken;
-    refreshToken = json.data.refreshToken;
     tokenExpiry = Date.now() + json.data.expiresIn - 30000;
-    persistTokens();
 
     return json.data;
 }
 
 interface TokenData {
     accessToken: string;
-    refreshToken: string;
     expiresIn: number;
 }
 
@@ -73,28 +62,22 @@ export async function refreshAccessToken() {
     if (refreshPromise) return refreshPromise;
 
     refreshPromise = (async () => {
-        if (!refreshToken) throw new Error('No refresh token');
-
+        // Refresh token rides in the httpOnly cookie scoped to /auth — no body needed.
         const res = await fetch(`${API_URL}/auth/refresh`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refreshToken }),
+            credentials: 'include',
         });
 
         const json = await res.json();
 
         if (!res.ok || json.status !== 'success') {
             accessToken = null;
-            refreshToken = null;
             tokenExpiry = null;
-            persistTokens();
             throw new Error('Token refresh failed');
         }
 
         accessToken = json.data.accessToken;
-        refreshToken = json.data.refreshToken;
         tokenExpiry = Date.now() + json.data.expiresIn - 30000;
-        persistTokens();
 
         return json.data;
     })().finally(() => {
@@ -105,22 +88,19 @@ export async function refreshAccessToken() {
 }
 
 export async function logout() {
-    if (refreshToken) {
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (accessToken) {
-            headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        await fetch(`${API_URL}/auth/logout`, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ refreshToken }),
-        }).catch(() => {});
+    const headers: Record<string, string> = {};
+    if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
     }
+    // Refresh token cookie is read + cleared server-side; no body needed.
+    await fetch(`${API_URL}/auth/logout`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+    }).catch(() => {});
 
     accessToken = null;
-    refreshToken = null;
     tokenExpiry = null;
-    persistTokens();
 }
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
@@ -152,9 +132,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
             });
         } catch {
             accessToken = null;
-            refreshToken = null;
             tokenExpiry = null;
-            persistTokens();
             throw new Error('Session expired');
         }
     }
@@ -257,9 +235,7 @@ export async function apiPostFormData<T>(path: string, formData: FormData): Prom
             return (json.data ?? json) as T;
         } catch {
             accessToken = null;
-            refreshToken = null;
             tokenExpiry = null;
-            persistTokens();
             throw new Error('Session expired');
         }
     }
