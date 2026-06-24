@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify';
+
 interface EventMountInfo {
     event: {
         title: string;
@@ -66,7 +68,9 @@ export function setupEventTooltip(info: EventMountInfo): void {
         `;
     }
 
-    info.el.setAttribute('data-tooltip', tooltipContent);
+    const safeTooltipContent = DOMPurify.sanitize(tooltipContent);
+
+    info.el.setAttribute('data-tooltip', safeTooltipContent);
     info.el.classList.add('has-custom-tooltip');
 
     let tooltipEl: HTMLElement | null = null;
@@ -78,7 +82,7 @@ export function setupEventTooltip(info: EventMountInfo): void {
 
         tooltipEl = document.createElement('div');
         tooltipEl.className = 'custom-event-tooltip';
-        tooltipEl.innerHTML = tooltipContent;
+        tooltipEl.innerHTML = safeTooltipContent;
         document.body.appendChild(tooltipEl);
 
         const rect = info.el.getBoundingClientRect();
