@@ -254,12 +254,14 @@ export default function Login() {
                                             </Label>
                                         </div>
 
+                                        {/* Hidden for alpha — /forgot-password route is not built yet; restore this link when the flow exists.
                                         <Link
                                             to="/forgot-password"
                                             className="text-sm text-blue-600 transition-colors hover:text-blue-700 hover:underline"
                                         >
                                             Forgot password?
                                         </Link>
+                                        */}
                                     </div>
 
                                     <Button
@@ -313,6 +315,7 @@ export default function Login() {
                                     </div>
                                 )}
 
+                                {/* Hidden for alpha — /register route is not built yet; restore when self-registration exists.
                                 <div className="animate-fade-in animation-delay-800 mt-6 text-center">
                                     <p className="text-sm text-gray-600">
                                         Don't have an account?{' '}
@@ -324,6 +327,7 @@ export default function Login() {
                                         </Link>
                                     </p>
                                 </div>
+                                */}
                             </CardContent>
                         </Card>
 
