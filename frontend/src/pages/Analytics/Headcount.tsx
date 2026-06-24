@@ -20,6 +20,7 @@ import {
     ResponsiveContainer,
     Legend,
 } from 'recharts';
+import type { PieLabelRenderProps } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -119,7 +120,7 @@ export default function Headcount() {
                                         dataKey="count"
                                         nameKey="name"
                                         paddingAngle={3}
-                                        label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }: PieLabelRenderProps) => `${name ?? ''} ${((percent ?? 0) * 100).toFixed(0)}%`}
                                         labelLine={{ stroke: '#d1d5db' }}
                                     >
                                         {(data?.byEmploymentType || []).map((_, idx) => (

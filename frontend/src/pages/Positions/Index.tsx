@@ -387,7 +387,7 @@ export default function PositionList() {
 
             {/* Delete modal */}
             <DeleteConfirmationModal
-                open={deleteModal.open}
+                isOpen={deleteModal.open}
                 onClose={() => setDeleteModal({ open: false, position: null })}
                 onConfirm={() => {
                     if (deleteModal.position)
@@ -395,7 +395,6 @@ export default function PositionList() {
                 }}
                 title="Delete Position"
                 description={`Are you sure you want to delete "${deleteModal.position?.title}"? This action cannot be undone.`}
-                loading={deleteMutation.isPending}
             />
         </>
     );

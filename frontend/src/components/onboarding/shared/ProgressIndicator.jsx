@@ -29,14 +29,19 @@ const STEP_TITLES = {
 };
 
 /**
+ * @typedef {Object} ProgressIndicatorProps
+ * @property {number} currentStep - Current active step (1-4)
+ * @property {number} [totalSteps] - Total number of steps (default: 4)
+ */
+
+/**
  * ProgressIndicator component
  *
- * @param {Object} props
- * @param {number} props.currentStep - Current active step (1-4)
- * @param {number} props.totalSteps - Total number of steps (default: 4)
+ * @param {ProgressIndicatorProps} props
  * @returns {JSX.Element}
  */
 export const ProgressIndicator = React.memo(
+    /** @param {ProgressIndicatorProps} props */
     ({ currentStep, totalSteps = 4 }) => {
         const steps = Array.from({ length: totalSteps }, (_, i) => ({
             number: i + 1,

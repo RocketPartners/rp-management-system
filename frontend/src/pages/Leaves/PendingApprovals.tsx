@@ -278,9 +278,9 @@ export default function PendingApprovals() {
                                     leaves.map((leave) => {
                                         const statusKey = leave.status.toLowerCase();
                                         const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.pending_manager;
-                                        const isPendingManager = leave.status === 'PENDING_MANAGER' || leave.status === 'pending_manager';
-                                        const isPendingHr = leave.status === 'PENDING_HR' || leave.status === 'pending_hr';
-                                        const isPendingCancel = leave.status === 'PENDING_CANCELLATION' || leave.status === 'pending_cancellation';
+                                        const isPendingManager = leave.status === 'PENDING_MANAGER';
+                                        const isPendingHr = leave.status === 'PENDING_HR';
+                                        const isPendingCancel = leave.status === 'PENDING_CANCELLATION';
 
                                         return (
                                             <TableRow key={leave.id} className="hover:bg-gray-50">

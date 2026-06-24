@@ -75,9 +75,9 @@ export const userFormSchema = z.object({
     employeeId: z.string().optional().or(z.literal('')),
     hireDate: z.string().optional().or(z.literal('')),
     employmentType: z.string().optional().or(z.literal('')),
-    departmentId: z.coerce.number().nullable().optional(),
-    positionId: z.coerce.number().nullable().optional(),
-    managerId: z.coerce.number().nullable().optional(),
+    departmentId: z.number().nullable().optional(),
+    positionId: z.number().nullable().optional(),
+    managerId: z.number().nullable().optional(),
     roles: z.array(z.string()).optional(),
 });
 
