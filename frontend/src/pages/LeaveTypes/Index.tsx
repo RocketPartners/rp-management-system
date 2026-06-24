@@ -10,8 +10,6 @@ import { toast } from 'sonner';
 import {
     Calendar,
     CheckCircle2,
-    ChevronLeft,
-    ChevronRight,
     DollarSign,
     Edit,
     Loader2,
@@ -310,7 +308,7 @@ export default function LeaveTypeList() {
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex items-center justify-between rounded-lg border p-3"><Label>Paid Leave</Label><Switch checked={form.isPaid} onCheckedChange={(v) => setForm({ ...form, isPaid: v })} /></div>
-                            <div className="flex items-center justify-between rounded-lg border p-3"><Label>Active</Label><Switch checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} /></div>
+                            {editDialog.leaveType && (<div className="flex items-center justify-between rounded-lg border p-3"><Label>Active</Label><Switch checked={form.isActive} onCheckedChange={(v) => setForm({ ...form, isActive: v })} /></div>)}
                         </div>
                         <div className="flex items-center justify-between rounded-lg border p-3"><Label>Requires Medical Certificate</Label><Switch checked={form.requiresMedicalCert} onCheckedChange={(v) => setForm({ ...form, requiresMedicalCert: v })} /></div>
                         {form.requiresMedicalCert && (
