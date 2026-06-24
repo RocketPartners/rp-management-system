@@ -83,14 +83,16 @@ export default function HolidayList() {
     const [addCountryDialog, setAddCountryDialog] = useState(false);
     const [newCountryCode, setNewCountryCode] = useState('');
     const [newCountryName, setNewCountryName] = useState('');
+    const [newIcsUrl, setNewIcsUrl] = useState('');
 
     // Fetch holidays
-    const { data: holidays, isLoading } = useQuery({
+    const { data: holidays, isLoading, isError, error } = useQuery({
         queryKey: ['holidays', yearFilter, countryFilter],
         queryFn: async () => {
             const params = new URLSearchParams();
-            params.set('year', yearFilter);
-            if (countryFilter !== 'all') params.set('countryCode', countryFilter);
+            params.set('startDate', `${yearFilter}-01-01`);
+            params.set('endDate', `${yearFilter}-12-31`);
+            if (countryFilter !== 'all') params.set('countryCodes', countryFilter);
             return apiGet<HolidayResponse[]>(`/holidays?${params.toString()}`);
         },
     });
@@ -103,8 +105,7 @@ export default function HolidayList() {
 
     // Fetch holidays mutation
     const fetchMutation = useMutation({
-        mutationFn: (countryCode?: string) =>
-            countryCode ? apiPost(`/holidays/fetch/${countryCode}`) : apiPost('/holidays/fetch'),
+        mutationFn: (year: string) => apiPost(`/holidays/fetch?year=${year}`),
         onSuccess: () => {
             toast.success('Holidays fetched successfully');
             queryClient.invalidateQueries({ queryKey: ['holidays'] });
@@ -114,7 +115,7 @@ export default function HolidayList() {
 
     // Add country mutation
     const addCountryMutation = useMutation({
-        mutationFn: (data: { countryCode: string; countryName: string }) =>
+        mutationFn: (data: { countryCode: string; countryName: string; icsUrl: string }) =>
             apiPost('/holidays/countries', data),
         onSuccess: () => {
             toast.success('Country added');
@@ -122,13 +123,15 @@ export default function HolidayList() {
             setAddCountryDialog(false);
             setNewCountryCode('');
             setNewCountryName('');
+            setNewIcsUrl('');
         },
         onError: (err: Error) => toast.error(err.message),
     });
 
     // Toggle country mutation
     const toggleMutation = useMutation({
-        mutationFn: (id: number) => apiPatch(`/holidays/countries/${id}/toggle`),
+        mutationFn: ({ id, isActive }: { id: number; isActive: boolean }) =>
+            apiPatch(`/holidays/countries/${id}/toggle?active=${!isActive}`),
         onSuccess: () => {
             toast.success('Country config updated');
             queryClient.invalidateQueries({ queryKey: ['holiday-countries'] });
@@ -169,7 +172,7 @@ export default function HolidayList() {
                         </div>
                     </div>
                     {can('HOLIDAY_CREATE') && (
-                        <Button onClick={() => fetchMutation.mutate(undefined)} disabled={fetchMutation.isPending}>
+                        <Button onClick={() => fetchMutation.mutate(yearFilter)} disabled={fetchMutation.isPending}>
                             {fetchMutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                             Fetch All Holidays
                         </Button>
@@ -196,7 +199,7 @@ export default function HolidayList() {
                                         <div key={c.id} className="flex items-center gap-2 rounded-lg border px-3 py-2">
                                             <span className="text-sm font-medium">{c.countryName}</span>
                                             <Badge variant="secondary">{c.countryCode}</Badge>
-                                            <Switch checked={c.isActive} onCheckedChange={() => toggleMutation.mutate(c.id)} />
+                                            <Switch checked={c.isActive} onCheckedChange={() => toggleMutation.mutate({ id: c.id, isActive: c.isActive })} />
                                             <Button variant="ghost" size="icon" className="h-6 w-6 text-red-500" onClick={() => deleteCountryMutation.mutate(c.id)}>
                                                 <Trash2 className="h-3 w-3" />
                                             </Button>
@@ -252,6 +255,8 @@ export default function HolidayList() {
                                     Array.from({ length: 5 }).map((_, i) => (
                                         <TableRow key={i}>{Array.from({ length: 5 }).map((_, j) => (<TableCell key={j}><Skeleton className="h-5 w-20" /></TableCell>))}</TableRow>
                                     ))
+                                ) : isError ? (
+                                    <TableRow><TableCell colSpan={5}><div className="flex flex-col items-center justify-center py-12"><X className="mb-3 h-12 w-12 text-red-300" /><p className="text-lg font-medium">Failed to load holidays</p><p className="text-sm text-gray-500">{error instanceof Error ? error.message : 'Please try again later.'}</p></div></TableCell></TableRow>
                                 ) : filteredHolidays.length === 0 ? (
                                     <TableRow><TableCell colSpan={5}><div className="flex flex-col items-center justify-center py-12"><PartyPopper className="mb-3 h-12 w-12 text-gray-300" /><p className="text-lg font-medium">No holidays found</p><p className="text-sm text-gray-500">Try changing the year or country filter, or fetch holidays.</p></div></TableCell></TableRow>
                                 ) : (
@@ -288,10 +293,11 @@ export default function HolidayList() {
                     <div className="space-y-4 py-4">
                         <div className="space-y-2"><Label>Country Code *</Label><Input value={newCountryCode} onChange={(e) => setNewCountryCode(e.target.value.toUpperCase())} placeholder="e.g., PH" maxLength={2} /></div>
                         <div className="space-y-2"><Label>Country Name *</Label><Input value={newCountryName} onChange={(e) => setNewCountryName(e.target.value)} placeholder="e.g., Philippines" /></div>
+                        <div className="space-y-2"><Label>ICS URL *</Label><Input value={newIcsUrl} onChange={(e) => setNewIcsUrl(e.target.value)} placeholder="https://example.com/holidays.ics" /></div>
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setAddCountryDialog(false)}>Cancel</Button>
-                        <Button disabled={!newCountryCode || !newCountryName || addCountryMutation.isPending} onClick={() => addCountryMutation.mutate({ countryCode: newCountryCode, countryName: newCountryName })}>
+                        <Button disabled={!newCountryCode || !newCountryName || !newIcsUrl.trim() || addCountryMutation.isPending} onClick={() => addCountryMutation.mutate({ countryCode: newCountryCode, countryName: newCountryName, icsUrl: newIcsUrl.trim() })}>
                             {addCountryMutation.isPending ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Adding...</> : 'Add Country'}
                         </Button>
                     </DialogFooter>

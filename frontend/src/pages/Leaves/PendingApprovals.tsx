@@ -62,9 +62,10 @@ export default function PendingApprovals() {
     const queryClient = useQueryClient();
     const { can } = usePermission();
 
-    // Role-based action permissions
-    const canActAsManager = can('LEAVE_APPLICATION_APPROVE');
-    const canActAsHr = can('LEAVE_TYPE_CREATE');
+    // Action-based permissions: approve endpoints require LEAVE_APPLICATION_APPROVE,
+    // reject endpoints require LEAVE_APPLICATION_REJECT (applies to manager/hr/cancellation alike).
+    const canApprove = can('LEAVE_APPLICATION_APPROVE');
+    const canReject = can('LEAVE_APPLICATION_REJECT');
 
     const page = parseInt(searchParams.get('page') || '0');
     const size = 20;
@@ -312,12 +313,12 @@ export default function PendingApprovals() {
                                                         {isPendingManager && (
                                                             <>
                                                                 <Button size="sm" className="h-7 bg-green-600 px-2 text-xs hover:bg-green-700"
-                                                                    disabled={!canActAsManager}
+                                                                    disabled={!canApprove}
                                                                     onClick={() => openActionDialog('manager_approve', leave.id, leave.userName)}>
                                                                     Approve
                                                                 </Button>
                                                                 <Button size="sm" variant="destructive" className="h-7 px-2 text-xs"
-                                                                    disabled={!canActAsManager}
+                                                                    disabled={!canReject}
                                                                     onClick={() => openActionDialog('manager_reject', leave.id, leave.userName)}>
                                                                     Reject
                                                                 </Button>
@@ -326,12 +327,12 @@ export default function PendingApprovals() {
                                                         {isPendingHr && (
                                                             <>
                                                                 <Button size="sm" className="h-7 bg-green-600 px-2 text-xs hover:bg-green-700"
-                                                                    disabled={!canActAsHr}
+                                                                    disabled={!canApprove}
                                                                     onClick={() => openActionDialog('hr_approve', leave.id, leave.userName)}>
                                                                     Approve
                                                                 </Button>
                                                                 <Button size="sm" variant="destructive" className="h-7 px-2 text-xs"
-                                                                    disabled={!canActAsHr}
+                                                                    disabled={!canReject}
                                                                     onClick={() => openActionDialog('hr_reject', leave.id, leave.userName)}>
                                                                     Reject
                                                                 </Button>
@@ -340,12 +341,12 @@ export default function PendingApprovals() {
                                                         {isPendingCancel && (
                                                             <>
                                                                 <Button size="sm" className="h-7 bg-green-600 px-2 text-xs hover:bg-green-700"
-                                                                    disabled={!canActAsHr}
+                                                                    disabled={!canApprove}
                                                                     onClick={() => openActionDialog('cancel_approve', leave.id, leave.userName)}>
                                                                     Approve
                                                                 </Button>
                                                                 <Button size="sm" variant="destructive" className="h-7 px-2 text-xs"
-                                                                    disabled={!canActAsHr}
+                                                                    disabled={!canReject}
                                                                     onClick={() => openActionDialog('cancel_reject', leave.id, leave.userName)}>
                                                                     Reject
                                                                 </Button>

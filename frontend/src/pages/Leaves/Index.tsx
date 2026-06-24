@@ -47,6 +47,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { apiGet } from '@/lib/spring-boot-api';
+import type { LeaveStatus } from '@/types';
 
 interface LeaveApplicationResponse {
     id: number;
@@ -61,7 +62,7 @@ interface LeaveApplicationResponse {
     totalDays: number;
     duration: string;
     reason: string;
-    status: string;
+    status: LeaveStatus;
     statusLabel: string;
     assignedManagerName: string;
     createdAt: string;
@@ -75,25 +76,32 @@ interface PagedResponse<T> {
     size: number;
 }
 
-const STATUS_CONFIG: Record<string, { color: string; icon: typeof Clock }> = {
-    pending_manager: { color: 'bg-yellow-100 text-yellow-700', icon: Clock },
-    pending_hr: { color: 'bg-orange-100 text-orange-700', icon: Clock },
-    approved: { color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
-    rejected_by_manager: { color: 'bg-red-100 text-red-700', icon: XCircle },
-    rejected_by_hr: { color: 'bg-red-100 text-red-700', icon: XCircle },
-    cancelled: { color: 'bg-gray-100 text-gray-600', icon: XCircle },
-    pending_cancellation: { color: 'bg-purple-100 text-purple-700', icon: AlertCircle },
+const STATUS_CONFIG: Record<LeaveStatus, { color: string; icon: typeof Clock }> = {
+    PENDING_MANAGER: { color: 'bg-yellow-100 text-yellow-700', icon: Clock },
+    PENDING_HR: { color: 'bg-orange-100 text-orange-700', icon: Clock },
+    APPROVED: { color: 'bg-green-100 text-green-700', icon: CheckCircle2 },
+    REJECTED_BY_MANAGER: { color: 'bg-red-100 text-red-700', icon: XCircle },
+    REJECTED_BY_HR: { color: 'bg-red-100 text-red-700', icon: XCircle },
+    CANCELLED: { color: 'bg-gray-100 text-gray-600', icon: XCircle },
+    PENDING_CANCELLATION: { color: 'bg-purple-100 text-purple-700', icon: AlertCircle },
 };
 
-const STATUS_OPTIONS = [
-    { value: 'all', label: 'All Statuses' },
-    { value: 'pending_manager', label: 'Pending Manager' },
-    { value: 'pending_hr', label: 'Pending HR' },
-    { value: 'approved', label: 'Approved' },
-    { value: 'rejected_by_manager', label: 'Rejected (Manager)' },
-    { value: 'rejected_by_hr', label: 'Rejected (HR)' },
-    { value: 'cancelled', label: 'Cancelled' },
-    { value: 'pending_cancellation', label: 'Pending Cancellation' },
+const STATUS_FILTER_ALL = 'all';
+
+interface StatusOption {
+    value: LeaveStatus | typeof STATUS_FILTER_ALL;
+    label: string;
+}
+
+const STATUS_OPTIONS: StatusOption[] = [
+    { value: STATUS_FILTER_ALL, label: 'All Statuses' },
+    { value: 'PENDING_MANAGER', label: 'Pending Manager' },
+    { value: 'PENDING_HR', label: 'Pending HR' },
+    { value: 'APPROVED', label: 'Approved' },
+    { value: 'REJECTED_BY_MANAGER', label: 'Rejected (Manager)' },
+    { value: 'REJECTED_BY_HR', label: 'Rejected (HR)' },
+    { value: 'CANCELLED', label: 'Cancelled' },
+    { value: 'PENDING_CANCELLATION', label: 'Pending Cancellation' },
 ];
 
 export default function LeaveRequestList() {
@@ -151,9 +159,9 @@ export default function LeaveRequestList() {
     const totalPages = data?.totalPages || 0;
     const totalElements = data?.totalElements || 0;
 
-    // Stats from current data
-    const pendingHr = leaves.filter((l) => l.status === 'pending_hr').length;
-    const approved = leaves.filter((l) => l.status === 'approved').length;
+    // Stats from current page only (not a global total)
+    const pendingHr = leaves.filter((l) => l.status === 'PENDING_HR').length;
+    const approved = leaves.filter((l) => l.status === 'APPROVED').length;
 
     const formatDate = (date: string) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
@@ -176,8 +184,8 @@ export default function LeaveRequestList() {
                 {/* Stats */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
                     <Card><CardContent className="flex items-center gap-3 pt-6"><div className="rounded-lg bg-blue-100 p-2"><Calendar className="h-5 w-5 text-blue-600" /></div><div><p className="text-sm text-gray-500">Total</p><p className="text-2xl font-bold">{totalElements}</p></div></CardContent></Card>
-                    <Card><CardContent className="flex items-center gap-3 pt-6"><div className="rounded-lg bg-orange-100 p-2"><Clock className="h-5 w-5 text-orange-600" /></div><div><p className="text-sm text-gray-500">Pending HR</p><p className="text-2xl font-bold">{pendingHr}</p></div></CardContent></Card>
-                    <Card><CardContent className="flex items-center gap-3 pt-6"><div className="rounded-lg bg-green-100 p-2"><CheckCircle2 className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500">Approved</p><p className="text-2xl font-bold">{approved}</p></div></CardContent></Card>
+                    <Card><CardContent className="flex items-center gap-3 pt-6"><div className="rounded-lg bg-orange-100 p-2"><Clock className="h-5 w-5 text-orange-600" /></div><div><p className="text-sm text-gray-500">Pending HR (this page)</p><p className="text-2xl font-bold">{pendingHr}</p></div></CardContent></Card>
+                    <Card><CardContent className="flex items-center gap-3 pt-6"><div className="rounded-lg bg-green-100 p-2"><CheckCircle2 className="h-5 w-5 text-green-600" /></div><div><p className="text-sm text-gray-500">Approved (this page)</p><p className="text-2xl font-bold">{approved}</p></div></CardContent></Card>
                     <Card><CardContent className="flex items-center gap-3 pt-6"><div className="rounded-lg bg-gray-100 p-2"><XCircle className="h-5 w-5 text-gray-600" /></div><div><p className="text-sm text-gray-500">This Page</p><p className="text-2xl font-bold">{leaves.length}</p></div></CardContent></Card>
                 </div>
 
@@ -222,7 +230,7 @@ export default function LeaveRequestList() {
                                     <TableRow><TableCell colSpan={7}><div className="flex flex-col items-center justify-center py-12"><Calendar className="mb-3 h-12 w-12 text-gray-300" /><p className="text-lg font-medium">No leave requests found</p><p className="text-sm text-gray-500">{search || statusFilter !== 'all' ? 'Try adjusting your filters.' : 'No requests yet.'}</p></div></TableCell></TableRow>
                                 ) : (
                                     leaves.map((leave) => {
-                                        const statusCfg = STATUS_CONFIG[leave.status] || STATUS_CONFIG.cancelled;
+                                        const statusCfg = STATUS_CONFIG[leave.status] || STATUS_CONFIG.CANCELLED;
                                         return (
                                             <TableRow key={leave.id} className="hover:bg-gray-50">
                                                 <TableCell><span className="font-medium text-gray-900">{leave.userName}</span></TableCell>

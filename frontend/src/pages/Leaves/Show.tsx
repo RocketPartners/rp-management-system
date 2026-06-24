@@ -35,6 +35,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { usePermission } from '@/hooks/usePermission';
 import { apiGet, apiPost } from '@/lib/spring-boot-api';
+import type { LeaveApplicationResponse } from '@/types';
+
+type ActionType =
+    | 'manager_approve'
+    | 'manager_reject'
+    | 'hr_approve'
+    | 'hr_reject'
+    | 'cancel_approve'
+    | 'cancel_reject';
+
+interface ActionMutationVariables {
+    endpoint: string;
+    body: { comments: string };
+}
 
 const STATUS_CONFIG: Record<string, { color: string; label: string }> = {
     pending_manager: { color: 'bg-yellow-100 text-yellow-700', label: 'Pending Manager Approval' },
@@ -54,18 +68,18 @@ export default function LeaveShow() {
 
     const [actionDialog, setActionDialog] = useState<{
         open: boolean;
-        type: 'manager_approve' | 'manager_reject' | 'hr_approve' | 'hr_reject' | 'cancel_approve' | 'cancel_reject' | null;
+        type: ActionType | null;
     }>({ open: false, type: null });
     const [comments, setComments] = useState('');
 
     const { data: leave, isLoading, isError } = useQuery({
         queryKey: ['leave-application', id],
-        queryFn: () => apiGet<any>(`/leave-applications/${id}`),
+        queryFn: () => apiGet<LeaveApplicationResponse>(`/leave-applications/${id}`),
         enabled: !!id,
     });
 
     const actionMutation = useMutation({
-        mutationFn: ({ endpoint, body }: { endpoint: string; body: any }) =>
+        mutationFn: ({ endpoint, body }: ActionMutationVariables) =>
             apiPost(endpoint, body),
         onSuccess: (_, variables) => {
             const action = variables.endpoint.includes('approve') ? 'approved' : 'rejected';
@@ -80,7 +94,7 @@ export default function LeaveShow() {
 
     const handleAction = () => {
         if (!actionDialog.type || !id) return;
-        const endpoints: Record<string, string> = {
+        const endpoints: Record<ActionType, string> = {
             manager_approve: `/leave-applications/${id}/manager/approve`,
             manager_reject: `/leave-applications/${id}/manager/reject`,
             hr_approve: `/leave-applications/${id}/hr/approve`,
@@ -91,8 +105,8 @@ export default function LeaveShow() {
         actionMutation.mutate({ endpoint: endpoints[actionDialog.type], body: { comments } });
     };
 
-    const formatDate = (date: string) => date ? new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-    const formatDateTime = (date: string) => date ? new Date(date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
+    const formatDate = (date: string | null) => date ? new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const formatDateTime = (date: string | null) => date ? new Date(date).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : null;
 
     if (isLoading) return (
         <div className="space-y-6 p-6">
@@ -109,8 +123,11 @@ export default function LeaveShow() {
         </div>
     );
 
-    const statusCfg = STATUS_CONFIG[leave.status] || STATUS_CONFIG.cancelled;
+    const statusKey = (leave.status ?? '').toLowerCase();
+    const statusCfg = STATUS_CONFIG[statusKey] || STATUS_CONFIG.cancelled;
     const canApprove = can('LEAVE_APPLICATION_APPROVE');
+    const canReject = can('LEAVE_APPLICATION_REJECT');
+    const showActions = canApprove || canReject;
 
     return (
         <>
@@ -126,7 +143,7 @@ export default function LeaveShow() {
                         <h1 className="text-2xl font-bold text-gray-900">Leave Request #{leave.id}</h1>
                         <p className="text-sm text-gray-500">Submitted {formatDate(leave.createdAt)}</p>
                     </div>
-                    <Badge className={`${statusCfg.color} px-3 py-1 text-sm`}>{statusCfg.label}</Badge>
+                    <Badge className={`${statusCfg.color} px-3 py-1 text-sm`}>{leave.statusLabel || statusCfg.label}</Badge>
                 </div>
 
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -162,13 +179,13 @@ export default function LeaveShow() {
                                     </div>
                                     {/* Manager Review */}
                                     <div className="flex gap-3">
-                                        <div className="flex flex-col items-center"><div className={`rounded-full p-1.5 ${leave.managerApprovedAt ? (leave.status.includes('rejected_by_manager') ? 'bg-red-100' : 'bg-green-100') : 'bg-gray-100'}`}>{leave.managerApprovedAt ? (leave.status.includes('rejected_by_manager') ? <XCircle className="h-4 w-4 text-red-600" /> : <CheckCircle2 className="h-4 w-4 text-green-600" />) : <Clock className="h-4 w-4 text-gray-400" />}</div><div className="mt-1 flex-1 border-l-2 border-gray-200" /></div>
-                                        <div className="pb-4"><p className="font-medium">Manager Review</p>{leave.managerApprovedAt ? (<><p className="text-sm text-gray-500">{leave.managerApprovedBy} — {formatDateTime(leave.managerApprovedAt)}</p>{leave.managerComments && <p className="mt-1 rounded bg-gray-50 p-2 text-sm text-gray-600">{leave.managerComments}</p>}</>) : <p className="text-sm text-gray-400">Pending</p>}</div>
+                                        <div className="flex flex-col items-center"><div className={`rounded-full p-1.5 ${leave.managerApprovedAt ? (statusKey.includes('rejected_by_manager') ? 'bg-red-100' : 'bg-green-100') : 'bg-gray-100'}`}>{leave.managerApprovedAt ? (statusKey.includes('rejected_by_manager') ? <XCircle className="h-4 w-4 text-red-600" /> : <CheckCircle2 className="h-4 w-4 text-green-600" />) : <Clock className="h-4 w-4 text-gray-400" />}</div><div className="mt-1 flex-1 border-l-2 border-gray-200" /></div>
+                                        <div className="pb-4"><p className="font-medium">Manager Review</p>{leave.managerApprovedAt ? (<><p className="text-sm text-gray-500">{leave.managerApprovedByName} — {formatDateTime(leave.managerApprovedAt)}</p>{leave.managerComments && <p className="mt-1 rounded bg-gray-50 p-2 text-sm text-gray-600">{leave.managerComments}</p>}</>) : <p className="text-sm text-gray-400">Pending</p>}</div>
                                     </div>
                                     {/* HR Review */}
                                     <div className="flex gap-3">
-                                        <div className="flex flex-col items-center"><div className={`rounded-full p-1.5 ${leave.hrApprovedAt ? (leave.status.includes('rejected_by_hr') ? 'bg-red-100' : 'bg-green-100') : 'bg-gray-100'}`}>{leave.hrApprovedAt ? (leave.status.includes('rejected_by_hr') ? <XCircle className="h-4 w-4 text-red-600" /> : <CheckCircle2 className="h-4 w-4 text-green-600" />) : <Clock className="h-4 w-4 text-gray-400" />}</div></div>
-                                        <div><p className="font-medium">HR Review</p>{leave.hrApprovedAt ? (<><p className="text-sm text-gray-500">{leave.hrApprovedBy} — {formatDateTime(leave.hrApprovedAt)}</p>{leave.hrComments && <p className="mt-1 rounded bg-gray-50 p-2 text-sm text-gray-600">{leave.hrComments}</p>}</>) : <p className="text-sm text-gray-400">Pending</p>}</div>
+                                        <div className="flex flex-col items-center"><div className={`rounded-full p-1.5 ${leave.hrApprovedAt ? (statusKey.includes('rejected_by_hr') ? 'bg-red-100' : 'bg-green-100') : 'bg-gray-100'}`}>{leave.hrApprovedAt ? (statusKey.includes('rejected_by_hr') ? <XCircle className="h-4 w-4 text-red-600" /> : <CheckCircle2 className="h-4 w-4 text-green-600" />) : <Clock className="h-4 w-4 text-gray-400" />}</div></div>
+                                        <div><p className="font-medium">HR Review</p>{leave.hrApprovedAt ? (<><p className="text-sm text-gray-500">{leave.hrApprovedByName} — {formatDateTime(leave.hrApprovedAt)}</p>{leave.hrComments && <p className="mt-1 rounded bg-gray-50 p-2 text-sm text-gray-600">{leave.hrComments}</p>}</>) : <p className="text-sm text-gray-400">Pending</p>}</div>
                                     </div>
                                 </div>
                             </CardContent>
@@ -181,7 +198,7 @@ export default function LeaveShow() {
                                 <CardContent>
                                     <p className="text-sm text-gray-600">{leave.cancellationReason}</p>
                                     {leave.cancellationRequestedAt && <p className="mt-2 text-xs text-gray-400">Requested: {formatDateTime(leave.cancellationRequestedAt)}</p>}
-                                    {leave.cancellationApprovedBy && <p className="mt-1 text-xs text-gray-400">Reviewed by: {leave.cancellationApprovedBy} — {formatDateTime(leave.cancellationApprovedAt)}</p>}
+                                    {leave.cancellationApprovedByName && <p className="mt-1 text-xs text-gray-400">Reviewed by: {leave.cancellationApprovedByName} — {formatDateTime(leave.cancellationApprovedAt)}</p>}
                                     {leave.cancellationHrComments && <p className="mt-2 rounded bg-purple-50 p-2 text-sm">{leave.cancellationHrComments}</p>}
                                 </CardContent>
                             </Card>
@@ -203,41 +220,53 @@ export default function LeaveShow() {
                         )}
 
                         {/* Actions */}
-                        {canApprove && (
+                        {showActions && (
                             <Card>
                                 <CardHeader><CardTitle className="text-base">Actions</CardTitle></CardHeader>
                                 <CardContent className="space-y-2">
-                                    {leave.status === 'pending_manager' && (
+                                    {statusKey === 'pending_manager' && (
                                         <>
-                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'manager_approve' }); }}>
-                                                <CheckCircle2 className="mr-2 h-4 w-4" />Manager Approve
-                                            </Button>
-                                            <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'manager_reject' }); }}>
-                                                <XCircle className="mr-2 h-4 w-4" />Manager Reject
-                                            </Button>
+                                            {canApprove && (
+                                                <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'manager_approve' }); }}>
+                                                    <CheckCircle2 className="mr-2 h-4 w-4" />Manager Approve
+                                                </Button>
+                                            )}
+                                            {canReject && (
+                                                <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'manager_reject' }); }}>
+                                                    <XCircle className="mr-2 h-4 w-4" />Manager Reject
+                                                </Button>
+                                            )}
                                         </>
                                     )}
-                                    {leave.status === 'pending_hr' && (
+                                    {statusKey === 'pending_hr' && (
                                         <>
-                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'hr_approve' }); }}>
-                                                <CheckCircle2 className="mr-2 h-4 w-4" />HR Approve
-                                            </Button>
-                                            <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'hr_reject' }); }}>
-                                                <XCircle className="mr-2 h-4 w-4" />HR Reject
-                                            </Button>
+                                            {canApprove && (
+                                                <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'hr_approve' }); }}>
+                                                    <CheckCircle2 className="mr-2 h-4 w-4" />HR Approve
+                                                </Button>
+                                            )}
+                                            {canReject && (
+                                                <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'hr_reject' }); }}>
+                                                    <XCircle className="mr-2 h-4 w-4" />HR Reject
+                                                </Button>
+                                            )}
                                         </>
                                     )}
-                                    {leave.status === 'pending_cancellation' && (
+                                    {statusKey === 'pending_cancellation' && (
                                         <>
-                                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'cancel_approve' }); }}>
-                                                <CheckCircle2 className="mr-2 h-4 w-4" />Approve Cancellation
-                                            </Button>
-                                            <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'cancel_reject' }); }}>
-                                                <XCircle className="mr-2 h-4 w-4" />Reject Cancellation
-                                            </Button>
+                                            {canApprove && (
+                                                <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'cancel_approve' }); }}>
+                                                    <CheckCircle2 className="mr-2 h-4 w-4" />Approve Cancellation
+                                                </Button>
+                                            )}
+                                            {canReject && (
+                                                <Button variant="destructive" className="w-full" onClick={() => { setComments(''); setActionDialog({ open: true, type: 'cancel_reject' }); }}>
+                                                    <XCircle className="mr-2 h-4 w-4" />Reject Cancellation
+                                                </Button>
+                                            )}
                                         </>
                                     )}
-                                    {!['pending_manager', 'pending_hr', 'pending_cancellation'].includes(leave.status) && (
+                                    {!['pending_manager', 'pending_hr', 'pending_cancellation'].includes(statusKey) && (
                                         <p className="text-center text-sm text-gray-500">No actions available for this status.</p>
                                     )}
                                 </CardContent>

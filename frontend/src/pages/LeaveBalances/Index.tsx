@@ -57,10 +57,9 @@ import { apiGet, apiPost } from '@/lib/spring-boot-api';
 interface LeaveBalanceResponse {
     id: number;
     userId: number;
-    userName: string;
+    employeeName: string;
     leaveTypeId: number;
     leaveTypeName: string;
-    leaveTypeCode: string;
     year: number;
     totalDays: number;
     usedDays: number;
@@ -68,15 +67,24 @@ interface LeaveBalanceResponse {
     remainingDays: number;
     carriedOverDays: number;
     adjustmentDays: number;
-    adjustmentReason: string;
-    createdAt: string;
-    updatedAt: string;
+}
+
+interface EmployeeBalanceGroup {
+    userId: number;
+    employeeName: string;
+    balances: LeaveBalanceResponse[];
 }
 
 interface UserOption {
     id: number;
-    name: string;
+    name?: string;
+    firstName?: string;
+    lastName?: string;
     email: string;
+}
+
+interface PagedUsers {
+    content: UserOption[];
 }
 
 const currentYear = new Date().getFullYear();
@@ -105,11 +113,10 @@ export default function LeaveBalances() {
         queryKey: ['leave-balances', search, yearFilter],
         queryFn: async () => {
             const params = new URLSearchParams();
-            if (search) params.set('search', search);
             if (yearFilter) params.set('year', yearFilter);
-            // Use a generic endpoint to get all balances
+            if (search) params.set('search', search);
             const res = await apiGet<LeaveBalanceResponse[]>(
-                `/leave-applications/balances?${params.toString()}`,
+                `/leave-applications/balances/all?${params.toString()}`,
             );
             return Array.isArray(res) ? res : [];
         },
@@ -118,14 +125,16 @@ export default function LeaveBalances() {
     // Fetch users for init dropdown
     const { data: users } = useQuery({
         queryKey: ['users-list'],
-        queryFn: () => apiGet<any>('/users?size=200'),
+        queryFn: () => apiGet<PagedUsers>('/users?size=200'),
         select: (data) => data?.content || [],
     });
 
     // Adjust balance mutation
     const adjustMutation = useMutation({
-        mutationFn: ({ balanceId, adjustment, reason }: { balanceId: number; adjustment: number; reason: string }) =>
-            apiPost(`/leave-applications/balances/${balanceId}/adjust`, { adjustment, reason }),
+        mutationFn: ({ balanceId, adjustmentDays, reason }: { balanceId: number; adjustmentDays: number; reason: string }) =>
+            apiPost(
+                `/leave-applications/balances/${balanceId}/adjust?adjustmentDays=${encodeURIComponent(String(adjustmentDays))}&reason=${encodeURIComponent(reason)}`,
+            ),
         onSuccess: () => {
             toast.success('Balance adjusted successfully');
             queryClient.invalidateQueries({ queryKey: ['leave-balances'] });
@@ -169,16 +178,19 @@ export default function LeaveBalances() {
         setSearchParams(params);
     };
 
-    // Group balances by user
-    const groupedByUser = (balances || []).reduce<Record<string, LeaveBalanceResponse[]>>((acc, b) => {
-        const key = `${b.userId}-${b.userName}`;
-        if (!acc[key]) acc[key] = [];
-        acc[key].push(b);
+    // Group flat balance rows by employee for per-employee rendering
+    const employeeGroups = (balances || []).reduce<EmployeeBalanceGroup[]>((acc, b) => {
+        const existing = acc.find((g) => g.userId === b.userId);
+        if (existing) {
+            existing.balances.push(b);
+        } else {
+            acc.push({ userId: b.userId, employeeName: b.employeeName, balances: [b] });
+        }
         return acc;
-    }, {});
+    }, []);
 
     // Stats
-    const totalUsers = Object.keys(groupedByUser).length;
+    const totalUsers = employeeGroups.length;
     const totalBalances = (balances || []).length;
     const totalCarriedOver = (balances || []).reduce((sum, b) => sum + (b.carriedOverDays || 0), 0);
     const lowBalanceCount = (balances || []).filter((b) => b.remainingDays <= 2 && b.remainingDays >= 0).length;
@@ -319,7 +331,7 @@ export default function LeaveBalances() {
                                             </div>
                                         </TableCell>
                                     </TableRow>
-                                ) : (balances || []).length === 0 ? (
+                                ) : employeeGroups.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={8}>
                                             <div className="flex flex-col items-center justify-center py-12">
@@ -330,40 +342,44 @@ export default function LeaveBalances() {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    (balances || []).map((balance) => (
-                                        <TableRow key={balance.id}>
-                                            <TableCell>
-                                                <span className="font-medium text-gray-900">{balance.userName}</span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge variant="secondary">{balance.leaveTypeName}</Badge>
-                                            </TableCell>
-                                            <TableCell className="text-center font-medium">{balance.totalDays}</TableCell>
-                                            <TableCell className="text-center text-red-600">{balance.usedDays}</TableCell>
-                                            <TableCell className="text-center text-yellow-600">{balance.pendingDays}</TableCell>
-                                            <TableCell className="text-center">
-                                                <Badge className={balance.remainingDays <= 2 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}>
-                                                    {balance.remainingDays}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-center text-purple-600">{balance.carriedOverDays}</TableCell>
-                                            <TableCell>
-                                                {can('LEAVE_APPLICATION_UPDATE') && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            setAdjustDialog({ open: true, balance });
-                                                            setAdjustAmount('');
-                                                            setAdjustReason('');
-                                                        }}
-                                                    >
-                                                        Adjust
-                                                    </Button>
+                                    employeeGroups.map((group) =>
+                                        group.balances.map((balance, index) => (
+                                            <TableRow key={balance.id}>
+                                                {index === 0 && (
+                                                    <TableCell rowSpan={group.balances.length} className="align-top">
+                                                        <span className="font-medium text-gray-900">{group.employeeName}</span>
+                                                    </TableCell>
                                                 )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                                <TableCell>
+                                                    <Badge variant="secondary">{balance.leaveTypeName}</Badge>
+                                                </TableCell>
+                                                <TableCell className="text-center font-medium">{balance.totalDays}</TableCell>
+                                                <TableCell className="text-center text-red-600">{balance.usedDays}</TableCell>
+                                                <TableCell className="text-center text-yellow-600">{balance.pendingDays}</TableCell>
+                                                <TableCell className="text-center">
+                                                    <Badge className={balance.remainingDays <= 2 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}>
+                                                        {balance.remainingDays}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-center text-purple-600">{balance.carriedOverDays}</TableCell>
+                                                <TableCell>
+                                                    {can('LEAVE_APPLICATION_UPDATE') && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                setAdjustDialog({ open: true, balance });
+                                                                setAdjustAmount('');
+                                                                setAdjustReason('');
+                                                            }}
+                                                        >
+                                                            Adjust
+                                                        </Button>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        )),
+                                    )
                                 )}
                             </TableBody>
                         </Table>
@@ -377,7 +393,7 @@ export default function LeaveBalances() {
                     <DialogHeader>
                         <DialogTitle>Adjust Leave Balance</DialogTitle>
                         <DialogDescription>
-                            Adjust balance for {adjustDialog.balance?.userName} — {adjustDialog.balance?.leaveTypeName}
+                            Adjust balance for {adjustDialog.balance?.employeeName} — {adjustDialog.balance?.leaveTypeName}
                             <br />
                             Current remaining: <strong>{adjustDialog.balance?.remainingDays} days</strong>
                         </DialogDescription>
@@ -410,7 +426,7 @@ export default function LeaveBalances() {
                                 if (adjustDialog.balance) {
                                     adjustMutation.mutate({
                                         balanceId: adjustDialog.balance.id,
-                                        adjustment: Number(adjustAmount),
+                                        adjustmentDays: Number(adjustAmount),
                                         reason: adjustReason,
                                     });
                                 }
@@ -439,9 +455,9 @@ export default function LeaveBalances() {
                                     <SelectValue placeholder="Select an employee..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {(users || []).map((u: any) => (
+                                    {(users || []).map((u) => (
                                         <SelectItem key={u.id} value={String(u.id)}>
-                                            {u.name || u.firstName + ' ' + u.lastName} ({u.email})
+                                            {u.name || `${u.firstName ?? ''} ${u.lastName ?? ''}`.trim()} ({u.email})
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

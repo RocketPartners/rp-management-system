@@ -253,6 +253,8 @@ export default function LeaveTypeList() {
                                     Array.from({ length: 5 }).map((_, i) => (
                                         <TableRow key={i}>{Array.from({ length: 8 }).map((_, j) => (<TableCell key={j}><Skeleton className="h-5 w-20" /></TableCell>))}</TableRow>
                                     ))
+                                ) : isError ? (
+                                    <TableRow><TableCell colSpan={8}><div className="flex flex-col items-center justify-center py-12"><XCircle className="mb-3 h-12 w-12 text-red-300" /><p className="text-lg font-medium">Failed to load leave types</p><p className="mb-4 text-sm text-gray-500">Something went wrong while fetching leave types. Please try again.</p><Button variant="outline" onClick={() => refetch()}>Retry</Button></div></TableCell></TableRow>
                                 ) : filtered.length === 0 ? (
                                     <TableRow><TableCell colSpan={8}><div className="flex flex-col items-center justify-center py-12"><Calendar className="mb-3 h-12 w-12 text-gray-300" /><p className="text-lg font-medium">No leave types found</p></div></TableCell></TableRow>
                                 ) : (
