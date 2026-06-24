@@ -4,8 +4,8 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
-import { apiPostFormData } from '@/lib/spring-boot-api';
-import { useRef, useCallback } from 'react';
+import { apiFetch, apiPostFormData } from '@/lib/spring-boot-api';
+import { useEffect, useRef, useCallback } from 'react';
 import {
     Bold,
     Italic,
@@ -54,6 +54,9 @@ function ToolbarButton({
 
 export default function TiptapEditor({ content, onChange, placeholder = 'Write something...' }: TiptapEditorProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
+    // Maps each blob: object URL shown in the editor back to its stable API
+    // path (/uploads/images/...), so the persisted body never stores a blob URL.
+    const objectUrlToApiPath = useRef<Map<string, string>>(new Map());
 
     const editor = useEditor({
         extensions: [
@@ -70,7 +73,11 @@ export default function TiptapEditor({ content, onChange, placeholder = 'Write s
         ],
         content,
         onUpdate: ({ editor }) => {
-            onChange(editor.getHTML());
+            let html = editor.getHTML();
+            for (const [objUrl, apiPath] of objectUrlToApiPath.current) {
+                html = html.split(objUrl).join(apiPath);
+            }
+            onChange(html);
         },
         editorProps: {
             attributes: {
@@ -88,8 +95,16 @@ export default function TiptapEditor({ content, onChange, placeholder = 'Write s
             formData.append('file', file);
 
             try {
+                // The upload endpoint returns the stable API path; the image
+                // bytes now require a Bearer JWT, so fetch them with auth and
+                // embed an object URL for display. The API path is what we
+                // persist in the body (see onUpdate).
                 const result = await apiPostFormData<{ url: string }>('/uploads/images', formData);
-                editor.chain().focus().setImage({ src: result.url }).run();
+                const res = await apiFetch(result.url);
+                const blob = await res.blob();
+                const objUrl = URL.createObjectURL(blob);
+                objectUrlToApiPath.current.set(objUrl, result.url);
+                editor.chain().focus().setImage({ src: objUrl }).run();
             } catch (err) {
                 console.error('Image upload failed:', err);
             }
@@ -99,6 +114,16 @@ export default function TiptapEditor({ content, onChange, placeholder = 'Write s
         },
         [editor]
     );
+
+    // Revoke any object URLs created during this editing session on unmount.
+    useEffect(() => {
+        const created = objectUrlToApiPath.current;
+        return () => {
+            for (const objUrl of created.keys()) {
+                URL.revokeObjectURL(objUrl);
+            }
+        };
+    }, []);
 
     const addLink = useCallback(() => {
         if (!editor) return;

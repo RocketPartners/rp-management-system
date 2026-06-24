@@ -25,6 +25,7 @@ import {
     apiPost,
     apiDelete,
     apiPatch,
+    apiFetch,
 } from '@/lib/spring-boot-api';
 import type {
     AnnouncementResponse,
@@ -48,7 +49,7 @@ import {
     X,
 } from 'lucide-react';
 import DOMPurify from 'dompurify';
-import { useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { toast } from 'sonner';
 import CreateEditDialog from './CreateEditDialog';
@@ -495,6 +496,49 @@ function AnnouncementCard({
     const { user } = useAuth();
     const { can } = usePermission();
     const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+    const bodyRef = useRef<HTMLDivElement>(null);
+
+    // Inline images in stored bodies point at /uploads/images/* which now
+    // requires a Bearer JWT, so a raw <img src> 401s. After the sanitized
+    // body renders, fetch each such image with auth and swap its src to an
+    // object URL. DOMPurify still sanitizes at the sink (below); this only
+    // rewrites src on the already-sanitized <img> nodes.
+    useEffect(() => {
+        const container = bodyRef.current;
+        if (!container) return;
+
+        let cancelled = false;
+        const createdUrls: string[] = [];
+        const imgs = Array.from(
+            container.querySelectorAll<HTMLImageElement>(
+                'img[src*="/uploads/images/"]',
+            ),
+        );
+
+        imgs.forEach(async (img) => {
+            // Normalize to an apiFetch path: strip origin + any /api/v1 prefix
+            // so apiFetch re-adds the configured API_URL exactly once.
+            const match = img.getAttribute('src')?.match(/\/uploads\/images\/[^"'\s]+/);
+            if (!match) return;
+            const path = match[0];
+            try {
+                const res = await apiFetch(path);
+                if (!res.ok) return;
+                const blob = await res.blob();
+                if (cancelled) return;
+                const objUrl = URL.createObjectURL(blob);
+                createdUrls.push(objUrl);
+                img.src = objUrl;
+            } catch {
+                // Leave the original src; a broken image is preferable to a crash.
+            }
+        });
+
+        return () => {
+            cancelled = true;
+            createdUrls.forEach((u) => URL.revokeObjectURL(u));
+        };
+    }, [announcement.body]);
 
     const isAuthor = user?.id === announcement.authorId;
     const canManage = isAuthor || can('announcements.create');
@@ -586,6 +630,7 @@ function AnnouncementCard({
 
                 {/* Body */}
                 <div
+                    ref={bodyRef}
                     className="prose prose-sm mt-2 max-w-none text-gray-600 [&_img]:max-w-full [&_img]:rounded-lg"
                     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(announcement.body) }}
                 />
