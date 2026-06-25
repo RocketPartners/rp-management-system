@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth-context';
-import { usePermission } from '@/hooks/usePermission';
-import { ForbiddenPage } from '@/components/error-boundary';
-import { FullPageSpinner } from '@/components/full-page-spinner';
+import { usePermission } from '@/hooks/use-permission';
+import { ForbiddenPage } from '@/components/ErrorBoundary';
+import { FullPageSpinner } from '@/components/FullPageSpinner';
 
 export function ProtectedRoute() {
     const { isAuthenticated, isLoading } = useAuth();

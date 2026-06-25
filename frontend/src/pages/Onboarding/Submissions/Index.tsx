@@ -10,7 +10,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet } from '@/lib/spring-boot-api';
 import { useQuery } from '@tanstack/react-query';
 import {

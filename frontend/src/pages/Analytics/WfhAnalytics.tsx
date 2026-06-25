@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiGet } from '@/lib/spring-boot-api';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { StatCard, ChartPanel, TablePanel, CustomTooltip } from './components';
 
 interface WfhStatsData {

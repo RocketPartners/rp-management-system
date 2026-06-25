@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiGet } from '@/lib/spring-boot-api';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { ChartPanel, TablePanel, CustomTooltip } from './components';
 import { PIE_COLORS } from './constants';
 
@@ -119,7 +119,7 @@ export default function Headcount() {
                                         dataKey="count"
                                         nameKey="name"
                                         paddingAngle={3}
-                                        label={({ name, percent }: { name: string; percent: number }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                                         labelLine={{ stroke: '#d1d5db' }}
                                     >
                                         {(data?.byEmploymentType || []).map((_, idx) => (

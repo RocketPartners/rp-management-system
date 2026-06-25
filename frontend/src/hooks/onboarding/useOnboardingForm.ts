@@ -7,7 +7,16 @@
 
 import { portalDelete, portalPost, portalPostFormData } from '@/lib/api/onboarding-portal';
 import { DEFAULT_COUNTRY } from '@/lib/constants/onboarding/selectOptions';
+import type {
+    DocumentFormData,
+    EmergencyContactFormData,
+    FormState,
+    GovIdFormData,
+    PersonalInfoFormData,
+    Submission,
+} from '@/types/onboarding';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -15,16 +24,16 @@ import { toast } from 'sonner';
 /**
  * Creates a form-like state object that mimics Inertia's useForm interface.
  */
-function useFormState(initialData) {
-    const [data, setDataState] = useState(initialData);
+function useFormState<T extends object>(initialData: T): FormState<T> {
+    const [data, setDataState] = useState<T>(initialData);
 
     return {
         data,
         setData: (key, value) => {
             if (typeof key === 'function') {
-                setDataState(key);
+                setDataState(key as (prev: T) => T);
             } else {
-                setDataState((prev) => ({ ...prev, [key]: value }));
+                setDataState((prev) => ({ ...prev, [key as keyof T]: value }));
             }
         },
         reset: () => setDataState(initialData),
@@ -35,7 +44,7 @@ function useFormState(initialData) {
  * Determines the initial step based on submission completion.
  * Response fields are snake_case from the Spring Boot API.
  */
-function determineInitialStep(submission) {
+function determineInitialStep(submission?: Submission | null): number {
     if (!submission) return 1;
 
     // Use current_step from backend if available
@@ -72,12 +81,12 @@ function determineInitialStep(submission) {
 
 /**
  * Manages multi-step onboarding form state with TanStack Query mutations.
- *
- * @param {Object|null} submission - Existing submission data from portal API (snake_case fields)
- * @param {string} inviteToken - Invite token for API calls
- * @returns {Object} Form state and handlers (same interface as Inertia version)
+ * Keeps the same external interface as the original Inertia version.
  */
-export function useOnboardingForm(submission, inviteToken) {
+export function useOnboardingForm(
+    submission: Submission | null | undefined,
+    inviteToken: string,
+) {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
@@ -97,7 +106,7 @@ export function useOnboardingForm(submission, inviteToken) {
     // Personal Info Form (Step 1)
     // API response uses snake_case: submission.personal_info
     const pi = submission?.personal_info;
-    const personalForm = useFormState({
+    const personalForm = useFormState<PersonalInfoFormData>({
         first_name: pi?.first_name || '',
         middle_name: pi?.middle_name || '',
         last_name: pi?.last_name || '',
@@ -117,7 +126,7 @@ export function useOnboardingForm(submission, inviteToken) {
 
     // Government IDs Form (Step 2)
     // Gov IDs stored in personal_info in Spring Boot
-    const govIdForm = useFormState({
+    const govIdForm = useFormState<GovIdFormData>({
         sss_number: pi?.sss_number || '',
         tin_number: pi?.tin_number || '',
         hdmf_number: pi?.hdmf_number || '',
@@ -126,7 +135,7 @@ export function useOnboardingForm(submission, inviteToken) {
 
     // Emergency Contact Form (Step 3)
     const ec = submission?.emergency_contact;
-    const emergencyForm = useFormState({
+    const emergencyForm = useFormState<EmergencyContactFormData>({
         name: ec?.name || '',
         phone: ec?.phone || '',
         mobile: ec?.mobile || '',
@@ -134,7 +143,7 @@ export function useOnboardingForm(submission, inviteToken) {
     });
 
     // Document Upload Form (Step 4)
-    const documentForm = useFormState({
+    const documentForm = useFormState<DocumentFormData>({
         document_type: '',
         file: null,
         description: '',
@@ -143,56 +152,63 @@ export function useOnboardingForm(submission, inviteToken) {
     // ========== Mutations ==========
 
     const personalMutation = useMutation({
-        mutationFn: (data) => portalPost(`${basePath}/personal-info`, data),
+        mutationFn: (data: PersonalInfoFormData) =>
+            portalPost(`${basePath}/personal-info`, data),
         onSuccess: () => {
             toast.success('Personal information saved!');
             invalidatePortal();
             setCurrentStep(2);
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err: Error) => toast.error(err.message),
     });
 
     const govIdMutation = useMutation({
-        mutationFn: (data) => portalPost(`${basePath}/government-ids`, data),
+        mutationFn: (data: GovIdFormData) =>
+            portalPost(`${basePath}/government-ids`, data),
         onSuccess: () => {
             toast.success('Government IDs saved!');
             invalidatePortal();
             setCurrentStep(3);
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err: Error) => toast.error(err.message),
     });
 
     const emergencyMutation = useMutation({
-        mutationFn: (data) => portalPost(`${basePath}/emergency-contact`, data),
+        mutationFn: (data: EmergencyContactFormData) =>
+            portalPost(`${basePath}/emergency-contact`, data),
         onSuccess: () => {
             toast.success('Emergency contact saved!');
             invalidatePortal();
             setCurrentStep(4);
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err: Error) => toast.error(err.message),
     });
 
     const uploadMutation = useMutation({
-        mutationFn: (formData) => portalPostFormData(`${basePath}/documents`, formData),
+        mutationFn: (formData: FormData) =>
+            portalPostFormData(`${basePath}/documents`, formData),
         onSuccess: () => {
             toast.success('Document uploaded successfully!');
             invalidatePortal();
             documentForm.setData('file', null);
             documentForm.setData('description', '');
             // Reset file input
-            const fileInput = document.getElementById('file-upload');
+            const fileInput = document.getElementById(
+                'file-upload',
+            ) as HTMLInputElement | null;
             if (fileInput) fileInput.value = '';
         },
-        onError: (err) => toast.error('Upload failed: ' + err.message),
+        onError: (err: Error) => toast.error('Upload failed: ' + err.message),
     });
 
     const deleteMutation = useMutation({
-        mutationFn: (documentId) => portalDelete(`${basePath}/documents/${documentId}`),
+        mutationFn: (documentId: number) =>
+            portalDelete(`${basePath}/documents/${documentId}`),
         onSuccess: () => {
             toast.success('Document deleted successfully!');
             invalidatePortal();
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err: Error) => toast.error(err.message),
     });
 
     const submitMutation = useMutation({
@@ -202,7 +218,7 @@ export function useOnboardingForm(submission, inviteToken) {
             invalidatePortal();
             navigate(`/onboarding/${inviteToken}/success`);
         },
-        onError: (err) => toast.error(err.message),
+        onError: (err: Error) => toast.error(err.message),
     });
 
     // ========== Handlers ==========
@@ -219,12 +235,14 @@ export function useOnboardingForm(submission, inviteToken) {
         emergencyMutation.mutate(emergencyForm.data);
     };
 
-    const handleUploadDocument = (e) => {
+    const handleUploadDocument = (e?: React.FormEvent | React.MouseEvent) => {
         if (e) e.preventDefault();
 
         const formData = new FormData();
         formData.append('document_type', documentForm.data.document_type);
-        formData.append('file', documentForm.data.file);
+        if (documentForm.data.file) {
+            formData.append('file', documentForm.data.file);
+        }
         if (documentForm.data.description) {
             formData.append('description', documentForm.data.description);
         }
@@ -232,7 +250,7 @@ export function useOnboardingForm(submission, inviteToken) {
         uploadMutation.mutate(formData);
     };
 
-    const handleDeleteDocument = (documentId) => {
+    const handleDeleteDocument = (documentId: number) => {
         if (confirm('Are you sure you want to delete this document?')) {
             deleteMutation.mutate(documentId);
         }
@@ -242,7 +260,7 @@ export function useOnboardingForm(submission, inviteToken) {
         submitMutation.mutate();
     };
 
-    const goToStep = (step) => {
+    const goToStep = (step: number) => {
         setCurrentStep(step);
     };
 

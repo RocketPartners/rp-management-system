@@ -8,7 +8,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { RouterProvider } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/auth-context';
-import { ErrorBoundary } from '@/components/error-boundary';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { TimezoneProvider } from '@/hooks/use-timezone';
 import { router } from '@/router';
 

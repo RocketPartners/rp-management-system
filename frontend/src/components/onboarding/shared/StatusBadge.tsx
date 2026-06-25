@@ -11,17 +11,18 @@ import {
 } from '@/lib/constants/onboarding/statuses';
 import React from 'react';
 
-/**
- * StatusBadge - Unified status badge component
- *
- * @param {Object} props
- * @param {string} props.status - Status value (e.g., 'approved', 'pending', 'draft')
- * @param {'submission'|'document'} props.variant - Badge variant (default: 'submission')
- * @param {string} props.className - Additional CSS classes
- * @returns {JSX.Element}
- */
+interface StatusBadgeProps {
+    /** Status value (e.g. 'approved', 'pending', 'draft'). */
+    status: string;
+    /** Badge variant (default: 'submission'). */
+    variant?: 'submission' | 'document';
+    /** Additional CSS classes. */
+    className?: string;
+}
+
+/** Unified status badge component for submissions and documents. */
 export const StatusBadge = React.memo(
-    ({ status, variant = 'submission', className = '' }) => {
+    ({ status, variant = 'submission', className = '' }: StatusBadgeProps) => {
         // Get configuration based on variant
         const config =
             variant === 'document'

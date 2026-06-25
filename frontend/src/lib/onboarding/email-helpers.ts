@@ -3,6 +3,8 @@
  * Provides utility functions for generating and formatting work emails
  */
 
+import type { PersonalInfo } from '@/types/onboarding';
+
 /**
  * Company email domain
  * Used in Admin/Submissions/Review.jsx line 133
@@ -26,13 +28,13 @@ const isDevelopment = import.meta.env.DEV;
 export const DEFAULT_TEMP_PASSWORD = 'ChangeMe123!';
 
 /**
- * Generate work email from personal information
- * Format: firstnamelastname@gmail.com (no periods)
- * In development: janetubigon00@gmail.com
- * @param {Object} personalInfo - Personal info object with first_name and last_name
- * @returns {string} Generated work email
+ * Generate work email from personal information.
+ * Format: firstnamelastname@gmail.com (no periods).
+ * In development, always returns the testing email.
  */
-export const generateWorkEmail = (personalInfo) => {
+export const generateWorkEmail = (
+    personalInfo?: PersonalInfo | null,
+): string => {
     // In development, always use testing email
     if (isDevelopment) {
         return `${TESTING_EMAIL_USERNAME}@${COMPANY_EMAIL_DOMAIN}`;
@@ -43,26 +45,24 @@ export const generateWorkEmail = (personalInfo) => {
     }
 
     // Extract first word only from first name (handles "John Paul" -> "john")
-    const firstNameParts = personalInfo.first_name.trim().split(' ');
+    const firstNameParts = personalInfo.first_name!.trim().split(' ');
     const firstWord = firstNameParts[0] || '';
 
     // Remove non-alphabetic characters and convert to lowercase
     const firstName = firstWord.toLowerCase().replace(/[^a-z]/gi, '');
-    const lastName = personalInfo.last_name
-        .toLowerCase()
+    const lastName = personalInfo
+        .last_name!.toLowerCase()
         .trim()
         .replace(/[^a-z]/gi, '');
 
     return `${firstName}${lastName}@${COMPANY_EMAIL_DOMAIN}`;
 };
 
-/**
- * Generate work email from separate name parts
- * @param {string} firstName - First name
- * @param {string} lastName - Last name
- * @returns {string} Generated work email
- */
-export const generateWorkEmailFromNames = (firstName, lastName) => {
+/** Generate a work email from separate name parts. */
+export const generateWorkEmailFromNames = (
+    firstName: string,
+    lastName: string,
+): string => {
     // In development, always use testing email
     if (isDevelopment) {
         return `${TESTING_EMAIL_USERNAME}@${COMPANY_EMAIL_DOMAIN}`;
@@ -86,50 +86,36 @@ export const generateWorkEmailFromNames = (firstName, lastName) => {
     return `${first}${last}@${COMPANY_EMAIL_DOMAIN}`;
 };
 
-/**
- * Validate email format
- * @param {string} email - Email to validate
- * @returns {boolean}
- */
-export const isValidEmail = (email) => {
+/** Validate an email's format. */
+export const isValidEmail = (email?: string | null): boolean => {
     if (!email) return false;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 };
 
-/**
- * Check if email is a company email
- * @param {string} email - Email to check
- * @returns {boolean}
- */
-export const isCompanyEmail = (email) => {
+/** Check if an email belongs to the company domain. */
+export const isCompanyEmail = (email?: string | null): boolean => {
     if (!email) return false;
     return email.toLowerCase().endsWith(`@${COMPANY_EMAIL_DOMAIN}`);
 };
 
-/**
- * Extract username from email
- * @param {string} email - Full email address
- * @returns {string} Username part (before @)
- */
-export const extractEmailUsername = (email) => {
+/** Extract the username (before @) from an email. */
+export const extractEmailUsername = (email?: string | null): string => {
     if (!email) return '';
     return email.split('@')[0];
 };
 
-/**
- * Format full name for display
- * @param {Object} personalInfo - Personal info object
- * @returns {string} Formatted full name
- */
-export const formatFullName = (personalInfo) => {
+/** Format a full name for display from personal info. */
+export const formatFullName = (
+    personalInfo?: PersonalInfo | null,
+): string => {
     if (!personalInfo) return '';
 
     const parts = [
         personalInfo.first_name,
         personalInfo.middle_name,
         personalInfo.last_name,
-    ].filter(Boolean);
+    ].filter(Boolean) as string[];
 
     // Add suffix if not 'none'
     if (personalInfo.suffix && personalInfo.suffix !== 'none') {
@@ -139,8 +125,5 @@ export const formatFullName = (personalInfo) => {
     return parts.join(' ');
 };
 
-/**
- * Get default temporary password
- * @returns {string} Default temp password
- */
-export const getDefaultTempPassword = () => DEFAULT_TEMP_PASSWORD;
+/** Get the default temporary password for new accounts. */
+export const getDefaultTempPassword = (): string => DEFAULT_TEMP_PASSWORD;

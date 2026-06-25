@@ -42,7 +42,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PermissionMatrix } from '@/components/users/PermissionMatrix';
 import { UserStatusBadge } from '@/components/users/UserStatusBadge';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiPost, apiDelete } from '@/lib/spring-boot-api';
 import type { UserResponse, PermissionMatrixEntry } from '@/types';
 

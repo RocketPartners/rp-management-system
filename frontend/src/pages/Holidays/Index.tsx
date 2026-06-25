@@ -48,7 +48,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiPost, apiPatch, apiDelete } from '@/lib/spring-boot-api';
 
 interface HolidayResponse {

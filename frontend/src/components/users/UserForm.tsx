@@ -82,6 +82,8 @@ export const userFormSchema = z.object({
 });
 
 export type UserFormValues = z.infer<typeof userFormSchema>;
+/** Raw form input shape (before zod coercion of numeric id fields). */
+export type UserFormInput = z.input<typeof userFormSchema>;
 
 interface UserFormProps {
     mode: 'create' | 'edit';
@@ -101,7 +103,7 @@ export function UserForm({
     onSubmit,
     isSubmitting,
 }: UserFormProps) {
-    const form = useForm<UserFormValues>({
+    const form = useForm<UserFormInput, unknown, UserFormValues>({
         resolver: zodResolver(userFormSchema),
         defaultValues: {
             email: '',

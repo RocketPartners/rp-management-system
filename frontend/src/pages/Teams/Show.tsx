@@ -19,7 +19,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet } from '@/lib/spring-boot-api';
 import type { TeamResponse, TeamMemberResponse } from '@/types';
 import {

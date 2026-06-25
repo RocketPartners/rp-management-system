@@ -9,35 +9,36 @@ import {
     CheckCircle2,
     CreditCard,
     FileText,
+    type LucideIcon,
     Phone,
     UserPlus,
 } from 'lucide-react';
 import React from 'react';
 
-const STEP_ICONS = {
+const STEP_ICONS: Record<number, LucideIcon> = {
     1: UserPlus,
     2: CreditCard,
     3: Phone,
     4: FileText,
 };
 
-const STEP_TITLES = {
+const STEP_TITLES: Record<number, string> = {
     1: 'Personal Info',
     2: 'Government IDs',
     3: 'Emergency Contact',
     4: 'Documents',
 };
 
-/**
- * ProgressIndicator component
- *
- * @param {Object} props
- * @param {number} props.currentStep - Current active step (1-4)
- * @param {number} props.totalSteps - Total number of steps (default: 4)
- * @returns {JSX.Element}
- */
+interface ProgressIndicatorProps {
+    /** Current active step (1-4). */
+    currentStep: number;
+    /** Total number of steps (default: 4). */
+    totalSteps?: number;
+}
+
+/** Multi-step onboarding progress visualization. */
 export const ProgressIndicator = React.memo(
-    ({ currentStep, totalSteps = 4 }) => {
+    ({ currentStep, totalSteps = 4 }: ProgressIndicatorProps) => {
         const steps = Array.from({ length: totalSteps }, (_, i) => ({
             number: i + 1,
             title: STEP_TITLES[i + 1],

@@ -19,7 +19,7 @@ export function useNotificationSocket() {
         if (!user?.id) return;
 
         const client = new Client({
-            webSocketFactory: () => new SockJS(SOCKJS_URL),
+            webSocketFactory: () => new SockJS(WS_URL),
             beforeConnect: () => {
                 client.connectHeaders = {
                     Authorization: `Bearer ${getAccessToken()}`,

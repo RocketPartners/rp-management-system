@@ -257,7 +257,7 @@ export default function AuditDashboard() {
                                 <PieChart>
                                     <Pie data={severityData} cx="50%" cy="50%" innerRadius={55} outerRadius={85}
                                         dataKey="value" nameKey="name" paddingAngle={3}
-                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                                         labelLine={{ stroke: '#d1d5db' }}>
                                         {severityData.map((entry, idx) => (
                                             <Cell key={idx} fill={entry.color} />

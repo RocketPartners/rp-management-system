@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiPatch, apiPost } from '@/lib/spring-boot-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {

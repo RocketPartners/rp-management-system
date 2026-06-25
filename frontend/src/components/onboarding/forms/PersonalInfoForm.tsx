@@ -26,18 +26,20 @@ import {
     SUFFIX_OPTIONS,
 } from '@/lib/constants/onboarding/selectOptions';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
+import type { FormState, PersonalInfoFormData } from '@/types/onboarding';
 import { ChevronRight, Loader2, UserPlus } from 'lucide-react';
+import type React from 'react';
 
-/**
- * PersonalInfoForm component
- *
- * @param {Object} props
- * @param {Object} props.form - Inertia form instance
- * @param {Function} props.onNext - Handler for moving to next step
- * @returns {JSX.Element}
- */
-export const PersonalInfoForm = ({ form, onNext }) => {
-    const handleSubmit = (e) => {
+interface PersonalInfoFormProps {
+    /** Form state instance for personal info. */
+    form: FormState<PersonalInfoFormData>;
+    /** Handler for moving to the next step. */
+    onNext: () => void;
+}
+
+/** Step 1 of onboarding — collects personal information. */
+export const PersonalInfoForm = ({ form, onNext }: PersonalInfoFormProps) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onNext();
     };

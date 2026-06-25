@@ -1,9 +1,9 @@
 import { createBrowserRouter, Link, Navigate, Outlet } from 'react-router-dom';
-import { ProtectedRoute, GuestRoute, PermissionRoute } from '@/components/route-guards';
-import { RouteErrorPage, NotFoundPage } from '@/components/error-boundary';
+import { ProtectedRoute, GuestRoute, PermissionRoute } from '@/components/RouteGuards';
+import { RouteErrorPage, NotFoundPage } from '@/components/ErrorBoundary';
 import AuthenticatedLayout from '@/layouts/AuthenticatedLayout';
 import { lazy, Suspense } from 'react';
-import { FullPageSpinner } from '@/components/full-page-spinner';
+import { FullPageSpinner } from '@/components/FullPageSpinner';
 
 // Phase 1 — Migrated pages (TSX)
 const Login = lazy(() => import('@/pages/Auth/Login'));

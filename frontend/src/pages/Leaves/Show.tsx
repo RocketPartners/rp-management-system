@@ -33,7 +33,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiPost } from '@/lib/spring-boot-api';
 
 const STATUS_CONFIG: Record<string, { color: string; label: string }> = {

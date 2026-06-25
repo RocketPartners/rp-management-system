@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link, Navigate } from 'react-router-dom';
 import { CalendarDays, UserPlus, Users, Home } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import type { LucideIcon } from 'lucide-react';
 
 interface ReportCard {

@@ -113,25 +113,23 @@ export const DOCUMENT_STATUS_CONFIG = {
 };
 
 /**
- * Get submission status configuration
- * @param {string} status - Status value
- * @returns {Object} Status configuration object
+ * Get submission status configuration. Falls back to the Draft config.
  */
-export const getSubmissionStatusConfig = (status) => {
+export const getSubmissionStatusConfig = (status: string) => {
     return (
-        SUBMISSION_STATUS_CONFIG[status] ||
-        SUBMISSION_STATUS_CONFIG[SUBMISSION_STATUSES.DRAFT]
+        SUBMISSION_STATUS_CONFIG[
+            status as keyof typeof SUBMISSION_STATUS_CONFIG
+        ] || SUBMISSION_STATUS_CONFIG[SUBMISSION_STATUSES.DRAFT]
     );
 };
 
 /**
- * Get document status configuration
- * @param {string} status - Status value
- * @returns {Object} Status configuration object
+ * Get document status configuration. Falls back to the Uploaded config.
  */
-export const getDocumentStatusConfig = (status) => {
+export const getDocumentStatusConfig = (status: string) => {
     return (
-        DOCUMENT_STATUS_CONFIG[status] ||
-        DOCUMENT_STATUS_CONFIG[DOCUMENT_STATUSES.UPLOADED]
+        DOCUMENT_STATUS_CONFIG[
+            status as keyof typeof DOCUMENT_STATUS_CONFIG
+        ] || DOCUMENT_STATUS_CONFIG[DOCUMENT_STATUSES.UPLOADED]
     );
 };

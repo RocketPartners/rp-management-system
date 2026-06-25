@@ -15,6 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
+import type { FormState, GovIdFormData } from '@/types/onboarding';
 import {
     ChevronLeft,
     ChevronRight,
@@ -22,18 +23,24 @@ import {
     Info,
     Loader2,
 } from 'lucide-react';
+import type React from 'react';
 
-/**
- * GovernmentIdForm component
- *
- * @param {Object} props
- * @param {Object} props.form - Inertia form instance
- * @param {Function} props.onNext - Handler for moving to next step
- * @param {Function} props.onBack - Handler for going back to previous step
- * @returns {JSX.Element}
- */
-export const GovernmentIdForm = ({ form, onNext, onBack }) => {
-    const handleSubmit = (e) => {
+interface GovernmentIdFormProps {
+    /** Form state instance for government IDs. */
+    form: FormState<GovIdFormData>;
+    /** Handler for moving to the next step. */
+    onNext: () => void;
+    /** Handler for going back to the previous step. */
+    onBack: () => void;
+}
+
+/** Step 2 of onboarding — collects government-issued ID numbers. */
+export const GovernmentIdForm = ({
+    form,
+    onNext,
+    onBack,
+}: GovernmentIdFormProps) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onNext();
     };

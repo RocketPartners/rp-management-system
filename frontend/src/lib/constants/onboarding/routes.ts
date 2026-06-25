@@ -47,23 +47,3 @@ export const ADMIN_ONBOARDING_ROUTES = {
     // User conversion
     CONVERT_TO_USER: 'onboarding.invites.convert-to-user',
 };
-
-/**
- * Get guest onboarding route with token
- * @param {string} routeName - Route name from GUEST_ONBOARDING_ROUTES
- * @param {string} token - Invite token
- * @returns {string} Route name with parameters
- */
-export const getGuestRoute = (routeName, token) => {
-    return route(routeName, token);
-};
-
-/**
- * Get admin onboarding route with submission ID
- * @param {string} routeName - Route name from ADMIN_ONBOARDING_ROUTES
- * @param {number} submissionId - Submission ID
- * @returns {string} Route name with parameters
- */
-export const getAdminRoute = (routeName, submissionId) => {
-    return route(routeName, submissionId);
-};

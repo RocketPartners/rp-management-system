@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ChevronRight, LogOut, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { useHaptics } from '@/hooks/use-haptics';
 import { buildNavigation, type NavSection, type NavItemConfig } from '@/lib/navigation';
 import { glassClasses } from './glass-styles';

@@ -44,7 +44,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiDelete } from '@/lib/spring-boot-api';
 import type { TeamResponse, PagedResponse } from '@/types';
 

@@ -36,7 +36,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiDelete, apiGet, apiPost, apiPut } from '@/lib/spring-boot-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {

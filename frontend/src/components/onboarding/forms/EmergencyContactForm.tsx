@@ -22,19 +22,29 @@ import {
 } from '@/components/ui/select';
 import { RELATIONSHIP_OPTIONS } from '@/lib/constants/onboarding/selectOptions';
 import { BRAND_CLASSES } from '@/lib/constants/theme';
+import type {
+    EmergencyContactFormData,
+    FormState,
+} from '@/types/onboarding';
 import { ChevronLeft, ChevronRight, Loader2, Phone } from 'lucide-react';
+import type React from 'react';
 
-/**
- * EmergencyContactForm component
- *
- * @param {Object} props
- * @param {Object} props.form - Inertia form instance
- * @param {Function} props.onNext - Handler for moving to next step
- * @param {Function} props.onBack - Handler for going back to previous step
- * @returns {JSX.Element}
- */
-export const EmergencyContactForm = ({ form, onNext, onBack }) => {
-    const handleSubmit = (e) => {
+interface EmergencyContactFormProps {
+    /** Form state instance for emergency contact. */
+    form: FormState<EmergencyContactFormData>;
+    /** Handler for moving to the next step. */
+    onNext: () => void;
+    /** Handler for going back to the previous step. */
+    onBack: () => void;
+}
+
+/** Step 3 of onboarding — collects emergency contact information. */
+export const EmergencyContactForm = ({
+    form,
+    onNext,
+    onBack,
+}: EmergencyContactFormProps) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         onNext();
     };

@@ -50,7 +50,7 @@ import {
 } from '@/components/ui/table';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
 import { UserStatusBadge } from '@/components/users/UserStatusBadge';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiPost, apiDelete } from '@/lib/spring-boot-api';
 import type { UserResponse, PagedResponse } from '@/types';
 

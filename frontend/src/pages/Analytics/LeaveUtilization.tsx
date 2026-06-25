@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { apiGet, apiFetch } from '@/lib/spring-boot-api';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { StatCard, ChartPanel, TablePanel, CustomTooltip } from './components';
 import { PIE_COLORS } from './constants';
 
@@ -166,7 +166,7 @@ export default function LeaveUtilization() {
                                         dataKey="totalDays"
                                         nameKey="type"
                                         paddingAngle={3}
-                                        label={({ type, percent }: { type: string; percent: number }) => `${type} ${(percent * 100).toFixed(0)}%`}
+                                        label={(props: { type?: string; percent?: number }) => `${props.type} ${((props.percent ?? 0) * 100).toFixed(0)}%`}
                                         labelLine={{ stroke: '#d1d5db' }}
                                     >
                                         {(data?.byLeaveType || []).map((_, idx) => (

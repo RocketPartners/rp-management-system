@@ -59,7 +59,7 @@ import {
 } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/spring-boot-api';
 
 interface PermissionResponse {

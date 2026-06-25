@@ -22,7 +22,14 @@ import {
     countRequiredDocumentTypes,
     countUploadedRequiredTypes,
     getDocumentsByType,
-} from '@/lib/utils/documentHelpers';
+} from '@/lib/onboarding/document-helpers';
+import type {
+    DocumentFormData,
+    FormState,
+    RequiredDocuments,
+    Submission,
+    SubmissionStatus,
+} from '@/types/onboarding';
 import {
     CheckCircle2,
     ChevronLeft,
@@ -33,22 +40,29 @@ import {
     Trash2,
     Upload,
 } from 'lucide-react';
+import type React from 'react';
 import { useState } from 'react';
 
-/**
- * DocumentUploadForm component
- *
- * @param {Object} props
- * @param {Object} props.submission - Submission data with documents
- * @param {Object} props.requiredDocuments - Required document types configuration
- * @param {Object} props.documentForm - Form state instance for document uploads
- * @param {Object} props.submissionStatus - Submission validation status (can_submit, blocker, missing_documents)
- * @param {Function} props.onBack - Handler for going back to previous step
- * @param {Function} props.onDeleteDocument - Handler for deleting a document
- * @param {Function} props.onUpload - Handler for uploading a document
- * @param {Function} props.onFinalSubmit - Handler for final submission
- * @returns {JSX.Element}
- */
+interface DocumentUploadFormProps {
+    /** Submission data with uploaded documents. */
+    submission: Submission | null | undefined;
+    /** Required document types configuration. */
+    requiredDocuments: RequiredDocuments;
+    /** Form state instance for document uploads. */
+    documentForm: FormState<DocumentFormData>;
+    /** Server-side validation status (can_submit, blocker, missing_documents). */
+    submissionStatus: SubmissionStatus | null | undefined;
+    /** Handler for going back to the previous step. */
+    onBack: () => void;
+    /** Handler for deleting a document. */
+    onDeleteDocument: (documentId: number) => void;
+    /** Handler for uploading a document. */
+    onUpload: (e?: React.FormEvent | React.MouseEvent) => void;
+    /** Handler for final submission. */
+    onFinalSubmit: () => void;
+}
+
+/** Step 4 of onboarding — handles document upload with multi-file support. */
 export const DocumentUploadForm = ({
     submission,
     requiredDocuments,
@@ -58,17 +72,17 @@ export const DocumentUploadForm = ({
     onDeleteDocument,
     onUpload,
     onFinalSubmit,
-}) => {
+}: DocumentUploadFormProps) => {
     const [selectedDocType, setSelectedDocType] = useState('');
 
-    const handleFileChange = (e) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             documentForm.setData('file', file);
         }
     };
 
-    const handleUpload = (e) => {
+    const handleUpload = (e: React.MouseEvent) => {
         e.preventDefault();
         onUpload(e);
     };
@@ -627,7 +641,7 @@ export const DocumentUploadForm = ({
                                             )
                                             .map(([key, doc]) => {
                                                 const uploadedDoc =
-                                                    submission.documents.find(
+                                                    submission.documents?.find(
                                                         (d) =>
                                                             d.document_type ===
                                                             key,
@@ -635,14 +649,20 @@ export const DocumentUploadForm = ({
                                                 const status =
                                                     uploadedDoc?.status ||
                                                     'not_uploaded';
-                                                const statusColors = {
+                                                const statusColors: Record<
+                                                    string,
+                                                    string
+                                                > = {
                                                     approved: 'text-green-700',
                                                     uploaded: 'text-blue-700',
                                                     rejected: 'text-red-700',
                                                     not_uploaded:
                                                         'text-gray-600',
                                                 };
-                                                const statusLabels = {
+                                                const statusLabels: Record<
+                                                    string,
+                                                    string
+                                                > = {
                                                     approved: 'Approved',
                                                     uploaded:
                                                         'Pending HR Review',

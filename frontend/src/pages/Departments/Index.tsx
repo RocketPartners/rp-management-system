@@ -43,7 +43,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import DeleteConfirmationModal from '@/components/DeleteConfirmationModal';
-import { usePermission } from '@/hooks/usePermission';
+import { usePermission } from '@/hooks/use-permission';
 import { apiGet, apiDelete } from '@/lib/spring-boot-api';
 import type { DepartmentResponse, PagedResponse } from '@/types';
 
@@ -371,7 +371,7 @@ export default function DepartmentList() {
 
             {/* Delete modal */}
             <DeleteConfirmationModal
-                open={deleteModal.open}
+                isOpen={deleteModal.open}
                 onClose={() => setDeleteModal({ open: false, department: null })}
                 onConfirm={() => {
                     if (deleteModal.department)
@@ -379,7 +379,6 @@ export default function DepartmentList() {
                 }}
                 title="Delete Department"
                 description={`Are you sure you want to delete "${deleteModal.department?.name}"? This action cannot be undone.`}
-                loading={deleteMutation.isPending}
             />
         </>
     );
