@@ -6,7 +6,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/auth-context';
@@ -41,7 +40,6 @@ interface LoginErrors {
 export default function Login() {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [remember, setRemember] = useState<boolean>(false);
     const [processing, setProcessing] = useState<boolean>(false);
     const [errors, setErrors] = useState<LoginErrors>({});
     const { login, loginWithGoogle } = useAuth();
@@ -237,32 +235,16 @@ export default function Login() {
                                         )}
                                     </div>
 
-                                    <div className="animate-fade-in animation-delay-600 flex items-center justify-between">
-                                        <div className="flex items-center space-x-2">
-                                            <Checkbox
-                                                id="remember"
-                                                checked={remember}
-                                                onCheckedChange={(checked) =>
-                                                    setRemember(checked === true)
-                                                }
-                                            />
-                                            <Label
-                                                htmlFor="remember"
-                                                className="cursor-pointer text-sm font-normal"
-                                            >
-                                                Remember me
-                                            </Label>
-                                        </div>
-
-                                        {/* Hidden for alpha — /forgot-password route is not built yet; restore this link when the flow exists.
+                                    {/* Hidden for alpha — /forgot-password route is not built yet; restore this link when the flow exists.
+                                    <div className="animate-fade-in animation-delay-600 flex items-center justify-end">
                                         <Link
                                             to="/forgot-password"
                                             className="text-sm text-blue-600 transition-colors hover:text-blue-700 hover:underline"
                                         >
                                             Forgot password?
                                         </Link>
-                                        */}
                                     </div>
+                                    */}
 
                                     <Button
                                         type="submit"
