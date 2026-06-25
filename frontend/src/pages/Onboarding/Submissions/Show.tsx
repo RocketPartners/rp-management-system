@@ -16,6 +16,7 @@ import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { usePermission } from '@/hooks/usePermission';
+import { downloadAuthenticatedFile } from '@/lib/download-file';
 import { apiGet, apiPatch, apiPost } from '@/lib/spring-boot-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -120,10 +121,6 @@ function formatFileSize(bytes: number) {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function getApiBaseUrl() {
-    return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1';
 }
 
 // ============================================
@@ -505,10 +502,14 @@ export default function OnboardingSubmissionShow() {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    onClick={() => {
-                                                                        const url = `${getApiBaseUrl()}${doc.downloadUrl}`;
-                                                                        window.open(url, '_blank');
-                                                                    }}
+                                                                    onClick={() =>
+                                                                        downloadAuthenticatedFile(
+                                                                            doc.downloadUrl,
+                                                                            doc.fileName,
+                                                                        ).catch((err: Error) =>
+                                                                            toast.error(err.message),
+                                                                        )
+                                                                    }
                                                                 >
                                                                     <Eye className="h-4 w-4" />
                                                                 </Button>

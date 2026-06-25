@@ -22,6 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { usePermission } from '@/hooks/usePermission';
 import { useAuth } from '@/contexts/auth-context';
+import { downloadAuthenticatedFile } from '@/lib/download-file';
 import {
     apiGet,
     apiPatch,
@@ -652,11 +653,17 @@ export default function SupportIndex() {
                                     {selectedTicket.attachments.length > 0 && (
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {selectedTicket.attachments.map((att) => (
-                                                <a
+                                                <button
                                                     key={att.id}
-                                                    href={`${import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1'}${att.downloadUrl}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
+                                                    type="button"
+                                                    onClick={() =>
+                                                        downloadAuthenticatedFile(
+                                                            att.downloadUrl,
+                                                            att.fileName,
+                                                        ).catch((err: Error) =>
+                                                            toast.error(err.message),
+                                                        )
+                                                    }
                                                     className="flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-100"
                                                 >
                                                     <Paperclip className="h-3 w-3" />
@@ -664,7 +671,7 @@ export default function SupportIndex() {
                                                     <span className="text-gray-400">
                                                         ({formatFileSize(att.fileSize)})
                                                     </span>
-                                                </a>
+                                                </button>
                                             ))}
                                         </div>
                                     )}
@@ -715,16 +722,22 @@ export default function SupportIndex() {
                                                     {msg.attachments.length > 0 && (
                                                         <div className="mt-1 flex flex-wrap gap-1.5">
                                                             {msg.attachments.map((att) => (
-                                                                <a
+                                                                <button
                                                                     key={att.id}
-                                                                    href={`${import.meta.env.VITE_SPRING_BOOT_API_URL || 'http://localhost:8080/api/v1'}${att.downloadUrl}`}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        downloadAuthenticatedFile(
+                                                                            att.downloadUrl,
+                                                                            att.fileName,
+                                                                        ).catch((err: Error) =>
+                                                                            toast.error(err.message),
+                                                                        )
+                                                                    }
                                                                     className="flex items-center gap-1 rounded border border-gray-200 bg-white px-2 py-1 text-xs text-gray-600 hover:bg-gray-50"
                                                                 >
                                                                     <Paperclip className="h-3 w-3" />
                                                                     {att.fileName}
-                                                                </a>
+                                                                </button>
                                                             ))}
                                                         </div>
                                                     )}
