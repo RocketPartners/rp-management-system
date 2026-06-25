@@ -17,7 +17,7 @@ export const HRIS_TOOLS: Tool[] = [
     {
         name: 'call_hris_api',
         description:
-            'Call any HRIS API endpoint. Use the API reference in the system prompt to pick the right method, path, and body. The request is authenticated automatically with the current user\'s token.',
+            'Call a self-service HRIS API endpoint scoped to the current employee. Use the API reference in the system prompt to pick the right method, path, and body. The request is authenticated automatically with the current user\'s token. Admin-only surfaces (roles, permissions, the admin dashboard, and listing all users) are NOT available through this tool — direct the user to the HRIS web UI for those.',
         input_schema: {
             type: 'object',
             properties: {

@@ -6,10 +6,20 @@
 
 import { apiFetch } from '@/lib/spring-boot-api';
 
-// Allowlist of safe API operations the AI can perform
+// NOTE: This allowlist is a usability / blast-radius control, NOT a security
+// boundary. The real authorization boundary is the backend `@PreAuthorize` on
+// each endpoint, which rejects unauthorized access regardless of this list.
+// We narrow it to self-service / current-employee surfaces so a prompt-injected
+// model cannot casually request admin endpoints (/roles, /permissions,
+// /dashboard/admin, bare /users) through the assistant.
 const ALLOWED_ROUTES: { method: string; pattern: RegExp }[] = [
-    // Reads — all GET endpoints are safe
-    { method: 'GET', pattern: /^\/(auth|users|leave-applications|leave-types|teams|announcements|holidays|calendar|wfh|asset-assignments|assets|asset-categories|tickets|dashboard|notifications|departments|positions|roles|permissions)\b/ },
+    // Reads — narrowed to self-service / current-employee scope
+    { method: 'GET', pattern: /^\/auth\b/ },
+    // Requires a subpath (me|search|numeric id) — rejects bare /users and /users?page=...
+    { method: 'GET', pattern: /^\/users\/(me|search|\d+)\b/ },
+    { method: 'GET', pattern: /^\/(leave-applications|leave-types|teams|announcements|holidays|calendar|wfh|asset-assignments|assets|asset-categories|tickets|notifications|departments|positions)\b/ },
+    // Only the self dashboard — excludes /dashboard/admin
+    { method: 'GET', pattern: /^\/dashboard\/my\b/ },
 
     // Leave management — create and cancel own
     { method: 'POST', pattern: /^\/leave-applications$/ },
