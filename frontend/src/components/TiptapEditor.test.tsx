@@ -117,4 +117,33 @@ describe('TiptapEditor handleImageUpload (H3 authenticated image fetch)', () => 
         expect(persisted).toContain('/uploads/images/abc.png');
         expect(persisted).not.toContain('blob:');
     });
+
+    it('does not embed an image or leak an object URL when the upload fails', async () => {
+        // Arrange
+        const consoleError = vi
+            .spyOn(console, 'error')
+            .mockImplementation(() => {});
+        apiPostFormData.mockRejectedValue(new Error('upload failed'));
+        const onChange = vi.fn();
+        const { container } = render(
+            <TiptapEditor content="" onChange={onChange} />,
+        );
+        const input = container.querySelector(
+            'input[type="file"]',
+        ) as HTMLInputElement;
+        const file = new File(['png-bytes'], 'photo.png', { type: 'image/png' });
+
+        // Act
+        fireEvent.change(input, { target: { files: [file] } });
+
+        // Assert: the upload was attempted, then the failure was swallowed
+        await waitFor(() => expect(apiPostFormData).toHaveBeenCalledTimes(1));
+        await waitFor(() => expect(consoleError).toHaveBeenCalledTimes(1));
+
+        // No authenticated fetch, no embedded image, no orphan object URL.
+        expect(apiFetch).not.toHaveBeenCalled();
+        expect(setImage).not.toHaveBeenCalled();
+        expect(URL.createObjectURL).not.toHaveBeenCalled();
+        expect(onChange).not.toHaveBeenCalled();
+    });
 });

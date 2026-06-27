@@ -35,28 +35,35 @@ export function usePushNotifications() {
         if (user.id === lastRegisteredUserId) return;
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
-        lastRegisteredUserId = user.id;
+        const targetUserId = user.id;
+        lastRegisteredUserId = targetUserId;
+
+        let cancelled = false;
 
         const setup = async () => {
             try {
                 const registration = await navigator.serviceWorker.register('/sw.js');
                 await navigator.serviceWorker.ready;
+                if (cancelled) return;
 
                 const existing = await registration.pushManager.getSubscription();
+                if (cancelled) return;
                 if (existing) {
                     await registerSubscription(existing);
                     return;
                 }
 
                 const permission = await Notification.requestPermission();
-                if (permission !== 'granted') return;
+                if (cancelled || permission !== 'granted') return;
 
                 const { publicKey } = await apiGet<{ publicKey: string }>('/notifications/push/vapid-key');
+                if (cancelled) return;
 
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array(publicKey),
                 });
+                if (cancelled) return;
 
                 await registerSubscription(subscription);
             } catch (err) {
@@ -66,5 +73,14 @@ export function usePushNotifications() {
         };
 
         setup();
+
+        return () => {
+            cancelled = true;
+            // Allow a fresh attempt if this effect was torn down before it
+            // finished registering (e.g. fast user switch / Strict Mode remount).
+            if (lastRegisteredUserId === targetUserId) {
+                lastRegisteredUserId = null;
+            }
+        };
     }, [user?.id]);
 }

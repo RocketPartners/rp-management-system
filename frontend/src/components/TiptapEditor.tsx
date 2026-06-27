@@ -128,9 +128,15 @@ export default function TiptapEditor({ content, onChange, placeholder = 'Write s
     const addLink = useCallback(() => {
         if (!editor) return;
         const url = window.prompt('Enter URL:');
-        if (url) {
-            editor.chain().focus().setLink({ href: url }).run();
+        if (!url) return;
+        const trimmed = url.trim();
+        // Allowlist safe schemes only; blocks javascript:/data:/vbscript: URI injection (XSS).
+        const isSafe = /^(https?:|mailto:|tel:|\/|#)/i.test(trimmed);
+        if (!isSafe) {
+            window.alert('Only http(s), mailto, tel, or relative links are allowed.');
+            return;
         }
+        editor.chain().focus().setLink({ href: trimmed }).run();
     }, [editor]);
 
     if (!editor) return null;

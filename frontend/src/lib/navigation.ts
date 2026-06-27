@@ -88,6 +88,7 @@ export function buildNavigation(can: (perm: string) => boolean): NavSection[] {
         can('LEAVE_APPLICATION_APPROVE') || can('LEAVE_APPLICATION_READ') || can('LEAVE_TYPE_CREATE') ||
         can('ASSET_VIEW') || can('ASSET_CREATE') ||
         can('PROJECT_READ') || can('PROJECT_CREATE') ||
+        can('PAYSLIP_MANAGE') ||
         can('AUDIT_LOG_READ') || can('ADMIN_TOOLS') || can('ANALYTICS_READ');
 
     if (hasAdminAccess) {
@@ -292,6 +293,20 @@ export function buildNavigation(can: (perm: string) => boolean): NavSection[] {
                     name: 'Kanban Board',
                     href: '/tasks/kanban',
                     icon: Layers,
+                },
+            ],
+        });
+    }
+
+    // PAYROLL — Payslip management
+    if (can('PAYSLIP_MANAGE')) {
+        nav.push({
+            type: 'items',
+            items: [
+                {
+                    name: 'Payslips',
+                    href: '/payslips',
+                    icon: Wallet,
                 },
             ],
         });

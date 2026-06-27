@@ -76,6 +76,38 @@ describe('useAuthenticatedImage (H3 gallery/lightbox)', () => {
         expect(apiFetch).not.toHaveBeenCalled();
     });
 
+    it('leaves the original src and never creates an object URL when apiFetch rejects', async () => {
+        // Arrange
+        apiFetch.mockRejectedValue(new Error('network'));
+
+        // Act
+        const { result } = renderHook(() =>
+            useAuthenticatedImage('/uploads/images/abc.png'),
+        );
+
+        // Assert
+        await waitFor(() => expect(apiFetch).toHaveBeenCalledTimes(1));
+        expect(result.current).toBe('/uploads/images/abc.png');
+        expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('leaves the original src and never creates an object URL when the response is not ok', async () => {
+        // Arrange
+        const blob = vi.fn();
+        apiFetch.mockResolvedValue({ ok: false, status: 404, blob });
+
+        // Act
+        const { result } = renderHook(() =>
+            useAuthenticatedImage('/uploads/images/abc.png'),
+        );
+
+        // Assert
+        await waitFor(() => expect(apiFetch).toHaveBeenCalledTimes(1));
+        expect(result.current).toBe('/uploads/images/abc.png');
+        expect(blob).not.toHaveBeenCalled();
+        expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
     it('revokes the created object URL on unmount', async () => {
         // Arrange
         apiFetch.mockResolvedValue({

@@ -162,16 +162,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         // Access token lives in memory only; on reload attempt a silent restore
         // via the httpOnly refresh cookie, then load the user.
+        let cancelled = false;
         (async () => {
             try {
                 await refreshAccessToken();
+                if (cancelled) return;
                 await fetchUser();
             } catch {
-                setUser(null);
+                if (!cancelled) setUser(null);
             } finally {
-                setIsLoading(false);
+                if (!cancelled) setIsLoading(false);
             }
         })();
+        return () => {
+            cancelled = true;
+        };
     }, [fetchUser]);
 
     const login = useCallback(

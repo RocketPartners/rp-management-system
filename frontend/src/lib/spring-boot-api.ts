@@ -11,7 +11,18 @@ export function isAuthenticated() {
     return !!accessToken;
 }
 
-export async function login(email: string, password: string) {
+interface TokenData {
+    accessToken: string;
+    expiresIn: number;
+}
+
+interface AuthResponse {
+    status: string;
+    message?: string;
+    data: TokenData;
+}
+
+export async function login(email: string, password: string): Promise<TokenData> {
     const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -19,7 +30,7 @@ export async function login(email: string, password: string) {
         body: JSON.stringify({ email, password }),
     });
 
-    const json = await res.json();
+    const json = (await res.json()) as AuthResponse;
 
     if (!res.ok || json.status !== 'success') {
         throw new Error(json.message || 'Login failed');
@@ -31,7 +42,7 @@ export async function login(email: string, password: string) {
     return json.data;
 }
 
-export async function loginWithGoogle(idToken: string) {
+export async function loginWithGoogle(idToken: string): Promise<TokenData> {
     const res = await fetch(`${API_URL}/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,7 +50,7 @@ export async function loginWithGoogle(idToken: string) {
         body: JSON.stringify({ idToken }),
     });
 
-    const json = await res.json();
+    const json = (await res.json()) as AuthResponse;
 
     if (!res.ok || json.status !== 'success') {
         throw new Error(json.message || 'Google login failed');
@@ -49,11 +60,6 @@ export async function loginWithGoogle(idToken: string) {
     tokenExpiry = Date.now() + json.data.expiresIn - 30000;
 
     return json.data;
-}
-
-interface TokenData {
-    accessToken: string;
-    expiresIn: number;
 }
 
 let refreshPromise: Promise<TokenData> | null = null;
